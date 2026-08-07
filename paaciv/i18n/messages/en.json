@@ -3,8 +3,19 @@
   "nav": {
     "carte": "Map",
     "archives": "Archive",
+    "actualites": "News",
     "architectes": "Architects",
     "apropos": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "recherche": "Search",
+    "principale": "Main navigation"
+  },
+  "footer": {
+    "description": "PAACIV documents and celebrates the architectural heritage of Côte d'Ivoire.",
+    "explorer": "Explore",
+    "infos": "Information",
+    "suivezNous": "Follow us",
+    "conditions": "Terms of use",
+    "droits": "All rights reserved."
   }
 }

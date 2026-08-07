@@ -3,8 +3,19 @@
   "nav": {
     "carte": "Carte",
     "archives": "Nos archives",
+    "actualites": "Actualités",
     "architectes": "Architectes",
     "apropos": "À propos",
-    "contact": "Contact"
+    "contact": "Contact",
+    "recherche": "Rechercher",
+    "principale": "Navigation principale"
+  },
+  "footer": {
+    "description": "PAACIV recense, documente et valorise le patrimoine architectural de Côte d'Ivoire.",
+    "explorer": "Explorer",
+    "infos": "Informations",
+    "suivezNous": "Suivez-nous",
+    "conditions": "Conditions d'utilisation",
+    "droits": "Tous droits réservés."
   }
 }

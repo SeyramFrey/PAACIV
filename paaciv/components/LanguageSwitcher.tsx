@@ -15,7 +15,7 @@ export function LanguageSwitcher() {
   const activeLocale = useLocale()
 
   return (
-    <nav aria-label="Changer de langue" className="flex items-center gap-1 text-sm font-semibold">
+    <div role="group" aria-label="Changer de langue" className="flex items-center gap-1 text-sm font-semibold">
       {routing.locales.map((locale) => (
         <Link
           key={locale}
@@ -32,6 +32,6 @@ export function LanguageSwitcher() {
           {labels[locale]}
         </Link>
       ))}
-    </nav>
+    </div>
   )
 }
