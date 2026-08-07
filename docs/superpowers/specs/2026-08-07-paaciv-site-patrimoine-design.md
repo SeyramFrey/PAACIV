@@ -161,8 +161,14 @@ Galerie photos (+ **crédit/source** par image) · titre · type (badge) · **pr
 ### `newsletter_abonnes`
 `id` · `email`(unique) · `langue` · `created_at`. *(Collecte seule ; export/branchement service plus tard.)*
 
+### `missions`
+`id` · `titre_fr/en`🌍 · `description_fr/en`🌍 · `icone` · `ordre`. *(Les 3 missions, éditables dans l'admin.)*
+
 ### `equipe` (À propos)
-`id` · `nom` · `role_fr/en`🌍 · `photo` · `ordre`. *(Simple ; peut rester statique en v1.)*
+`id` · `nom` · `role_fr/en`🌍 · `photo` · `ordre`. *(Éditable dans l'admin.)*
+
+### `contenu_site` (textes/visuels éditables)
+`cle`(PK, ex. `hero_accroche`, `hero_image`, `apropos_histoire`, `apropos_vision`, `apropos_activites`) · `valeur_fr/en`🌍 · `type`(texte/image). *(Permet à Dkr d'éditer l'accroche, l'image hero, les textes « À propos »… sans toucher au code.)*
 
 ## 11. Taxonomies de référence
 
@@ -195,13 +201,13 @@ Résidentiel · Administratif · Hôtelier · Religieux · Sanitaire · Culturel
 ## 14. Back-office (admin)
 
 - Route `/admin` protégée (Supabase Auth, **sur invitation** ; **1 admin : Dkr**).
-- **Sections CRUD** : Patrimoine · Architectes · Articles · Reportages · Événements · Équipe · Abonnés (lecture/export).
+- **Sections CRUD** : Patrimoine · Architectes · Articles · Reportages · Événements · **Contenu du site** (accroche & image hero · 3 missions · textes « À propos » · équipe) · Abonnés (lecture/export).
 - **Formulaire patrimoine** : onglets FR/EN ; **sélecteur de point sur carte** (clic pour poser le lieu) ; listes (type, programme, district, époque, statut, état) ; **liaison architecte(s)** ; **upload multi-images** (ordre, image principale, légende, crédit) ; lien YouTube ; **brouillon/publier**.
 - **Formulaire architecte** : origine (ivoirien/étranger), photo, dates, bio, parcours, réalisations liées.
 - Éditeur de **texte riche** (FR/EN) pour descriptions & articles.
 
 ## 15. Médias & stockage
-Supabase Storage (lecture publique, écriture admin) pour photos & couvertures. **Optimisation** (redimensionnement / formats modernes via `next/image` et/ou transformations Supabase) pour des vignettes légères (carte, catalogue).
+Supabase Storage (lecture publique, écriture admin) pour photos & couvertures. Au lancement, les visuels non encore fournis sont des **images libres de droit** (Unsplash / Wikimedia Commons) servant de **placeholders**, remplaçables par Dkr dans l'admin. **Optimisation** (redimensionnement / formats modernes via `next/image` et/ou transformations Supabase) pour des vignettes légères (carte, catalogue).
 
 ## 16. Sécurité (RLS)
 - **Public (anon)** : lecture des contenus **`statut = 'publie'`** (patrimoine, architectes, articles, reportages, événements) + images/liaisons associées + tables de référence.
@@ -225,9 +231,9 @@ Vercel (CI/CD depuis Git). Variables d'env : URL/clés Supabase (clé publique c
 
 ## 20. Décisions & hypothèses
 - Décisions validées client : direction musée/archive, **tous modules en v1**, **double taxonomie Type + Programme**, entité Architectes, FR/EN, carte MapLibre « Atlas Terre » + satellite, Next.js + Supabase + Vercel, admin unique Dkr, réseaux (Instagram, LinkedIn), contact email `contact@paaciv.com`.
-- **Hypothèses à confirmer en revue** :
-  - Newsletter : **collecte** d'emails en base en v1 (envoi via service externe = plus tard).
-  - Équipe (À propos) : table simple ou contenu statique en v1.
-  - Contenu des **3 missions**, textes « À propos », accroche hero, image aérienne : **à fournir par Dkr**.
+- **Décisions de revue (résolues)** :
+  - « Explorer par type/région/époque » : **uniquement** dans Carte & Archives (pas de blocs séparés sur l'accueil).
+  - Contenus manquants (3 missions, textes « À propos », accroche & image hero, bios/photos d'architectes) : **contenu générique de démarrage + images libres de droit**, le tout **éditable dans l'admin** (voir `contenu_site`, `missions`, `equipe`).
+  - Newsletter : **collecte** d'emails en base en v1 ; envoi via service externe (Brevo/Mailchimp) plus tard.
   - Liaison architecte : **N–N** (plusieurs architectes par bâtiment possible).
 - À produire : **logo PAACIV** (identité construite ici depuis zéro) ; **icônes SVG** par type.
