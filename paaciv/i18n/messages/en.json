@@ -1,0 +1,10 @@
+{
+  "accueil": { "accroche": "Discover the heritage of Côte d'Ivoire" },
+  "nav": {
+    "carte": "Map",
+    "archives": "Archive",
+    "architectes": "Architects",
+    "apropos": "About",
+    "contact": "Contact"
+  }
+}

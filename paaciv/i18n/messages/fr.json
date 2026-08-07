@@ -1,0 +1,10 @@
+{
+  "accueil": { "accroche": "Découvrir le patrimoine de la Côte d'Ivoire" },
+  "nav": {
+    "carte": "Carte",
+    "archives": "Nos archives",
+    "architectes": "Architectes",
+    "apropos": "À propos",
+    "contact": "Contact"
+  }
+}
