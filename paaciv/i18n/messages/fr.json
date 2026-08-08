@@ -30,5 +30,18 @@
     "titre": "Tableau de bord",
     "bienvenue": "Bienvenue dans l'espace d'administration de PAACIV.",
     "deconnexion": "Se déconnecter"
+  },
+  "archives": {
+    "titre": "Nos archives",
+    "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
+    "recherche": "Rechercher un édifice…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Époque",
+    "tous": "Tous",
+    "resultats": "{n} résultat(s)",
+    "aucun": "Aucun résultat.",
+    "reinitialiser": "Réinitialiser"
   }
 }

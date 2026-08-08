@@ -30,5 +30,18 @@
     "titre": "Dashboard",
     "bienvenue": "Welcome to the PAACIV administration area.",
     "deconnexion": "Sign out"
+  },
+  "archives": {
+    "titre": "Archive",
+    "intro": "Explore the architectural heritage documented by PAACIV.",
+    "recherche": "Search a building…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Era",
+    "tous": "All",
+    "resultats": "{n} result(s)",
+    "aucun": "No results.",
+    "reinitialiser": "Reset"
   }
 }
