@@ -16,3 +16,11 @@ test('un anonyme lit la table patrimoine sans erreur (0 ligne sans politique)', 
   expect(error).toBeNull()
   expect(Array.isArray(data)).toBe(true)
 })
+
+test('le public ne voit que les patrimoines publiés (brouillons cachés)', async () => {
+  const { data, error } = await anon.from('patrimoine').select('slug, statut')
+  expect(error).toBeNull()
+  expect(data!.length).toBe(7)
+  expect(data!.some((p) => p.statut !== 'publie')).toBe(false)
+  expect(data!.some((p) => p.slug === 'aeroport-felix-houphouet-boigny')).toBe(false)
+})
