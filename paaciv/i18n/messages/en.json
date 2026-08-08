@@ -57,5 +57,15 @@
     "architectes": "Architects",
     "partager": "Share",
     "retour": "Back to archive"
+  },
+  "carte": {
+    "titre": "Heritage map",
+    "plan": "Map",
+    "satellite": "Satellite",
+    "legende": "Legend",
+    "compteur": "{n} building(s)",
+    "voirFiche": "View details",
+    "recherche": "Search…",
+    "filtres": "Filters"
   }
 }

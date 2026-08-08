@@ -57,5 +57,15 @@
     "architectes": "Architectes",
     "partager": "Partager",
     "retour": "Retour aux archives"
+  },
+  "carte": {
+    "titre": "Carte du patrimoine",
+    "plan": "Plan",
+    "satellite": "Satellite",
+    "legende": "Légende",
+    "compteur": "{n} édifice(s)",
+    "voirFiche": "Voir la fiche",
+    "recherche": "Rechercher…",
+    "filtres": "Filtres"
   }
 }
