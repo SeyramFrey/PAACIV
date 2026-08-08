@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terracotta: #B5581F;
+  --color-brun: #8A3E1B;
+  --color-or: #D9A441;
+  --color-vert: #46603F;
+  --color-sable: #F4EBDD;
+  --color-creme2: #EADFCB;
+  --color-encre: #2A2320;
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+}
+
+body { background: var(--color-sable); color: var(--color-encre); }
