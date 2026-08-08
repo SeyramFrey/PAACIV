@@ -17,5 +17,18 @@
     "suivezNous": "Follow us",
     "conditions": "Terms of use",
     "droits": "All rights reserved."
+  },
+  "login": {
+    "titre": "Administrator area",
+    "email": "Email address",
+    "motDePasse": "Password",
+    "connexion": "Sign in",
+    "enCours": "Signing in…",
+    "erreur": "Incorrect email or password."
+  },
+  "admin": {
+    "titre": "Dashboard",
+    "bienvenue": "Welcome to the PAACIV administration area.",
+    "deconnexion": "Sign out"
   }
 }

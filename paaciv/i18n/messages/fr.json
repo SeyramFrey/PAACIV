@@ -17,5 +17,18 @@
     "suivezNous": "Suivez-nous",
     "conditions": "Conditions d'utilisation",
     "droits": "Tous droits réservés."
+  },
+  "login": {
+    "titre": "Espace administrateur",
+    "email": "Adresse e-mail",
+    "motDePasse": "Mot de passe",
+    "connexion": "Se connecter",
+    "enCours": "Connexion…",
+    "erreur": "E-mail ou mot de passe incorrect."
+  },
+  "admin": {
+    "titre": "Tableau de bord",
+    "bienvenue": "Bienvenue dans l'espace d'administration de PAACIV.",
+    "deconnexion": "Se déconnecter"
   }
 }
