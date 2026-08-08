@@ -43,5 +43,19 @@
     "resultats": "{n} résultat(s)",
     "aucun": "Aucun résultat.",
     "reinitialiser": "Réinitialiser"
+  },
+  "fiche": {
+    "programme": "Programme",
+    "epoque": "Époque",
+    "style": "Style",
+    "datation": "Datation",
+    "localisation": "Localisation",
+    "etat": "État de conservation",
+    "statutPatrimonial": "Statut patrimonial",
+    "sources": "Sources",
+    "video": "Reportage vidéo",
+    "architectes": "Architectes",
+    "partager": "Partager",
+    "retour": "Retour aux archives"
   }
 }

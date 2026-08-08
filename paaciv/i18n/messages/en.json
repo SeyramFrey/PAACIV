@@ -43,5 +43,19 @@
     "resultats": "{n} result(s)",
     "aucun": "No results.",
     "reinitialiser": "Reset"
+  },
+  "fiche": {
+    "programme": "Programme",
+    "epoque": "Era",
+    "style": "Style",
+    "datation": "Dating",
+    "localisation": "Location",
+    "etat": "State of conservation",
+    "statutPatrimonial": "Heritage status",
+    "sources": "Sources",
+    "video": "Video report",
+    "architectes": "Architects",
+    "partager": "Share",
+    "retour": "Back to archive"
   }
 }
