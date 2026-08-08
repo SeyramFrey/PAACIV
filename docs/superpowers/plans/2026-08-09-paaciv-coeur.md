@@ -523,11 +523,15 @@ git add paaciv && git commit -m "feat(db): seed de démonstration patrimoine + i
 ### Task 5: Couche d'accès données (`lib/data/patrimoine.ts`)
 
 **Files:**
+- Create: `paaciv/lib/supabase/reader.ts` (client anon SANS cookies, pour les lectures publiques)
 - Create: `paaciv/lib/data/patrimoine.ts`
 - Create: `paaciv/tests/db/data-patrimoine.spec.ts`
 
 **Interfaces:**
-- Consumes: `createServerClient()` (Phase 1), `imageUrl()` (Task 1).
+- Consumes: `createReadClient()` (nouveau, ci-dessous), `imageUrl()` (Task 1).
+- Produces (client de lecture) : `createReadClient(): SupabaseClient` — client anon sans gestion de cookies.
+
+> **Pourquoi un client dédié :** la couche d'accès ne lit que du contenu **public publié** (`statut='publie'`), sans session. Elle est importée directement dans les tests Node (Playwright) ET dans les Server Components / route handlers. Le client cookie de la Phase 1 (`createServerClient`) appelle `cookies()` de `next/headers`, qui **lève une erreur hors contexte de requête** (donc dans un test Node). Un client anon sans cookies fonctionne partout de façon identique et convient exactement aux lectures publiques.
 - Produces (types & fonctions) :
   - `type FiltresPatrimoine = { type?: string; programme?: string; district?: string; epoque?: string; q?: string }`
   - `type Ref = { id: string; nom_fr: string; nom_en: string | null; couleur: string | null; ordre: number | null }`
@@ -584,10 +588,27 @@ test('pointsPublies renvoie des points avec coordonnées', async () => {
 Run: `cd paaciv && npm run e2e -- data-patrimoine`
 Expected: FAIL (module `@/lib/data/patrimoine` introuvable)
 
-- [ ] **Step 3: Implémenter la couche d'accès** — `paaciv/lib/data/patrimoine.ts`
+- [ ] **Step 3a: Créer le client de lecture** — `paaciv/lib/supabase/reader.ts`
 
 ```ts
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Client anon SANS cookies, pour les lectures publiques (contenu publié).
+// Fonctionne aussi bien dans un Server Component / route handler que dans un
+// test Node — contrairement à createServerClient() qui dépend de cookies().
+export function createReadClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
+}
+```
+
+- [ ] **Step 3b: Implémenter la couche d'accès** — `paaciv/lib/data/patrimoine.ts`
+
+```ts
+import { createReadClient } from '@/lib/supabase/reader'
 import { imageUrl } from '@/lib/media'
 
 export type FiltresPatrimoine = {
@@ -706,7 +727,7 @@ function appliquerFiltres<T extends { eq: (c: string, v: string) => T; or: (s: s
 export async function listePatrimoine(
   f: FiltresPatrimoine = {},
 ): Promise<PatrimoineListItem[]> {
-  const sb = await createServerClient()
+  const sb = createReadClient()
   let q = sb
     .from('patrimoine')
     .select(
@@ -721,7 +742,7 @@ export async function listePatrimoine(
 }
 
 export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDetail | null> {
-  const sb = await createServerClient()
+  const sb = createReadClient()
   const { data, error } = await sb
     .from('patrimoine')
     .select(
@@ -738,7 +759,7 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
 }
 
 export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPublie[]> {
-  const sb = await createServerClient()
+  const sb = createReadClient()
   let q = sb
     .from('patrimoine')
     .select(
