@@ -22,6 +22,7 @@ export function EditeurRiche({
       // que d'importer @tiptap/extension-link séparément (double inscription).
       StarterKit.configure({
         heading: { levels: [2, 3] },
+        code: false,
         codeBlock: false,
         horizontalRule: false,
         link: { openOnClick: false },

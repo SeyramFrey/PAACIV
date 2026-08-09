@@ -38,4 +38,26 @@ describe('assainirHtml', () => {
     expect(assainirHtml(undefined)).toBe('')
     expect(assainirHtml('')).toBe('')
   })
+
+  it('neutralise un href data:', () => {
+    const out = assainirHtml('<a href="data:text/html,<script>alert(1)</script>">x</a>')
+    expect(out).not.toContain('data:')
+  })
+
+  it('supprime les balises img, iframe et svg', () => {
+    const out = assainirHtml('<p>a</p><img src="x.png"><iframe src="//evil.test"></iframe><svg><circle /></svg>')
+    expect(out).not.toContain('img')
+    expect(out).not.toContain('iframe')
+    expect(out).not.toContain('svg')
+  })
+
+  it("supprime l'attribut style", () => {
+    const out = assainirHtml('<p style="background:url(javascript:alert(1))">x</p>')
+    expect(out).not.toContain('style=')
+  })
+
+  it('conserve un lien mailto:', () => {
+    const out = assainirHtml('<a href="mailto:a@b.test">contact</a>')
+    expect(out).toContain('mailto:')
+  })
 })
