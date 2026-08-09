@@ -3,24 +3,7 @@ import { Container } from '@/components/ui/Container'
 import { CartePatrimoine } from '@/components/patrimoine/CartePatrimoine'
 import { FiltresArchives } from '@/components/patrimoine/FiltresArchives'
 import { listePatrimoine } from '@/lib/data/patrimoine'
-import { createServerClient } from '@/lib/supabase/server'
-import type { Ref } from '@/lib/data/patrimoine'
-
-async function chargerReferences() {
-  const sb = await createServerClient()
-  const [types, programmes, districts, epoques] = await Promise.all([
-    sb.from('types').select('*').order('ordre'),
-    sb.from('programmes').select('*').order('ordre'),
-    sb.from('districts').select('*').order('ordre'),
-    sb.from('epoques').select('*').order('ordre'),
-  ])
-  return {
-    types: (types.data ?? []) as Ref[],
-    programmes: (programmes.data ?? []) as Ref[],
-    districts: (districts.data ?? []) as Ref[],
-    epoques: (epoques.data ?? []) as Ref[],
-  }
-}
+import { chargerReferences } from '@/lib/data/references'
 
 export default async function ArchivesPage({
   params,
