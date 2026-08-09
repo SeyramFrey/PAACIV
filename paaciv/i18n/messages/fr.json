@@ -75,7 +75,13 @@
     "satellite": "Satellite",
     "legende": "Légende",
     "compteur": "{n} édifice(s)",
-    "voirFiche": "Voir la fiche"
+    "voirFiche": "Voir la fiche",
+    "recherche": "Rechercher un édifice…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Époque",
+    "tous": "Tous"
   },
   "formPatrimoine": {
     "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "resume": "Résumé", "description": "Description",
