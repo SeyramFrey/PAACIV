@@ -1,18 +1,29 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-// maplibre-gl@6 n'expose plus d'export par défaut (mapbox-gl-like) : imports nommés.
+// maplibre-gl v4 : imports nommés.
 import { Map, NavigationControl, Popup, LngLatBounds, type GeoJSONSource, type MapGeoJSONFeature } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import type { Ref } from '@/lib/data/patrimoine'
+import type { ReferencesFiltres } from '@/lib/data/references'
+import { construirePopupContenu } from '@/components/carte/popup'
+import { FiltresCarte } from '@/components/carte/FiltresCarte'
+import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 
-const STYLE = 'https://tiles.openfreemap.org/styles/liberty'
-const ESRI =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
+const STYLE = MAPTILER_KEY
+  ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`
+  : 'https://tiles.openfreemap.org/styles/liberty'
+const SATELLITE_TILES = MAPTILER_KEY
+  ? `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`
+  : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+const SATELLITE_ATTR = MAPTILER_KEY
+  ? '© MapTiler © OpenStreetMap contributors'
+  : '© Esri'
 
-export function CarteClient({ types, locale }: { types: Ref[]; locale: string }) {
+export function CarteClient({ options, locale }: { options: ReferencesFiltres; locale: string }) {
   const t = useTranslations('carte')
   const router = useRouter()
   const conteneur = useRef<HTMLDivElement>(null)
@@ -20,26 +31,42 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
   const routerRef = useRef(router)
   const localeRef = useRef(locale)
   const [satellite, setSatellite] = useState(false)
+  const [filtres, setFiltres] = useState({ type: '', programme: '', district: '', epoque: '', q: '' })
+  const [nombre, setNombre] = useState(0)
+  const [mapPret, setMapPret] = useState(false)
 
   const nomType = (ty: Ref) => (locale === 'en' ? ty.nom_en || ty.nom_fr : ty.nom_fr)
 
-  // Expression de couleur `match` sur type_id, stable tant que `types` ne
-  // change pas (référence identique entre rendus dans notre usage).
+  // Expression de couleur `match` sur type_id, stable tant que `options.types`
+  // ne change pas (référence identique entre rendus dans notre usage).
   const couleurExpression = useMemo(() => {
-    const couleurParType = types.map((ty) => [ty.id, ty.couleur ?? '#8A3E1B']).flat()
+    const couleurParType = options.types.map((ty) => [ty.id, ty.couleur ?? '#8A3E1B']).flat()
     return ['match', ['get', 'type_id'], ...couleurParType, '#8A3E1B'] as unknown as
       | string
       | number[]
-  }, [types])
+  }, [options.types])
+
+  // Map `type_id → { nom, couleur }` pour enrichir le popup au survol.
+  // `globalThis.Map` évite la collision avec le `Map` importé de maplibre-gl.
+  const typeInfo = useMemo(() => {
+    const m = new globalThis.Map<string, { nom: string; couleur: string }>()
+    for (const ty of options.types) m.set(ty.id, { nom: nomType(ty), couleur: ty.couleur ?? '#8A3E1B' })
+    return m
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.types, locale])
+  const typeInfoRef = useRef(typeInfo)
 
   useEffect(() => {
     routerRef.current = router
     localeRef.current = locale
   }, [router, locale])
+  useEffect(() => {
+    typeInfoRef.current = typeInfo
+  }, [typeInfo])
 
   // Effet d'initialisation : NE DOIT s'exécuter qu'au montage. `couleurExpression`
   // est capturée dans la closure sans être une dépendance changeante (mémoïsée
-  // sur `types`, stable en pratique), `router`/`locale` sont lus via des refs —
+  // sur `options.types`, stable en pratique), `router`/`locale` sont lus via des refs —
   // sinon chaque bascule Plan/Satellite (état local) détruirait et recréerait
   // toute la carte WebGL.
   useEffect(() => {
@@ -51,15 +78,20 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
       zoom: 6,
     })
     mapRef.current = map
+    ;(window as unknown as { __carteMap?: Map }).__carteMap = map
     map.addControl(new NavigationControl(), 'top-right')
 
     map.on('load', async () => {
-      // Fond satellite (masqué par défaut)
-      map.addSource('esri', { type: 'raster', tiles: [ESRI], tileSize: 256, attribution: '© Esri' })
-      map.addLayer(
-        { id: 'satellite', type: 'raster', source: 'esri', layout: { visibility: 'none' } },
-        map.getStyle().layers?.[0]?.id,
-      )
+      // Fond satellite (masqué par défaut). Inséré SANS beforeId : il se place
+      // au-dessus du fond vectoriel mais sous les couches clusters/points
+      // ajoutées ensuite — c'est le correctif du bug « satellite invisible ».
+      map.addSource('satellite-src', {
+        type: 'raster',
+        tiles: [SATELLITE_TILES],
+        tileSize: 256,
+        attribution: SATELLITE_ATTR,
+      })
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite-src', layout: { visibility: 'none' } })
 
       // Points publiés (GeoJSON clusterisé). On récupère la collection nous-mêmes
       // pour pouvoir cadrer la carte sur les points (fitBounds) — sinon la carte
@@ -115,18 +147,21 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         map.getCanvas().style.cursor = 'pointer'
         const f = e.features?.[0] as MapGeoJSONFeature | undefined
         if (!f) return
-        const props = f.properties as { titre_fr: string; titre_en: string | null; ville: string | null }
+        const props = f.properties as {
+          titre_fr: string; titre_en: string | null; ville: string | null
+          type_id: string | null; image: string | null
+        }
         const titre = localeRef.current === 'en' ? props.titre_en || props.titre_fr : props.titre_fr
+        const info = props.type_id ? typeInfoRef.current.get(props.type_id) : undefined
         // Construction DOM sûre (pas de setHTML) : `titre`/`ville` viennent de
         // la BDD et ne doivent jamais être interprétés comme du HTML.
-        const contenu = document.createElement('div')
-        const fort = document.createElement('strong')
-        fort.textContent = titre
-        contenu.appendChild(fort)
-        if (props.ville) {
-          contenu.appendChild(document.createElement('br'))
-          contenu.appendChild(document.createTextNode(props.ville))
-        }
+        const contenu = construirePopupContenu({
+          titre,
+          ville: props.ville,
+          image: props.image,
+          typeNom: info?.nom ?? null,
+          typeCouleur: info?.couleur ?? null,
+        })
         popup
           .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
           .setDOMContent(contenu)
@@ -158,11 +193,57 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         )
         map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 })
       }
+
+      setNombre(fc.features.length)
+      setMapPret(true)
+      ;(window as unknown as { __carteReady?: boolean }).__carteReady = true
     })
 
     return () => map.remove()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; router/locale lus via refs, couleurExpression capturée par closure.
   }, [])
+
+  // Re-fetch des points à chaque changement de filtres, une fois la carte prête.
+  const premierRefetch = useRef(true)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapPret) return
+    if (premierRefetch.current) {
+      premierRefetch.current = false
+      const vide = !filtres.type && !filtres.programme && !filtres.district && !filtres.epoque && !filtres.q
+      if (vide) return // le handler load a déjà chargé le jeu non filtré
+    }
+    let annule = false
+    const qs = new URLSearchParams()
+    for (const [k, v] of Object.entries(filtres)) if (v) qs.set(k, v)
+
+    ;(async () => {
+      let fc: { features: { geometry: { coordinates: [number, number] } }[] } = { features: [] }
+      try {
+        fc = await (await fetch(`/api/carte/points?${qs.toString()}`)).json()
+      } catch {
+        return
+      }
+      if (annule) return
+      const src = map.getSource('patrimoine') as GeoJSONSource | undefined
+      src?.setData(fc as unknown as GeoJSON.FeatureCollection)
+      setNombre(fc.features.length)
+      const coords = fc.features.map((feat) => feat.geometry.coordinates)
+      if (coords.length > 0) {
+        const bounds = coords.reduce((b, c) => b.extend(c), new LngLatBounds(coords[0], coords[0]))
+        map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 300 })
+      }
+    })()
+
+    return () => {
+      annule = true
+    }
+  }, [filtres, mapPret])
+
+  const majFiltre = (cle: string, valeur: string) => setFiltres((f) => ({ ...f, [cle]: valeur }))
+  const majFiltreDebounce = useDebouncedCallback(majFiltre, 300)
+  const onChangeFiltre = (cle: string, valeur: string) =>
+    cle === 'q' ? majFiltreDebounce(cle, valeur) : majFiltre(cle, valeur)
 
   function basculerSatellite() {
     const map = mapRef.current
@@ -176,8 +257,21 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
     <div className="relative h-[calc(100vh-8rem)] w-full">
       <div ref={conteneur} className="h-full w-full" />
 
+      {/* Barre de filtres + compteur */}
+      <div className="absolute left-3 right-3 top-3 z-10 flex flex-wrap items-end gap-3 rounded-2xl bg-white/95 p-3 shadow">
+        <FiltresCarte
+          options={options}
+          valeurs={{ type: filtres.type, programme: filtres.programme, district: filtres.district, epoque: filtres.epoque }}
+          onChange={onChangeFiltre}
+          locale={locale}
+        />
+        <span data-testid="compteur-carte" className="text-sm text-encre/70">
+          {t('compteur', { n: nombre })}
+        </span>
+      </div>
+
       {/* Bascule Plan / Satellite */}
-      <div className="absolute left-3 top-3 flex overflow-hidden rounded-full bg-white shadow">
+      <div className="absolute bottom-12 right-3 z-10 flex overflow-hidden rounded-full bg-white shadow">
         <button
           type="button"
           onClick={() => satellite && basculerSatellite()}
@@ -202,7 +296,7 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
       >
         <h2 className="mb-2 font-serif text-sm text-brun">{t('legende')}</h2>
         <ul className="grid grid-cols-1 gap-1 text-xs">
-          {types.map((ty) => (
+          {options.types.map((ty) => (
             <li key={ty.id} data-testid="legende-type" className="flex items-center gap-2">
               <span
                 className="inline-block h-3 w-3 rounded-full"

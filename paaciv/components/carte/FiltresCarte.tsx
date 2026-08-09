@@ -1,31 +1,26 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useRouter, usePathname } from '@/i18n/navigation'
-import { useSearchParams } from 'next/navigation'
-import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import type { Ref } from '@/lib/data/patrimoine'
+import type { ReferencesFiltres } from '@/lib/data/references'
 
-type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
+type Valeurs = { type: string; programme: string; district: string; epoque: string }
 
-export function FiltresArchives({ options, locale }: { options: Options; locale: string }) {
-  const t = useTranslations('archives')
-  const router = useRouter()
-  const pathname = usePathname()
-  const sp = useSearchParams()
-
-  function maj(cle: string, valeur: string) {
-    const params = new URLSearchParams(sp.toString())
-    if (valeur) params.set(cle, valeur)
-    else params.delete(cle)
-    router.push(`${pathname}?${params.toString()}`)
-  }
-
-  const majDebounce = useDebouncedCallback(maj, 300)
-
+export function FiltresCarte({
+  options,
+  valeurs,
+  onChange,
+  locale,
+}: {
+  options: ReferencesFiltres
+  valeurs: Valeurs
+  onChange: (cle: string, valeur: string) => void
+  locale: string
+}) {
+  const t = useTranslations('carte')
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
-  const selects: [string, Ref[]][] = [
+  const selects: [keyof Valeurs, Ref[]][] = [
     ['type', options.types],
     ['programme', options.programmes],
     ['district', options.districts],
@@ -38,8 +33,8 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
         <span className="mb-1 font-semibold">{t('recherche')}</span>
         <input
           type="search"
-          defaultValue={sp.get('q') ?? ''}
-          onChange={(e) => majDebounce('q', e.target.value)}
+          defaultValue=""
+          onChange={(e) => onChange('q', e.target.value)}
           placeholder={t('recherche')}
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />
@@ -48,8 +43,8 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
         <label key={cle} className="flex flex-col text-sm">
           <span className="mb-1 font-semibold">{t(cle)}</span>
           <select
-            value={sp.get(cle) ?? ''}
-            onChange={(e) => maj(cle, e.target.value)}
+            value={valeurs[cle]}
+            onChange={(e) => onChange(cle, e.target.value)}
             className="rounded-xl border border-encre/20 bg-white px-3 py-2"
           >
             <option value="">{t('tous')}</option>

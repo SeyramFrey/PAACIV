@@ -75,7 +75,13 @@
     "satellite": "Satellite",
     "legende": "Legend",
     "compteur": "{n} building(s)",
-    "voirFiche": "View details"
+    "voirFiche": "View details",
+    "recherche": "Search a building…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Period",
+    "tous": "All"
   },
   "formPatrimoine": {
     "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "resume": "Summary", "description": "Description",
