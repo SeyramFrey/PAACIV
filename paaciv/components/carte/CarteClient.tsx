@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-// maplibre-gl@6 n'expose plus d'export par défaut (mapbox-gl-like) : imports nommés.
+// maplibre-gl v4 : imports nommés.
 import { Map, NavigationControl, Popup, LngLatBounds, type GeoJSONSource, type MapGeoJSONFeature } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTranslations } from 'next-intl'
@@ -66,7 +66,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
 
   // Effet d'initialisation : NE DOIT s'exécuter qu'au montage. `couleurExpression`
   // est capturée dans la closure sans être une dépendance changeante (mémoïsée
-  // sur `types`, stable en pratique), `router`/`locale` sont lus via des refs —
+  // sur `options.types`, stable en pratique), `router`/`locale` sont lus via des refs —
   // sinon chaque bascule Plan/Satellite (état local) détruirait et recréerait
   // toute la carte WebGL.
   useEffect(() => {
@@ -210,7 +210,8 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     if (!map || !mapPret) return
     if (premierRefetch.current) {
       premierRefetch.current = false
-      return
+      const vide = !filtres.type && !filtres.programme && !filtres.district && !filtres.epoque && !filtres.q
+      if (vide) return // le handler load a déjà chargé le jeu non filtré
     }
     let annule = false
     const qs = new URLSearchParams()
@@ -270,7 +271,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       </div>
 
       {/* Bascule Plan / Satellite */}
-      <div className="absolute left-3 top-24 flex overflow-hidden rounded-full bg-white shadow">
+      <div className="absolute bottom-12 right-3 z-10 flex overflow-hidden rounded-full bg-white shadow">
         <button
           type="button"
           onClick={() => satellite && basculerSatellite()}
