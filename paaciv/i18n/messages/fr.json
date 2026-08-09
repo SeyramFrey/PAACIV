@@ -30,5 +30,67 @@
     "titre": "Tableau de bord",
     "bienvenue": "Bienvenue dans l'espace d'administration de PAACIV.",
     "deconnexion": "Se déconnecter"
+  },
+  "adminPatrimoine": {
+    "titre": "Patrimoine",
+    "nouveau": "Nouveau patrimoine",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement ce patrimoine ?",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun patrimoine."
+  },
+  "archives": {
+    "titre": "Nos archives",
+    "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
+    "recherche": "Rechercher un édifice…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Époque",
+    "tous": "Tous",
+    "resultats": "{n} résultat(s)",
+    "aucun": "Aucun résultat.",
+    "reinitialiser": "Réinitialiser"
+  },
+  "fiche": {
+    "programme": "Programme",
+    "epoque": "Époque",
+    "style": "Style",
+    "datation": "Datation",
+    "localisation": "Localisation",
+    "etat": "État de conservation",
+    "statutPatrimonial": "Statut patrimonial",
+    "sources": "Sources",
+    "video": "Reportage vidéo",
+    "architectes": "Architectes",
+    "partager": "Partager",
+    "retour": "Retour aux archives"
+  },
+  "carte": {
+    "titre": "Carte du patrimoine",
+    "plan": "Plan",
+    "satellite": "Satellite",
+    "legende": "Légende",
+    "compteur": "{n} édifice(s)",
+    "voirFiche": "Voir la fiche"
+  },
+  "formPatrimoine": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "resume": "Résumé", "description": "Description",
+    "type": "Type", "programme": "Programme", "district": "District", "epoque": "Époque",
+    "style": "Style", "dateTexte": "Datation (texte)", "anneeDebut": "Année début", "anneeFin": "Année fin",
+    "ville": "Ville", "adresse": "Adresse", "statutPatrimonial": "Statut patrimonial",
+    "statutPatrimonialAria": "Classement patrimonial",
+    "etat": "État de conservation", "video": "Lien vidéo YouTube", "sources": "Sources",
+    "point": "Cliquez sur la carte pour situer l'édifice", "coordonnees": "Lat {lat}, Lng {lng}",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English"
+  },
+  "adminImages": {
+    "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
+    "legende": "Légende", "principale": "Image principale", "definirPrincipale": "Définir comme principale",
+    "supprimer": "Supprimer", "aucune": "Aucune image.", "confirmerSuppression": "Supprimer cette image ?"
   }
 }

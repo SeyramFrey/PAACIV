@@ -30,5 +30,67 @@
     "titre": "Dashboard",
     "bienvenue": "Welcome to the PAACIV administration area.",
     "deconnexion": "Sign out"
+  },
+  "adminPatrimoine": {
+    "titre": "Heritage",
+    "nouveau": "New building",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this building?",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No buildings yet."
+  },
+  "archives": {
+    "titre": "Archive",
+    "intro": "Explore the architectural heritage documented by PAACIV.",
+    "recherche": "Search a building…",
+    "type": "Type",
+    "programme": "Programme",
+    "district": "District",
+    "epoque": "Era",
+    "tous": "All",
+    "resultats": "{n} result(s)",
+    "aucun": "No results.",
+    "reinitialiser": "Reset"
+  },
+  "fiche": {
+    "programme": "Programme",
+    "epoque": "Era",
+    "style": "Style",
+    "datation": "Dating",
+    "localisation": "Location",
+    "etat": "State of conservation",
+    "statutPatrimonial": "Heritage status",
+    "sources": "Sources",
+    "video": "Video report",
+    "architectes": "Architects",
+    "partager": "Share",
+    "retour": "Back to archive"
+  },
+  "carte": {
+    "titre": "Heritage map",
+    "plan": "Map",
+    "satellite": "Satellite",
+    "legende": "Legend",
+    "compteur": "{n} building(s)",
+    "voirFiche": "View details"
+  },
+  "formPatrimoine": {
+    "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "resume": "Summary", "description": "Description",
+    "type": "Type", "programme": "Programme", "district": "District", "epoque": "Era",
+    "style": "Style", "dateTexte": "Dating (text)", "anneeDebut": "Start year", "anneeFin": "End year",
+    "ville": "City", "adresse": "Address", "statutPatrimonial": "Heritage status",
+    "statutPatrimonialAria": "Heritage classification",
+    "etat": "State of conservation", "video": "YouTube video link", "sources": "Sources",
+    "point": "Click the map to locate the building", "coordonnees": "Lat {lat}, Lng {lng}",
+    "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "enregistrer": "Save", "choisir": "— choose —", "ongletFr": "French", "ongletEn": "English"
+  },
+  "adminImages": {
+    "titre": "Images", "ajouter": "Add images", "credit": "Credit / source",
+    "legende": "Caption", "principale": "Main image", "definirPrincipale": "Set as main",
+    "supprimer": "Delete", "aucune": "No images.", "confirmerSuppression": "Delete this image?"
   }
 }
