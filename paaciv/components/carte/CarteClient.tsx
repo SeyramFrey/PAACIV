@@ -204,9 +204,14 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   }, [])
 
   // Re-fetch des points à chaque changement de filtres, une fois la carte prête.
+  const premierRefetch = useRef(true)
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapPret) return
+    if (premierRefetch.current) {
+      premierRefetch.current = false
+      return
+    }
     let annule = false
     const qs = new URLSearchParams()
     for (const [k, v] of Object.entries(filtres)) if (v) qs.set(k, v)
