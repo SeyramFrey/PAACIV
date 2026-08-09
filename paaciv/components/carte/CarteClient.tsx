@@ -7,12 +7,20 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import type { Ref } from '@/lib/data/patrimoine'
+import type { ReferencesFiltres } from '@/lib/data/references'
 
-const STYLE = 'https://tiles.openfreemap.org/styles/liberty'
-const ESRI =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
+const STYLE = MAPTILER_KEY
+  ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`
+  : 'https://tiles.openfreemap.org/styles/liberty'
+const SATELLITE_TILES = MAPTILER_KEY
+  ? `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`
+  : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+const SATELLITE_ATTR = MAPTILER_KEY
+  ? '© MapTiler © OpenStreetMap contributors'
+  : '© Esri'
 
-export function CarteClient({ types, locale }: { types: Ref[]; locale: string }) {
+export function CarteClient({ options, locale }: { options: ReferencesFiltres; locale: string }) {
   const t = useTranslations('carte')
   const router = useRouter()
   const conteneur = useRef<HTMLDivElement>(null)
@@ -23,14 +31,14 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
 
   const nomType = (ty: Ref) => (locale === 'en' ? ty.nom_en || ty.nom_fr : ty.nom_fr)
 
-  // Expression de couleur `match` sur type_id, stable tant que `types` ne
-  // change pas (référence identique entre rendus dans notre usage).
+  // Expression de couleur `match` sur type_id, stable tant que `options.types`
+  // ne change pas (référence identique entre rendus dans notre usage).
   const couleurExpression = useMemo(() => {
-    const couleurParType = types.map((ty) => [ty.id, ty.couleur ?? '#8A3E1B']).flat()
+    const couleurParType = options.types.map((ty) => [ty.id, ty.couleur ?? '#8A3E1B']).flat()
     return ['match', ['get', 'type_id'], ...couleurParType, '#8A3E1B'] as unknown as
       | string
       | number[]
-  }, [types])
+  }, [options.types])
 
   useEffect(() => {
     routerRef.current = router
@@ -51,15 +59,20 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
       zoom: 6,
     })
     mapRef.current = map
+    ;(window as unknown as { __carteMap?: Map }).__carteMap = map
     map.addControl(new NavigationControl(), 'top-right')
 
     map.on('load', async () => {
-      // Fond satellite (masqué par défaut)
-      map.addSource('esri', { type: 'raster', tiles: [ESRI], tileSize: 256, attribution: '© Esri' })
-      map.addLayer(
-        { id: 'satellite', type: 'raster', source: 'esri', layout: { visibility: 'none' } },
-        map.getStyle().layers?.[0]?.id,
-      )
+      // Fond satellite (masqué par défaut). Inséré SANS beforeId : il se place
+      // au-dessus du fond vectoriel mais sous les couches clusters/points
+      // ajoutées ensuite — c'est le correctif du bug « satellite invisible ».
+      map.addSource('satellite-src', {
+        type: 'raster',
+        tiles: [SATELLITE_TILES],
+        tileSize: 256,
+        attribution: SATELLITE_ATTR,
+      })
+      map.addLayer({ id: 'satellite', type: 'raster', source: 'satellite-src', layout: { visibility: 'none' } })
 
       // Points publiés (GeoJSON clusterisé). On récupère la collection nous-mêmes
       // pour pouvoir cadrer la carte sur les points (fitBounds) — sinon la carte
@@ -158,6 +171,8 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         )
         map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 })
       }
+
+      ;(window as unknown as { __carteReady?: boolean }).__carteReady = true
     })
 
     return () => map.remove()
@@ -202,7 +217,7 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
       >
         <h2 className="mb-2 font-serif text-sm text-brun">{t('legende')}</h2>
         <ul className="grid grid-cols-1 gap-1 text-xs">
-          {types.map((ty) => (
+          {options.types.map((ty) => (
             <li key={ty.id} data-testid="legende-type" className="flex items-center gap-2">
               <span
                 className="inline-block h-3 w-3 rounded-full"
