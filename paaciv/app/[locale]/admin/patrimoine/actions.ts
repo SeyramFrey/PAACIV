@@ -74,3 +74,58 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
   revalidatePath('/[locale]/admin/patrimoine', 'page')
   return { id: resultId }
 }
+
+export async function ajouterImage(formData: FormData): Promise<void> {
+  const sb = await createServerClient()
+  const patrimoineId = formData.get('patrimoine_id')!.toString()
+  const credit = texteOuNull(formData.get('credit'))
+  const legende_fr = texteOuNull(formData.get('legende_fr'))
+  const fichiers = formData.getAll('fichiers').filter((f): f is File => f instanceof File && f.size > 0)
+
+  // ordre de départ = nb d'images existantes
+  const { count } = await sb
+    .from('images')
+    .select('id', { count: 'exact', head: true })
+    .eq('patrimoine_id', patrimoineId)
+  let ordre = count ?? 0
+
+  for (const fichier of fichiers) {
+    const ext = fichier.name.split('.').pop() ?? 'jpg'
+    const chemin = `${patrimoineId}/${ordre}-${Date.now()}.${ext}`
+    const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, fichier, {
+      contentType: fichier.type || 'image/jpeg',
+      upsert: false,
+    })
+    if (upErr) throw upErr
+    const { error } = await sb.from('images').insert({
+      patrimoine_id: patrimoineId,
+      chemin,
+      credit,
+      legende_fr,
+      ordre,
+      est_principale: ordre === 0 && (count ?? 0) === 0,
+    })
+    if (error) throw error
+    ordre += 1
+  }
+  revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
+}
+
+export async function supprimerImage(id: string): Promise<void> {
+  const sb = await createServerClient()
+  const { data: img } = await sb.from('images').select('chemin').eq('id', id).maybeSingle()
+  if (img && !/^https?:\/\//i.test(img.chemin)) {
+    await sb.storage.from('patrimoine').remove([img.chemin])
+  }
+  const { error } = await sb.from('images').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
+}
+
+export async function definirPrincipale(patrimoineId: string, imageId: string): Promise<void> {
+  const sb = await createServerClient()
+  await sb.from('images').update({ est_principale: false }).eq('patrimoine_id', patrimoineId)
+  const { error } = await sb.from('images').update({ est_principale: true }).eq('id', imageId)
+  if (error) throw error
+  revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
+}

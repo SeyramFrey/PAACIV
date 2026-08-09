@@ -89,5 +89,10 @@
     "point": "Cliquez sur la carte pour situer l'édifice", "coordonnees": "Lat {lat}, Lng {lng}",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English"
+  },
+  "adminImages": {
+    "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
+    "legende": "Légende", "principale": "Image principale", "definirPrincipale": "Définir comme principale",
+    "supprimer": "Supprimer", "aucune": "Aucune image."
   }
 }

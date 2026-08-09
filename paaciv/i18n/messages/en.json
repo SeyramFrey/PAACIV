@@ -89,5 +89,10 @@
     "point": "Click the map to locate the building", "coordonnees": "Lat {lat}, Lng {lng}",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
     "enregistrer": "Save", "choisir": "— choose —", "ongletFr": "French", "ongletEn": "English"
+  },
+  "adminImages": {
+    "titre": "Images", "ajouter": "Add images", "credit": "Credit / source",
+    "legende": "Caption", "principale": "Main image", "definirPrincipale": "Set as main",
+    "supprimer": "Delete", "aucune": "No images."
   }
 }
