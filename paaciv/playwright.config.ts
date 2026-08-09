@@ -7,6 +7,20 @@ loadEnvConfig(process.cwd())
 
 export default defineConfig({
   testDir: './tests',
-  webServer: { command: 'npm run dev', url: 'http://localhost:3000', reuseExistingServer: true, timeout: 120_000 },
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
   use: { baseURL: 'http://localhost:3000' },
+  projects: [
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    {
+      name: 'e2e',
+      dependencies: ['setup'],
+      use: { baseURL: 'http://localhost:3000' },
+      testIgnore: /auth\.setup\.ts/,
+    },
+  ],
 })
