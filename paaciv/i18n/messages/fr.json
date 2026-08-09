@@ -78,5 +78,16 @@
     "voirFiche": "Voir la fiche",
     "recherche": "Rechercher…",
     "filtres": "Filtres"
+  },
+  "formPatrimoine": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "resume": "Résumé", "description": "Description",
+    "type": "Type", "programme": "Programme", "district": "District", "epoque": "Époque",
+    "style": "Style", "dateTexte": "Datation (texte)", "anneeDebut": "Année début", "anneeFin": "Année fin",
+    "ville": "Ville", "adresse": "Adresse", "statutPatrimonial": "Statut patrimonial",
+    "statutPatrimonialAria": "Classement patrimonial",
+    "etat": "État de conservation", "video": "Lien vidéo YouTube", "sources": "Sources",
+    "point": "Cliquez sur la carte pour situer l'édifice", "coordonnees": "Lat {lat}, Lng {lng}",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English"
   }
 }

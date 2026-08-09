@@ -2,10 +2,75 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
+import { slugify } from '@/lib/slug'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
   const { error } = await sb.from('patrimoine').delete().eq('id', id)
   if (error) throw error
   revalidatePath('/[locale]/admin/patrimoine', 'page')
+}
+
+// Helpers module-locaux : dans un module `'use server'`, chaque export doit
+// être une action serveur async — ces deux fonctions restent donc non
+// exportées (build Next sinon en échec).
+function texteOuNull(v: FormDataEntryValue | null): string | null {
+  const s = (v ?? '').toString().trim()
+  return s === '' ? null : s
+}
+function intOuNull(v: FormDataEntryValue | null): number | null {
+  const s = (v ?? '').toString().trim()
+  return s === '' ? null : Number.parseInt(s, 10)
+}
+
+export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: string }> {
+  const sb = await createServerClient()
+  const id = texteOuNull(formData.get('id'))
+  const titre_fr = (formData.get('titre_fr') ?? '').toString().trim()
+  if (!titre_fr) throw new Error('Titre FR requis')
+
+  const slug = texteOuNull(formData.get('slug')) ?? slugify(titre_fr)
+
+  const valeurs = {
+    slug,
+    titre_fr,
+    titre_en: texteOuNull(formData.get('titre_en')),
+    resume_fr: texteOuNull(formData.get('resume_fr')),
+    resume_en: texteOuNull(formData.get('resume_en')),
+    description_fr: texteOuNull(formData.get('description_fr')),
+    description_en: texteOuNull(formData.get('description_en')),
+    type_id: texteOuNull(formData.get('type_id')),
+    programme_id: texteOuNull(formData.get('programme_id')),
+    district_id: texteOuNull(formData.get('district_id')),
+    epoque_id: texteOuNull(formData.get('epoque_id')),
+    style_fr: texteOuNull(formData.get('style_fr')),
+    style_en: texteOuNull(formData.get('style_en')),
+    date_texte: texteOuNull(formData.get('date_texte')),
+    annee_debut: intOuNull(formData.get('annee_debut')),
+    annee_fin: intOuNull(formData.get('annee_fin')),
+    lat: formData.get('lat') ? Number(formData.get('lat')) : null,
+    lng: formData.get('lng') ? Number(formData.get('lng')) : null,
+    ville: texteOuNull(formData.get('ville')),
+    adresse_fr: texteOuNull(formData.get('adresse_fr')),
+    adresse_en: texteOuNull(formData.get('adresse_en')),
+    statut_patrimonial: texteOuNull(formData.get('statut_patrimonial')),
+    etat_conservation: texteOuNull(formData.get('etat_conservation')),
+    video_url: texteOuNull(formData.get('video_url')),
+    sources_fr: texteOuNull(formData.get('sources_fr')),
+    sources_en: texteOuNull(formData.get('sources_en')),
+    statut: (formData.get('statut') ?? 'brouillon').toString(),
+  }
+
+  let resultId: string
+  if (id) {
+    const { error } = await sb.from('patrimoine').update(valeurs).eq('id', id)
+    if (error) throw error
+    resultId = id
+  } else {
+    const { data, error } = await sb.from('patrimoine').insert(valeurs).select('id').single()
+    if (error) throw error
+    resultId = data.id
+  }
+  revalidatePath('/[locale]/admin/patrimoine', 'page')
+  return { id: resultId }
 }
