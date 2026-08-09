@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import type { Ref } from '@/lib/data/patrimoine'
 import type { ReferencesFiltres } from '@/lib/data/references'
+import { construirePopupContenu } from '@/components/carte/popup'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const STYLE = MAPTILER_KEY
@@ -40,10 +41,23 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       | number[]
   }, [options.types])
 
+  // Map `type_id → { nom, couleur }` pour enrichir le popup au survol.
+  // `globalThis.Map` évite la collision avec le `Map` importé de maplibre-gl.
+  const typeInfo = useMemo(() => {
+    const m = new globalThis.Map<string, { nom: string; couleur: string }>()
+    for (const ty of options.types) m.set(ty.id, { nom: nomType(ty), couleur: ty.couleur ?? '#8A3E1B' })
+    return m
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.types, locale])
+  const typeInfoRef = useRef(typeInfo)
+
   useEffect(() => {
     routerRef.current = router
     localeRef.current = locale
   }, [router, locale])
+  useEffect(() => {
+    typeInfoRef.current = typeInfo
+  }, [typeInfo])
 
   // Effet d'initialisation : NE DOIT s'exécuter qu'au montage. `couleurExpression`
   // est capturée dans la closure sans être une dépendance changeante (mémoïsée
@@ -128,18 +142,21 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
         map.getCanvas().style.cursor = 'pointer'
         const f = e.features?.[0] as MapGeoJSONFeature | undefined
         if (!f) return
-        const props = f.properties as { titre_fr: string; titre_en: string | null; ville: string | null }
+        const props = f.properties as {
+          titre_fr: string; titre_en: string | null; ville: string | null
+          type_id: string | null; image: string | null
+        }
         const titre = localeRef.current === 'en' ? props.titre_en || props.titre_fr : props.titre_fr
+        const info = props.type_id ? typeInfoRef.current.get(props.type_id) : undefined
         // Construction DOM sûre (pas de setHTML) : `titre`/`ville` viennent de
         // la BDD et ne doivent jamais être interprétés comme du HTML.
-        const contenu = document.createElement('div')
-        const fort = document.createElement('strong')
-        fort.textContent = titre
-        contenu.appendChild(fort)
-        if (props.ville) {
-          contenu.appendChild(document.createElement('br'))
-          contenu.appendChild(document.createTextNode(props.ville))
-        }
+        const contenu = construirePopupContenu({
+          titre,
+          ville: props.ville,
+          image: props.image,
+          typeNom: info?.nom ?? null,
+          typeCouleur: info?.couleur ?? null,
+        })
         popup
           .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
           .setDOMContent(contenu)
