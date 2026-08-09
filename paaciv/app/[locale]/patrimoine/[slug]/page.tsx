@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Container } from '@/components/ui/Container'
 import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
+import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
@@ -73,11 +74,7 @@ export default async function FichePatrimoine({ params }: Props) {
           </div>
           <h1 className="font-serif text-4xl text-brun">{titre}</h1>
           <Galerie images={p.images} locale={locale} />
-          {champ(p.description_fr, p.description_en, locale) && (
-            <div className="prose max-w-none whitespace-pre-line text-encre/90">
-              {champ(p.description_fr, p.description_en, locale)}
-            </div>
-          )}
+          <TexteRiche html={champ(p.description_fr, p.description_en, locale)} />
           {yt && (
             <div className="aspect-video overflow-hidden rounded-2xl">
               <iframe
