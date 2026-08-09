@@ -9,6 +9,8 @@ import { useRouter } from '@/i18n/navigation'
 import type { Ref } from '@/lib/data/patrimoine'
 import type { ReferencesFiltres } from '@/lib/data/references'
 import { construirePopupContenu } from '@/components/carte/popup'
+import { FiltresCarte } from '@/components/carte/FiltresCarte'
+import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const STYLE = MAPTILER_KEY
@@ -29,6 +31,9 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   const routerRef = useRef(router)
   const localeRef = useRef(locale)
   const [satellite, setSatellite] = useState(false)
+  const [filtres, setFiltres] = useState({ type: '', programme: '', district: '', epoque: '', q: '' })
+  const [nombre, setNombre] = useState(0)
+  const [mapPret, setMapPret] = useState(false)
 
   const nomType = (ty: Ref) => (locale === 'en' ? ty.nom_en || ty.nom_fr : ty.nom_fr)
 
@@ -189,12 +194,50 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
         map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 })
       }
 
+      setNombre(fc.features.length)
+      setMapPret(true)
       ;(window as unknown as { __carteReady?: boolean }).__carteReady = true
     })
 
     return () => map.remove()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; router/locale lus via refs, couleurExpression capturée par closure.
   }, [])
+
+  // Re-fetch des points à chaque changement de filtres, une fois la carte prête.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapPret) return
+    let annule = false
+    const qs = new URLSearchParams()
+    for (const [k, v] of Object.entries(filtres)) if (v) qs.set(k, v)
+
+    ;(async () => {
+      let fc: { features: { geometry: { coordinates: [number, number] } }[] } = { features: [] }
+      try {
+        fc = await (await fetch(`/api/carte/points?${qs.toString()}`)).json()
+      } catch {
+        return
+      }
+      if (annule) return
+      const src = map.getSource('patrimoine') as GeoJSONSource | undefined
+      src?.setData(fc as unknown as GeoJSON.FeatureCollection)
+      setNombre(fc.features.length)
+      const coords = fc.features.map((feat) => feat.geometry.coordinates)
+      if (coords.length > 0) {
+        const bounds = coords.reduce((b, c) => b.extend(c), new LngLatBounds(coords[0], coords[0]))
+        map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 300 })
+      }
+    })()
+
+    return () => {
+      annule = true
+    }
+  }, [filtres, mapPret])
+
+  const majFiltre = (cle: string, valeur: string) => setFiltres((f) => ({ ...f, [cle]: valeur }))
+  const majFiltreDebounce = useDebouncedCallback(majFiltre, 300)
+  const onChangeFiltre = (cle: string, valeur: string) =>
+    cle === 'q' ? majFiltreDebounce(cle, valeur) : majFiltre(cle, valeur)
 
   function basculerSatellite() {
     const map = mapRef.current
@@ -208,8 +251,21 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     <div className="relative h-[calc(100vh-8rem)] w-full">
       <div ref={conteneur} className="h-full w-full" />
 
+      {/* Barre de filtres + compteur */}
+      <div className="absolute left-3 right-3 top-3 z-10 flex flex-wrap items-end gap-3 rounded-2xl bg-white/95 p-3 shadow">
+        <FiltresCarte
+          options={options}
+          valeurs={{ type: filtres.type, programme: filtres.programme, district: filtres.district, epoque: filtres.epoque }}
+          onChange={onChangeFiltre}
+          locale={locale}
+        />
+        <span data-testid="compteur-carte" className="text-sm text-encre/70">
+          {t('compteur', { n: nombre })}
+        </span>
+      </div>
+
       {/* Bascule Plan / Satellite */}
-      <div className="absolute left-3 top-3 flex overflow-hidden rounded-full bg-white shadow">
+      <div className="absolute left-3 top-24 flex overflow-hidden rounded-full bg-white shadow">
         <button
           type="button"
           onClick={() => satellite && basculerSatellite()}
