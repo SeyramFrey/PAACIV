@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { MiniCarte } from '@/components/carte/MiniCarte'
+import { EditeurRiche } from '@/components/admin/EditeurRiche'
 import { enregistrerPatrimoine } from '@/app/[locale]/admin/patrimoine/actions'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
 
@@ -85,7 +86,10 @@ export function FormulairePatrimoine({
       <div className={onglet === 'fr' ? 'grid gap-4 sm:grid-cols-2' : 'hidden'}>
         {champ('titre_fr', t('titre_fr'))}
         {champ('resume_fr', t('resume'))}
-        {champ('description_fr', t('description'))}
+        <div className="flex flex-col text-sm sm:col-span-2">
+          <span className="mb-1 font-semibold">{t('description')}</span>
+          <EditeurRiche name="description_fr" defaultValue={initial?.description_fr ?? ''} ariaLabel={t('description')} />
+        </div>
         {champ('style_fr', t('style'))}
         {champ('adresse_fr', t('adresse'))}
         {champ('sources_fr', t('sources'))}
@@ -93,7 +97,10 @@ export function FormulairePatrimoine({
       <div className={onglet === 'en' ? 'grid gap-4 sm:grid-cols-2' : 'hidden'}>
         {champ('titre_en', t('titre_en'))}
         {champ('resume_en', t('resume'))}
-        {champ('description_en', t('description'))}
+        <div className="flex flex-col text-sm sm:col-span-2">
+          <span className="mb-1 font-semibold">{t('description')}</span>
+          <EditeurRiche name="description_en" defaultValue={initial?.description_en ?? ''} ariaLabel={t('description')} />
+        </div>
         {champ('style_en', t('style'))}
         {champ('adresse_en', t('adresse'))}
         {champ('sources_en', t('sources'))}

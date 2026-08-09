@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/slug'
+import { assainirHtml } from '@/lib/richtext'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
@@ -22,6 +23,10 @@ function intOuNull(v: FormDataEntryValue | null): number | null {
   const s = (v ?? '').toString().trim()
   return s === '' ? null : Number.parseInt(s, 10)
 }
+function assainirDescription(v: FormDataEntryValue | null): string | null {
+  const propre = assainirHtml((v ?? '').toString())
+  return propre.trim() === '' ? null : propre
+}
 
 export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: string }> {
   const sb = await createServerClient()
@@ -37,8 +42,8 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
     titre_en: texteOuNull(formData.get('titre_en')),
     resume_fr: texteOuNull(formData.get('resume_fr')),
     resume_en: texteOuNull(formData.get('resume_en')),
-    description_fr: texteOuNull(formData.get('description_fr')),
-    description_en: texteOuNull(formData.get('description_en')),
+    description_fr: assainirDescription(formData.get('description_fr')),
+    description_en: assainirDescription(formData.get('description_en')),
     type_id: texteOuNull(formData.get('type_id')),
     programme_id: texteOuNull(formData.get('programme_id')),
     district_id: texteOuNull(formData.get('district_id')),
