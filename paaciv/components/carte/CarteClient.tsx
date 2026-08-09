@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 // maplibre-gl@6 n'expose plus d'export par défaut (mapbox-gl-like) : imports nommés.
-import { Map, NavigationControl, Popup, type GeoJSONSource, type MapGeoJSONFeature } from 'maplibre-gl'
+import { Map, NavigationControl, Popup, LngLatBounds, type GeoJSONSource, type MapGeoJSONFeature } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
@@ -53,7 +53,7 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
     mapRef.current = map
     map.addControl(new NavigationControl(), 'top-right')
 
-    map.on('load', () => {
+    map.on('load', async () => {
       // Fond satellite (masqué par défaut)
       map.addSource('esri', { type: 'raster', tiles: [ESRI], tileSize: 256, attribution: '© Esri' })
       map.addLayer(
@@ -61,10 +61,18 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         map.getStyle().layers?.[0]?.id,
       )
 
-      // Points publiés (GeoJSON clusterisé)
+      // Points publiés (GeoJSON clusterisé). On récupère la collection nous-mêmes
+      // pour pouvoir cadrer la carte sur les points (fitBounds) — sinon la carte
+      // s'ouvre sur le centre du pays, loin des marqueurs regroupés près d'Abidjan.
+      let fc: { features: { geometry: { coordinates: [number, number] } }[] } = { features: [] }
+      try {
+        fc = await (await fetch('/api/carte/points')).json()
+      } catch {
+        // repli : la carte reste centrée sur la Côte d'Ivoire (center/zoom initiaux).
+      }
       map.addSource('patrimoine', {
         type: 'geojson',
-        data: '/api/carte/points',
+        data: fc as unknown as GeoJSON.FeatureCollection,
         cluster: true,
         clusterRadius: 50,
       })
@@ -140,6 +148,16 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         const zoom = await src.getClusterExpansionZoom(f.properties.cluster_id as number)
         map.easeTo({ center: (f.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom })
       })
+
+      // Cadre la carte sur les points publiés (marge + zoom max raisonnable).
+      const coords = fc.features.map((feat) => feat.geometry.coordinates)
+      if (coords.length > 0) {
+        const bounds = coords.reduce(
+          (b, c) => b.extend(c),
+          new LngLatBounds(coords[0], coords[0]),
+        )
+        map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 })
+      }
     })
 
     return () => map.remove()
