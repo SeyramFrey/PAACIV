@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { imageUrl } from '@/lib/media'
 import { champ } from '@/lib/i18n-champ'
 import type { ImageRow } from '@/lib/data/patrimoine'
+import { BoutonSupprimer } from '@/components/admin/BoutonSupprimer'
 import { ajouterImage, supprimerImage, definirPrincipale } from '@/app/[locale]/admin/patrimoine/actions'
 
 export async function GestionImages({
@@ -55,7 +56,9 @@ export async function GestionImages({
                   </form>
                 )}
                 <form action={supprimerImage.bind(null, img.id)}>
-                  <button className="text-terracotta underline" type="submit">{t('supprimer')}</button>
+                  <BoutonSupprimer message={t('confirmerSuppression')} className="text-terracotta underline">
+                    {t('supprimer')}
+                  </BoutonSupprimer>
                 </form>
               </div>
             </li>

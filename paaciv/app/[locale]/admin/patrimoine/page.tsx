@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
+import { BoutonSupprimer } from '@/components/admin/BoutonSupprimer'
 import { createServerClient } from '@/lib/supabase/server'
 import { supprimerPatrimoine } from './actions'
 
@@ -51,9 +52,9 @@ export default async function AdminPatrimoineListe() {
                     {t('editer')}
                   </Link>
                   <form action={supprimerPatrimoine.bind(null, p.id)}>
-                    <button className="text-terracotta underline" type="submit">
+                    <BoutonSupprimer message={t('confirmer')} className="text-terracotta underline">
                       {t('supprimer')}
-                    </button>
+                    </BoutonSupprimer>
                   </form>
                 </td>
               </tr>

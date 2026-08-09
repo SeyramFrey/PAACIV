@@ -147,7 +147,7 @@ export function FormulairePatrimoine({
         <span className="mb-1 font-semibold">{t('statut')}</span>
         <select
           name="statut"
-          defaultValue={(initial as { statut?: string } | undefined)?.statut ?? 'brouillon'}
+          defaultValue={initial?.statut ?? 'brouillon'}
           aria-label={t('statut')}
           className="w-48 rounded-xl border border-encre/20 bg-white px-3 py-2"
         >

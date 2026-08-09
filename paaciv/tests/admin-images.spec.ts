@@ -13,6 +13,11 @@ test('téléverser une image sur un patrimoine existant', async ({ page }) => {
     .click()
   await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
 
+  // la Basilique a déjà une image seed : on compare le compte avant/après
+  // pour vérifier que l'upload a bien ajouté une vignette (et pas juste
+  // que l'image seed préexistante est visible).
+  const avant = await page.getByTestId('vignette-image').count()
+
   const fichier = path.join(__dirname, 'fixtures', 'exemple.jpg')
   await page.getByLabel('Ajouter des images').setInputFiles(fichier)
   // le champ de fichier expose aussi un rôle "button" natif : on cible
@@ -20,7 +25,9 @@ test('téléverser une image sur un patrimoine existant', async ({ page }) => {
   await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
 
   // une vignette de plus apparaît
-  await expect(page.getByTestId('vignette-image').first()).toBeVisible()
+  await expect(async () => {
+    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+  }).toPass()
 })
 
 // Nettoyage : le test ci-dessus téléverse un vrai fichier dans le bucket

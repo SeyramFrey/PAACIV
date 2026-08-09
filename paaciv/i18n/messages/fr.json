@@ -75,9 +75,7 @@
     "satellite": "Satellite",
     "legende": "Légende",
     "compteur": "{n} édifice(s)",
-    "voirFiche": "Voir la fiche",
-    "recherche": "Rechercher…",
-    "filtres": "Filtres"
+    "voirFiche": "Voir la fiche"
   },
   "formPatrimoine": {
     "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "resume": "Résumé", "description": "Description",
@@ -93,6 +91,6 @@
   "adminImages": {
     "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
     "legende": "Légende", "principale": "Image principale", "definirPrincipale": "Définir comme principale",
-    "supprimer": "Supprimer", "aucune": "Aucune image."
+    "supprimer": "Supprimer", "aucune": "Aucune image.", "confirmerSuppression": "Supprimer cette image ?"
   }
 }

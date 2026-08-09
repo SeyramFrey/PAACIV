@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imageUrl } from '@/lib/media'
 
@@ -72,6 +73,7 @@ export type PatrimoineDetail = {
   video_url: string | null
   sources_fr: string | null
   sources_en: string | null
+  statut: string
   type: Ref | null
   programme: Ref | null
   district: Ref | null
@@ -147,6 +149,11 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
   detail.images = [...(detail.images ?? [])].sort((a, b) => a.ordre - b.ordre)
   return detail
 }
+
+// Mémoïsé par requête (React.cache) : `generateMetadata` et le composant de
+// page appellent tous deux le chargement de la fiche — sans ce cache, ce
+// serait deux allers-retours BDD identiques par requête.
+export const getPatrimoineParSlugCache = cache(getPatrimoineParSlug)
 
 export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPublie[]> {
   const sb = createReadClient()

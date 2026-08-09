@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Container } from '@/components/ui/Container'
 import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
-import { getPatrimoineParSlug } from '@/lib/data/patrimoine'
+import { getPatrimoineParSlugCache as getPatrimoineParSlug } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
 

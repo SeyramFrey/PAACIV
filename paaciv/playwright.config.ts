@@ -7,6 +7,10 @@ loadEnvConfig(process.cwd())
 
 export default defineConfig({
   testDir: './tests',
+  // `next dev` sous la parallélisation par défaut de Playwright déclenche des
+  // 500/erreurs JSON intermittentes (recompilations concurrentes). On pince
+  // le nombre de workers pour une suite fiable en une seule passe.
+  workers: 2,
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

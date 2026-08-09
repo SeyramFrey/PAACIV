@@ -109,9 +109,19 @@ export function CarteClient({ types, locale }: { types: Ref[]; locale: string })
         if (!f) return
         const props = f.properties as { titre_fr: string; titre_en: string | null; ville: string | null }
         const titre = localeRef.current === 'en' ? props.titre_en || props.titre_fr : props.titre_fr
+        // Construction DOM sûre (pas de setHTML) : `titre`/`ville` viennent de
+        // la BDD et ne doivent jamais être interprétés comme du HTML.
+        const contenu = document.createElement('div')
+        const fort = document.createElement('strong')
+        fort.textContent = titre
+        contenu.appendChild(fort)
+        if (props.ville) {
+          contenu.appendChild(document.createElement('br'))
+          contenu.appendChild(document.createTextNode(props.ville))
+        }
         popup
           .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
-          .setHTML(`<strong>${titre}</strong>${props.ville ? `<br/>${props.ville}` : ''}`)
+          .setDOMContent(contenu)
           .addTo(map)
       })
       map.on('mouseleave', 'points', () => {
