@@ -1,8 +1,10 @@
 import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { LogoutButton } from '@/components/LogoutButton'
 
 export default async function AdminDashboard() {
   const t = await getTranslations('admin')
+  const tPatrimoine = await getTranslations('adminPatrimoine')
 
   return (
     <div className="space-y-6">
@@ -11,6 +13,9 @@ export default async function AdminDashboard() {
         <LogoutButton />
       </div>
       <p className="text-encre/80">{t('bienvenue')}</p>
+      <Link href="/admin/patrimoine" className="text-brun underline">
+        {tPatrimoine('titre')}
+      </Link>
     </div>
   )
 }

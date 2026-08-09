@@ -31,6 +31,17 @@
     "bienvenue": "Welcome to the PAACIV administration area.",
     "deconnexion": "Sign out"
   },
+  "adminPatrimoine": {
+    "titre": "Heritage",
+    "nouveau": "New building",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this building?",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No buildings yet."
+  },
   "archives": {
     "titre": "Archive",
     "intro": "Explore the architectural heritage documented by PAACIV.",
