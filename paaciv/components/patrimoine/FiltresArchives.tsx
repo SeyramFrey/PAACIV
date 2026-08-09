@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
+import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import type { Ref } from '@/lib/data/patrimoine'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
@@ -20,6 +21,8 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
     router.push(`${pathname}?${params.toString()}`)
   }
 
+  const majDebounce = useDebouncedCallback(maj, 300)
+
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
   const selects: [string, Ref[]][] = [
@@ -36,7 +39,7 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
         <input
           type="search"
           defaultValue={sp.get('q') ?? ''}
-          onChange={(e) => maj('q', e.target.value)}
+          onChange={(e) => majDebounce('q', e.target.value)}
           placeholder={t('recherche')}
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />
