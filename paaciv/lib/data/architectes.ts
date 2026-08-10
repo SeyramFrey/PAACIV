@@ -56,7 +56,7 @@ export async function listeArchitectes(): Promise<ArchitecteListItem[]> {
   )
 }
 
-type LiaisonRow = {
+export type LiaisonRow = {
   role: string | null
   patrimoine: {
     slug: string
@@ -69,6 +69,28 @@ type LiaisonRow = {
 
 type ArchitecteDetailRow = Omit<ArchitecteDetail, 'realisations'> & {
   patrimoine_architecte: LiaisonRow[]
+}
+
+// Une réalisation n'est exposée côté public que si le patrimoine lié est
+// lui-même publié (l'architecte l'est déjà, filtré en amont par
+// .eq('statut', 'publie')). Fonction pure exportée pour être testée sans
+// base de données : c'est la seule barrière côté application qui filtre les
+// patrimoines brouillon (la RLS filtre déjà la ligne de liaison elle-même,
+// en défense en profondeur).
+export function mapRealisationsLiees(
+  liaisons: LiaisonRow[] | null | undefined,
+): RealisationLiee[] {
+  return (liaisons ?? [])
+    .filter((l): l is LiaisonRow & { patrimoine: NonNullable<LiaisonRow['patrimoine']> } =>
+      l.patrimoine !== null && l.patrimoine.statut === 'publie',
+    )
+    .map((l) => ({
+      slug: l.patrimoine.slug,
+      titre_fr: l.patrimoine.titre_fr,
+      titre_en: l.patrimoine.titre_en,
+      image: imagePrincipale(l.patrimoine.images),
+      role: l.role,
+    }))
 }
 
 export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDetail | null> {
@@ -85,17 +107,7 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
   if (!data) return null
 
   const row = data as unknown as ArchitecteDetailRow
-  const realisations: RealisationLiee[] = (row.patrimoine_architecte ?? [])
-    .filter((l): l is LiaisonRow & { patrimoine: NonNullable<LiaisonRow['patrimoine']> } =>
-      l.patrimoine !== null && l.patrimoine.statut === 'publie',
-    )
-    .map((l) => ({
-      slug: l.patrimoine.slug,
-      titre_fr: l.patrimoine.titre_fr,
-      titre_en: l.patrimoine.titre_en,
-      image: imagePrincipale(l.patrimoine.images),
-      role: l.role,
-    }))
+  const realisations: RealisationLiee[] = mapRealisationsLiees(row.patrimoine_architecte)
 
   return {
     id: row.id,

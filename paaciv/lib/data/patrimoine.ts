@@ -124,9 +124,22 @@ export async function listePatrimoine(
   return (data ?? []) as PatrimoineListItem[]
 }
 
-type LiaisonArchitecte = {
+export type LiaisonArchitecte = {
   role: string | null
   architectes: { slug: string; nom: string; statut: string } | null
+}
+
+// Un lien n'est exposé côté public que si l'architecte est lui-même publié
+// (le patrimoine l'est déjà, filtré en amont par .eq('statut', 'publie')).
+// Fonction pure exportée pour être testée sans base de données : c'est la
+// seule barrière côté application qui filtre les architectes brouillon
+// (la RLS filtre déjà la ligne de liaison elle-même, en défense en profondeur).
+export function mapLiaisonsArchitectes(
+  liaisons: LiaisonArchitecte[] | null | undefined,
+): { slug: string; nom: string; role: string | null }[] {
+  return (liaisons ?? [])
+    .filter((l) => l.architectes && l.architectes.statut === 'publie')
+    .map((l) => ({ slug: l.architectes!.slug, nom: l.architectes!.nom, role: l.role }))
 }
 
 export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDetail | null> {
@@ -143,13 +156,9 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
   if (!data) return null
   const detail = data as unknown as PatrimoineDetail
   detail.images = [...(detail.images ?? [])].sort((a, b) => a.ordre - b.ordre)
-  // Un lien n'est exposé côté public que si l'architecte est lui-même publié
-  // (le patrimoine l'est déjà, filtré par le .eq('statut', 'publie') ci-dessus).
-  const liaisons =
-    (data as unknown as { patrimoine_architecte?: LiaisonArchitecte[] }).patrimoine_architecte ?? []
-  detail.architectes = liaisons
-    .filter((l) => l.architectes && l.architectes.statut === 'publie')
-    .map((l) => ({ slug: l.architectes!.slug, nom: l.architectes!.nom, role: l.role }))
+  const liaisons = (data as unknown as { patrimoine_architecte?: LiaisonArchitecte[] })
+    .patrimoine_architecte
+  detail.architectes = mapLiaisonsArchitectes(liaisons)
   return detail
 }
 
