@@ -112,6 +112,13 @@
     "legende": "Caption", "principale": "Main image", "definirPrincipale": "Set as main",
     "supprimer": "Delete", "aucune": "No images.", "confirmerSuppression": "Delete this image?"
   },
+  "formArchitecte": {
+    "nom": "Name", "slug": "Slug", "origine": "Origin", "ivoirien": "Ivorian", "etranger": "Foreign",
+    "anneeNaissance": "Birth year", "anneeDeces": "Death year", "periode": "Period (text)",
+    "bio": "Biography", "parcours": "Career", "realisations": "Works (text)",
+    "photo": "Photo", "ordre": "Order", "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —"
+  },
   "architectes": {
     "titre": "Architects",
     "ivoiriens": "Ivorians",

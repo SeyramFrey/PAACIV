@@ -112,6 +112,13 @@
     "legende": "Légende", "principale": "Image principale", "definirPrincipale": "Définir comme principale",
     "supprimer": "Supprimer", "aucune": "Aucune image.", "confirmerSuppression": "Supprimer cette image ?"
   },
+  "formArchitecte": {
+    "nom": "Nom", "slug": "Slug", "origine": "Origine", "ivoirien": "Ivoirien", "etranger": "Étranger",
+    "anneeNaissance": "Année de naissance", "anneeDeces": "Année de décès", "periode": "Période (texte)",
+    "bio": "Biographie", "parcours": "Parcours", "realisations": "Réalisations (texte)",
+    "photo": "Photo", "ordre": "Ordre", "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —"
+  },
   "architectes": {
     "titre": "Architectes",
     "ivoiriens": "Ivoiriens",
