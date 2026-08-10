@@ -67,18 +67,20 @@ export default async function FicheArchitecte({ params }: Props) {
             </section>
           )}
 
-          <section>
-            <h2 className="mb-3 font-serif text-xl text-brun">{t('realisations')}</h2>
-            {a.realisations.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2">
-                {a.realisations.map((r) => (
-                  <CarteRealisation key={r.slug} realisation={r} locale={locale} />
-                ))}
-              </div>
-            ) : (
-              <TexteRiche html={realisationsTexte} />
-            )}
-          </section>
+          {(a.realisations.length > 0 || realisationsTexte) && (
+            <section>
+              <h2 className="mb-3 font-serif text-xl text-brun">{t('realisations')}</h2>
+              {a.realisations.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {a.realisations.map((r) => (
+                    <CarteRealisation key={r.slug} realisation={r} locale={locale} />
+                  ))}
+                </div>
+              ) : (
+                <TexteRiche html={realisationsTexte} />
+              )}
+            </section>
+          )}
         </div>
       </Container>
     </main>

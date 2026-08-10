@@ -32,29 +32,26 @@ export type ArchitecteAdmin = {
 
 export function FormulaireArchitecte({
   initial,
-  locale,
 }: {
   initial?: Partial<ArchitecteAdmin> | null
-  locale: string
 }) {
   const t = useTranslations('formArchitecte')
   const router = useRouter()
   const [onglet, setOnglet] = useState<'fr' | 'en'>('fr')
   const [enCours, setEnCours] = useState(false)
-
-  // `locale` est conservé dans les props par symétrie avec `FormulairePatrimoine`
-  // (parité d'interface pour les futurs appelants) ; ce formulaire n'a pas de
-  // liste de référence à localiser, donc il n'est pas consommé ici.
-  void locale
+  const [erreur, setErreur] = useState(false)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
+    setErreur(false)
     const fd = new FormData(e.currentTarget)
     try {
       const { id } = await enregistrerArchitecte(fd)
       router.push(`/admin/architectes/${id}`)
       router.refresh()
+    } catch {
+      setErreur(true)
     } finally {
       setEnCours(false)
     }
@@ -183,6 +180,12 @@ export function FormulaireArchitecte({
           <option value="publie">{t('publie')}</option>
         </select>
       </label>
+
+      {erreur && (
+        <p role="alert" className="text-sm font-semibold text-brun">
+          {t('erreurEnregistrement')}
+        </p>
+      )}
 
       <Button type="submit" variant="gold" disabled={enCours}>
         {t('enregistrer')}

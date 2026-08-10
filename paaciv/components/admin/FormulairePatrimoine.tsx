@@ -33,17 +33,21 @@ export function FormulairePatrimoine({
   const [lat, setLat] = useState<number | ''>(initial?.lat ?? '')
   const [lng, setLng] = useState<number | ''>(initial?.lng ?? '')
   const [enCours, setEnCours] = useState(false)
+  const [erreur, setErreur] = useState(false)
 
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
+    setErreur(false)
     const fd = new FormData(e.currentTarget)
     try {
       const { id } = await enregistrerPatrimoine(fd)
       router.push(`/admin/patrimoine/${id}`)
       router.refresh()
+    } catch {
+      setErreur(true)
     } finally {
       setEnCours(false)
     }
@@ -171,6 +175,12 @@ export function FormulairePatrimoine({
           <option value="publie">{t('publie')}</option>
         </select>
       </label>
+
+      {erreur && (
+        <p role="alert" className="text-sm font-semibold text-brun">
+          {t('erreurEnregistrement')}
+        </p>
+      )}
 
       <Button type="submit" variant="gold" disabled={enCours}>
         {t('enregistrer')}

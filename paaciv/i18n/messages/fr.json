@@ -106,7 +106,8 @@
     "point": "Cliquez sur la carte pour situer l'édifice", "coordonnees": "Lat {lat}, Lng {lng}",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English",
-    "architectes": "Architectes", "roleAria": "Rôle de {nom}", "aucunRole": "— aucun —"
+    "architectes": "Architectes", "roleAria": "Rôle de {nom}", "aucunRole": "— aucun —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
   },
   "adminImages": {
     "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
@@ -118,13 +119,15 @@
     "anneeNaissance": "Année de naissance", "anneeDeces": "Année de décès", "periode": "Période (texte)",
     "bio": "Biographie", "parcours": "Parcours", "realisations": "Réalisations (texte)",
     "photo": "Photo", "ordre": "Ordre", "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
-    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —"
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
   },
   "architectes": {
     "titre": "Architectes",
     "ivoiriens": "Ivoiriens",
     "etrangers": "Étrangers",
-    "intro": "Les concepteurs du patrimoine documenté par PAACIV."
+    "intro": "Les concepteurs du patrimoine documenté par PAACIV.",
+    "aucun": "Aucun architecte."
   },
   "ficheArchitecte": {
     "bio": "Biographie",
