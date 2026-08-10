@@ -104,5 +104,10 @@
     "ivoiriens": "Ivoiriens",
     "etrangers": "Étrangers",
     "intro": "Les concepteurs du patrimoine documenté par PAACIV."
+  },
+  "ficheArchitecte": {
+    "bio": "Biographie",
+    "parcours": "Parcours",
+    "realisations": "Réalisations"
   }
 }

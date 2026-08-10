@@ -104,5 +104,10 @@
     "ivoiriens": "Ivorians",
     "etrangers": "Foreign",
     "intro": "The designers of the heritage documented by PAACIV."
+  },
+  "ficheArchitecte": {
+    "bio": "Biography",
+    "parcours": "Career",
+    "realisations": "Works"
   }
 }
