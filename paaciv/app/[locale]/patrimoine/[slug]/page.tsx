@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Container } from '@/components/ui/Container'
+import { Link } from '@/i18n/navigation'
 import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
@@ -111,7 +112,21 @@ export default async function FichePatrimoine({ params }: Props) {
           {p.lat != null && p.lng != null && (
             <MiniCarte lat={p.lat} lng={p.lng} titre={titre} />
           )}
-          {/* Emplacement architectes — rempli en Phase 3 (patrimoine_architecte). */}
+          {p.architectes.length > 0 && (
+            <section>
+              <h2 className="mb-2 font-serif text-lg text-brun">{t('architectes')}</h2>
+              <ul className="space-y-1 text-sm">
+                {p.architectes.map((a) => (
+                  <li key={a.slug}>
+                    <Link href={`/architectes/${a.slug}`} className="text-brun underline">
+                      {a.nom}
+                    </Link>
+                    {a.role ? <span className="text-encre/60"> ({a.role})</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </aside>
       </Container>
     </main>

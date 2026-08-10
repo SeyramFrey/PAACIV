@@ -77,6 +77,7 @@ export type PatrimoineDetail = {
   district: Ref | null
   epoque: Ref | null
   images: ImageRow[]
+  architectes: { slug: string; nom: string; role: string | null }[]
 }
 
 export type PointPublie = {
@@ -123,12 +124,17 @@ export async function listePatrimoine(
   return (data ?? []) as PatrimoineListItem[]
 }
 
+type LiaisonArchitecte = {
+  role: string | null
+  architectes: { slug: string; nom: string; statut: string } | null
+}
+
 export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDetail | null> {
   const sb = createReadClient()
   const { data, error } = await sb
     .from('patrimoine')
     .select(
-      '*, type:types(*), programme:programmes(*), district:districts(*), epoque:epoques(*), images(*)',
+      '*, type:types(*), programme:programmes(*), district:districts(*), epoque:epoques(*), images(*), patrimoine_architecte(role, architectes(slug, nom, statut))',
     )
     .eq('slug', slug)
     .eq('statut', 'publie')
@@ -137,6 +143,13 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
   if (!data) return null
   const detail = data as unknown as PatrimoineDetail
   detail.images = [...(detail.images ?? [])].sort((a, b) => a.ordre - b.ordre)
+  // Un lien n'est exposé côté public que si l'architecte est lui-même publié
+  // (le patrimoine l'est déjà, filtré par le .eq('statut', 'publie') ci-dessus).
+  const liaisons =
+    (data as unknown as { patrimoine_architecte?: LiaisonArchitecte[] }).patrimoine_architecte ?? []
+  detail.architectes = liaisons
+    .filter((l) => l.architectes && l.architectes.statut === 'publie')
+    .map((l) => ({ slug: l.architectes!.slug, nom: l.architectes!.nom, role: l.role }))
   return detail
 }
 
