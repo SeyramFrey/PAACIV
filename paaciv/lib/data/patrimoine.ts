@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
-import { imageUrl } from '@/lib/media'
+import { imagePrincipale, type ImageMini } from '@/lib/media'
 
 export type FiltresPatrimoine = {
   type?: string
@@ -27,8 +27,6 @@ export type ImageRow = {
   ordre: number
   est_principale: boolean
 }
-
-type ImageMini = { chemin: string; est_principale: boolean; ordre: number }
 
 export type PatrimoineListItem = {
   id: string
@@ -91,14 +89,6 @@ export type PointPublie = {
   lng: number
   ville: string | null
   image: string | null
-}
-
-function imagePrincipale(images: ImageMini[] | null): string | null {
-  if (!images || images.length === 0) return null
-  const principale =
-    images.find((i) => i.est_principale) ??
-    [...images].sort((a, b) => a.ordre - b.ordre)[0]
-  return principale ? imageUrl(principale.chemin) : null
 }
 
 function appliquerFiltres<T extends { eq: (c: string, v: string) => T; or: (s: string) => T }>(

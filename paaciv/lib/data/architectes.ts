@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
-import { imageUrl } from '@/lib/media'
+import { imageUrl, imagePrincipale, type ImageMini } from '@/lib/media'
 
 export type ArchitecteListItem = {
   id: string
@@ -41,16 +41,6 @@ export type ArchitecteDetail = {
 
 function photoUrl(chemin: string | null): string | null {
   return chemin ? imageUrl(chemin) : null
-}
-
-type ImageMini = { chemin: string; est_principale: boolean; ordre: number }
-
-function imagePrincipale(images: ImageMini[] | null): string | null {
-  if (!images || images.length === 0) return null
-  const principale =
-    images.find((i) => i.est_principale) ??
-    [...images].sort((a, b) => a.ordre - b.ordre)[0]
-  return principale ? imageUrl(principale.chemin) : null
 }
 
 export async function listeArchitectes(): Promise<ArchitecteListItem[]> {
