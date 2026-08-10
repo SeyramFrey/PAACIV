@@ -98,5 +98,11 @@
     "titre": "Images", "ajouter": "Add images", "credit": "Credit / source",
     "legende": "Caption", "principale": "Main image", "definirPrincipale": "Set as main",
     "supprimer": "Delete", "aucune": "No images.", "confirmerSuppression": "Delete this image?"
+  },
+  "architectes": {
+    "titre": "Architects",
+    "ivoiriens": "Ivorians",
+    "etrangers": "Foreign",
+    "intro": "The designers of the heritage documented by PAACIV."
   }
 }

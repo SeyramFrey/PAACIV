@@ -98,5 +98,11 @@
     "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
     "legende": "Légende", "principale": "Image principale", "definirPrincipale": "Définir comme principale",
     "supprimer": "Supprimer", "aucune": "Aucune image.", "confirmerSuppression": "Supprimer cette image ?"
+  },
+  "architectes": {
+    "titre": "Architectes",
+    "ivoiriens": "Ivoiriens",
+    "etrangers": "Étrangers",
+    "intro": "Les concepteurs du patrimoine documenté par PAACIV."
   }
 }
