@@ -6,19 +6,26 @@ import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { EditeurRiche } from '@/components/admin/EditeurRiche'
+import { LiaisonArchitectes } from '@/components/admin/LiaisonArchitectes'
 import { enregistrerPatrimoine } from '@/app/[locale]/admin/patrimoine/actions'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
+type ArchitecteOpt = { id: string; nom: string }
+type LiaisonInit = { architecte_id: string; role: string | null }
 
 export function FormulairePatrimoine({
   options,
   initial,
   locale,
+  architectes,
+  liaisons,
 }: {
   options: Options
   initial?: Partial<PatrimoineDetail> | null
   locale: string
+  architectes: ArchitecteOpt[]
+  liaisons: LiaisonInit[]
 }) {
   const t = useTranslations('formPatrimoine')
   const router = useRouter()
@@ -149,6 +156,8 @@ export function FormulairePatrimoine({
           </label>
         </div>
       </div>
+
+      <LiaisonArchitectes architectes={architectes} initial={liaisons} label={t('architectes')} />
 
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('statut')}</span>

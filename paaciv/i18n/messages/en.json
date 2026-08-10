@@ -105,7 +105,8 @@
     "etat": "State of conservation", "video": "YouTube video link", "sources": "Sources",
     "point": "Click the map to locate the building", "coordonnees": "Lat {lat}, Lng {lng}",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
-    "enregistrer": "Save", "choisir": "— choose —", "ongletFr": "French", "ongletEn": "English"
+    "enregistrer": "Save", "choisir": "— choose —", "ongletFr": "French", "ongletEn": "English",
+    "architectes": "Architects", "roleAria": "Role of {nom}", "aucunRole": "— none —"
   },
   "adminImages": {
     "titre": "Images", "ajouter": "Add images", "credit": "Credit / source",

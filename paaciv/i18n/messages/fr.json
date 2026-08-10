@@ -105,7 +105,8 @@
     "etat": "État de conservation", "video": "Lien vidéo YouTube", "sources": "Sources",
     "point": "Cliquez sur la carte pour situer l'édifice", "coordonnees": "Lat {lat}, Lng {lng}",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
-    "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English"
+    "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English",
+    "architectes": "Architectes", "roleAria": "Rôle de {nom}", "aucunRole": "— aucun —"
   },
   "adminImages": {
     "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",

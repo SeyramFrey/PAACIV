@@ -60,6 +60,28 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
     if (error) throw error
     resultId = data.id
   }
+
+  // Remplace les liaisons architectes : on efface puis on ré-insère l'état
+  // soumis par le formulaire (`architecte_ids` = cases cochées, `role_<id>` =
+  // rôle optionnel associé). Scoped à `resultId` uniquement — jamais aux
+  // liaisons d'un autre patrimoine. Toute erreur est propagée (throw) plutôt
+  // qu'avalée : si le insert échoue après un delete réussi, le patrimoine
+  // reste enregistré mais perd ses architectes, et l'appelant le sait.
+  const architecteIds = formData.getAll('architecte_ids').map((v) => v.toString())
+  const { error: erreurSuppression } = await sb
+    .from('patrimoine_architecte')
+    .delete()
+    .eq('patrimoine_id', resultId)
+  if (erreurSuppression) throw erreurSuppression
+  if (architecteIds.length > 0) {
+    const lignes = architecteIds.map((architecte_id) => {
+      const role = (formData.get(`role_${architecte_id}`) ?? '').toString().trim()
+      return { patrimoine_id: resultId, architecte_id, role: role === '' ? null : role }
+    })
+    const { error: erreurInsertion } = await sb.from('patrimoine_architecte').insert(lignes)
+    if (erreurInsertion) throw erreurInsertion
+  }
+
   revalidatePath('/[locale]/admin/patrimoine', 'page')
   return { id: resultId }
 }
