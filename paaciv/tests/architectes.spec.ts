@@ -18,10 +18,7 @@ test('la grille des architectes ivoiriens est triée par année de naissance cro
   // Ordre attendu d'après le seed (années de naissance) : Aka Adjo (1935),
   // Michel Goly Kouassi (1940), Pierre Fakhoury (1943), Jean Léon (1955).
   const ordreAttendu = ['Aka Adjo', 'Michel Goly Kouassi', 'Pierre Fakhoury', 'Jean Léon']
-  const ordreObtenu = ordreAttendu.filter((nomAttendu) =>
-    noms.some((texte) => texte.includes(nomAttendu)),
-  )
-  expect(ordreObtenu).toEqual(ordreAttendu)
+  expect(noms).toHaveLength(ordreAttendu.length)
   for (const [i, nomAttendu] of ordreAttendu.entries()) {
     expect(noms[i]).toContain(nomAttendu)
   }
