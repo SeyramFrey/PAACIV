@@ -51,4 +51,32 @@ describe('mapRealisationsLiees', () => {
     expect(mapRealisationsLiees(undefined)).toEqual([])
     expect(mapRealisationsLiees([])).toEqual([])
   })
+
+  it('trie les réalisations par titre_fr, quel que soit l’ordre reçu', () => {
+    const liaisons: LiaisonRow[] = [
+      {
+        role: null,
+        patrimoine: { slug: 'z', titre_fr: 'Zone portuaire', titre_en: null, statut: 'publie', images: [] },
+      },
+      {
+        role: 'Architecte principal',
+        patrimoine: {
+          slug: 'basilique-yamoussoukro',
+          titre_fr: 'Basilique',
+          titre_en: 'Basilica',
+          statut: 'publie',
+          images: [],
+        },
+      },
+      {
+        role: null,
+        patrimoine: { slug: 'a', titre_fr: 'Aéroport', titre_en: null, statut: 'publie', images: [] },
+      },
+    ]
+    expect(mapRealisationsLiees(liaisons).map((r) => r.titre_fr)).toEqual([
+      'Aéroport',
+      'Basilique',
+      'Zone portuaire',
+    ])
+  })
 })

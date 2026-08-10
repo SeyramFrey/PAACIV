@@ -74,9 +74,17 @@ test('lier un architecte (avec rôle) à un patrimoine persiste réellement la l
 // Le seed (`basilique-yamoussoukro` ↔ `pierre-fakhoury` notamment) n'est jamais touché.
 test.afterAll(async () => {
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-  await db.auth.signInWithPassword({
+  const { error: erreurConnexion } = await db.auth.signInWithPassword({
     email: process.env.TEST_ADMIN_EMAIL!,
     password: process.env.TEST_ADMIN_PASSWORD!,
   })
-  await db.from('patrimoine').delete().like('slug', 'test-liaison-architecte-e2e%')
+  // Sans cette assertion, un échec de connexion rend le delete suivant un
+  // no-op silencieux (RLS) : les lignes de test persistent et la relance
+  // suivante échoue sur le conflit de slug unique.
+  expect(erreurConnexion).toBeNull()
+  const { error: erreurSuppression } = await db
+    .from('patrimoine')
+    .delete()
+    .like('slug', 'test-liaison-architecte-e2e%')
+  expect(erreurSuppression).toBeNull()
 })

@@ -91,6 +91,7 @@ export function mapRealisationsLiees(
       image: imagePrincipale(l.patrimoine.images),
       role: l.role,
     }))
+    .sort((a, b) => a.titre_fr.localeCompare(b.titre_fr))
 }
 
 export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDetail | null> {

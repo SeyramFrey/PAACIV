@@ -11,7 +11,9 @@ export function texteOuNull(v: FormDataEntryValue | null): string | null {
 
 export function intOuNull(v: FormDataEntryValue | null): number | null {
   const s = (v ?? '').toString().trim()
-  return s === '' ? null : Number.parseInt(s, 10)
+  if (s === '') return null
+  const n = Number.parseInt(s, 10)
+  return Number.isFinite(n) ? n : null
 }
 
 /** Assainit un champ HTML riche avant enregistrement (moitié « save » de la double barrière). */

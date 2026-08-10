@@ -140,6 +140,7 @@ export function mapLiaisonsArchitectes(
   return (liaisons ?? [])
     .filter((l) => l.architectes && l.architectes.statut === 'publie')
     .map((l) => ({ slug: l.architectes!.slug, nom: l.architectes!.nom, role: l.role }))
+    .sort((a, b) => a.nom.localeCompare(b.nom))
 }
 
 export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDetail | null> {

@@ -22,6 +22,10 @@ describe('intOuNull', () => {
   it('parse un entier', () => {
     expect(intOuNull('1943')).toBe(1943)
   })
+
+  it('une valeur non numérique devient null (pas NaN)', () => {
+    expect(intOuNull('abc')).toBeNull()
+  })
 })
 
 describe('richeOuNull', () => {

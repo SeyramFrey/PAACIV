@@ -57,9 +57,17 @@ test('créer un architecte le persiste réellement (champ riche inclus) et reste
 // etc.) n'est jamais touché par ce préfixe.
 test.afterAll(async () => {
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-  await db.auth.signInWithPassword({
+  const { error: erreurConnexion } = await db.auth.signInWithPassword({
     email: process.env.TEST_ADMIN_EMAIL!,
     password: process.env.TEST_ADMIN_PASSWORD!,
   })
-  await db.from('architectes').delete().like('slug', 'test-architecte-e2e%')
+  // Sans cette assertion, un échec de connexion rend le delete suivant un
+  // no-op silencieux (RLS) : les lignes de test persistent et la relance
+  // suivante échoue sur le conflit de slug unique.
+  expect(erreurConnexion).toBeNull()
+  const { error: erreurSuppression } = await db
+    .from('architectes')
+    .delete()
+    .like('slug', 'test-architecte-e2e%')
+  expect(erreurSuppression).toBeNull()
 })

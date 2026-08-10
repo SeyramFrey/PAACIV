@@ -30,4 +30,17 @@ describe('mapLiaisonsArchitectes', () => {
     expect(mapLiaisonsArchitectes(undefined)).toEqual([])
     expect(mapLiaisonsArchitectes([])).toEqual([])
   })
+
+  it('trie les architectes par nom, quel que soit l’ordre reçu', () => {
+    const liaisons: LiaisonArchitecte[] = [
+      { role: null, architectes: { slug: 'z', nom: 'Zoé Kouassi', statut: 'publie' } },
+      { role: 'Architecte principal', architectes: { slug: 'pierre-fakhoury', nom: 'Pierre Fakhoury', statut: 'publie' } },
+      { role: null, architectes: { slug: 'a', nom: 'Aya Bamba', statut: 'publie' } },
+    ]
+    expect(mapLiaisonsArchitectes(liaisons).map((a) => a.nom)).toEqual([
+      'Aya Bamba',
+      'Pierre Fakhoury',
+      'Zoé Kouassi',
+    ])
+  })
 })

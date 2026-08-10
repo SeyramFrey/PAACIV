@@ -7,8 +7,13 @@ import { supprimerArchitecte } from './actions'
 
 export default async function AdminArchitectesListe() {
   const t = await getTranslations('adminArchitectes')
+  const tForm = await getTranslations('formArchitecte')
   const sb = await createServerClient()
-  const { data } = await sb.from('architectes').select('id, slug, nom, origine, statut').order('ordre')
+  const { data } = await sb
+    .from('architectes')
+    .select('id, slug, nom, origine, statut')
+    .order('ordre')
+    .order('nom')
   const items = data ?? []
 
   return (
@@ -36,7 +41,7 @@ export default async function AdminArchitectesListe() {
             {items.map((a) => (
               <tr key={a.id} className="border-t border-creme2">
                 <td className="py-2">{a.nom}</td>
-                <td className="py-2">{a.origine}</td>
+                <td className="py-2">{a.origine === 'ivoirien' ? tForm('ivoirien') : tForm('etranger')}</td>
                 <td className="py-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
