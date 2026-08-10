@@ -42,6 +42,19 @@
     "publie": "Publié",
     "aucun": "Aucun patrimoine."
   },
+  "adminArchitectes": {
+    "titre": "Architectes",
+    "nouveau": "Nouvel architecte",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement cet architecte ?",
+    "nom": "Nom",
+    "origine": "Origine",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun architecte."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",

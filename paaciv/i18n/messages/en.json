@@ -42,6 +42,19 @@
     "publie": "Published",
     "aucun": "No buildings yet."
   },
+  "adminArchitectes": {
+    "titre": "Architects",
+    "nouveau": "New architect",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this architect?",
+    "nom": "Name",
+    "origine": "Origin",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No architects yet."
+  },
   "archives": {
     "titre": "Archive",
     "intro": "Explore the architectural heritage documented by PAACIV.",
