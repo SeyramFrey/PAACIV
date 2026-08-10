@@ -3,29 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/slug'
-import { assainirHtml } from '@/lib/richtext'
+import { texteOuNull, intOuNull, richeOuNull } from '@/lib/admin/champs'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
   const { error } = await sb.from('patrimoine').delete().eq('id', id)
   if (error) throw error
   revalidatePath('/[locale]/admin/patrimoine', 'page')
-}
-
-// Helpers module-locaux : dans un module `'use server'`, chaque export doit
-// être une action serveur async — ces deux fonctions restent donc non
-// exportées (build Next sinon en échec).
-function texteOuNull(v: FormDataEntryValue | null): string | null {
-  const s = (v ?? '').toString().trim()
-  return s === '' ? null : s
-}
-function intOuNull(v: FormDataEntryValue | null): number | null {
-  const s = (v ?? '').toString().trim()
-  return s === '' ? null : Number.parseInt(s, 10)
-}
-function assainirDescription(v: FormDataEntryValue | null): string | null {
-  const propre = assainirHtml((v ?? '').toString())
-  return propre.trim() === '' ? null : propre
 }
 
 export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: string }> {
@@ -42,8 +26,8 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
     titre_en: texteOuNull(formData.get('titre_en')),
     resume_fr: texteOuNull(formData.get('resume_fr')),
     resume_en: texteOuNull(formData.get('resume_en')),
-    description_fr: assainirDescription(formData.get('description_fr')),
-    description_en: assainirDescription(formData.get('description_en')),
+    description_fr: richeOuNull(formData.get('description_fr')),
+    description_en: richeOuNull(formData.get('description_en')),
     type_id: texteOuNull(formData.get('type_id')),
     programme_id: texteOuNull(formData.get('programme_id')),
     district_id: texteOuNull(formData.get('district_id')),
@@ -76,6 +60,28 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
     if (error) throw error
     resultId = data.id
   }
+
+  // Remplace les liaisons architectes : on efface puis on ré-insère l'état
+  // soumis par le formulaire (`architecte_ids` = cases cochées, `role_<id>` =
+  // rôle optionnel associé). Scoped à `resultId` uniquement — jamais aux
+  // liaisons d'un autre patrimoine. Toute erreur est propagée (throw) plutôt
+  // qu'avalée : si le insert échoue après un delete réussi, le patrimoine
+  // reste enregistré mais perd ses architectes, et l'appelant le sait.
+  const architecteIds = formData.getAll('architecte_ids').map((v) => v.toString())
+  const { error: erreurSuppression } = await sb
+    .from('patrimoine_architecte')
+    .delete()
+    .eq('patrimoine_id', resultId)
+  if (erreurSuppression) throw erreurSuppression
+  if (architecteIds.length > 0) {
+    const lignes = architecteIds.map((architecte_id) => {
+      const role = (formData.get(`role_${architecte_id}`) ?? '').toString().trim()
+      return { patrimoine_id: resultId, architecte_id, role: role === '' ? null : role }
+    })
+    const { error: erreurInsertion } = await sb.from('patrimoine_architecte').insert(lignes)
+    if (erreurInsertion) throw erreurInsertion
+  }
+
   revalidatePath('/[locale]/admin/patrimoine', 'page')
   return { id: resultId }
 }

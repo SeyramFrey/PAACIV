@@ -20,11 +20,15 @@ async function options() {
 
 export default async function NouveauPatrimoine({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const opts = await options()
+  const sb = await createServerClient()
+  const [opts, { data: architectes }] = await Promise.all([
+    options(),
+    sb.from('architectes').select('id, nom').order('nom'),
+  ])
   return (
     <div className="space-y-6">
       <h1 className="font-serif text-3xl text-brun">Nouveau patrimoine</h1>
-      <FormulairePatrimoine options={opts} locale={locale} />
+      <FormulairePatrimoine options={opts} locale={locale} architectes={architectes ?? []} liaisons={[]} />
     </div>
   )
 }

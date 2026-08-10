@@ -6,19 +6,26 @@ import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { EditeurRiche } from '@/components/admin/EditeurRiche'
+import { LiaisonArchitectes } from '@/components/admin/LiaisonArchitectes'
 import { enregistrerPatrimoine } from '@/app/[locale]/admin/patrimoine/actions'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
+type ArchitecteOpt = { id: string; nom: string }
+type LiaisonInit = { architecte_id: string; role: string | null }
 
 export function FormulairePatrimoine({
   options,
   initial,
   locale,
+  architectes,
+  liaisons,
 }: {
   options: Options
   initial?: Partial<PatrimoineDetail> | null
   locale: string
+  architectes: ArchitecteOpt[]
+  liaisons: LiaisonInit[]
 }) {
   const t = useTranslations('formPatrimoine')
   const router = useRouter()
@@ -26,17 +33,21 @@ export function FormulairePatrimoine({
   const [lat, setLat] = useState<number | ''>(initial?.lat ?? '')
   const [lng, setLng] = useState<number | ''>(initial?.lng ?? '')
   const [enCours, setEnCours] = useState(false)
+  const [erreur, setErreur] = useState(false)
 
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
+    setErreur(false)
     const fd = new FormData(e.currentTarget)
     try {
       const { id } = await enregistrerPatrimoine(fd)
       router.push(`/admin/patrimoine/${id}`)
       router.refresh()
+    } catch {
+      setErreur(true)
     } finally {
       setEnCours(false)
     }
@@ -150,6 +161,8 @@ export function FormulairePatrimoine({
         </div>
       </div>
 
+      <LiaisonArchitectes architectes={architectes} initial={liaisons} label={t('architectes')} />
+
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('statut')}</span>
         <select
@@ -162,6 +175,12 @@ export function FormulairePatrimoine({
           <option value="publie">{t('publie')}</option>
         </select>
       </label>
+
+      {erreur && (
+        <p role="alert" className="text-sm font-semibold text-brun">
+          {t('erreurEnregistrement')}
+        </p>
+      )}
 
       <Button type="submit" variant="gold" disabled={enCours}>
         {t('enregistrer')}
