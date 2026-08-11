@@ -70,15 +70,24 @@ export async function enregistrerEvenement(formData: FormData): Promise<Resultat
   // sans nouveau fichier ne doit jamais effacer l'image existante.
   const image = formData.get('image')
   if (image instanceof File && image.size > 0) {
-    const ext = image.name.split('.').pop() ?? 'jpg'
-    const chemin = `evenements/${resultId}/${Date.now()}.${ext}`
-    const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, image, {
-      contentType: image.type || 'image/jpeg',
-      upsert: false,
-    })
-    if (upErr) throw upErr
-    const { error } = await sb.from('evenements').update({ image: chemin }).eq('id', resultId)
-    if (error) throw error
+    try {
+      const ext = image.name.split('.').pop() ?? 'jpg'
+      const chemin = `evenements/${resultId}/${Date.now()}.${ext}`
+      const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, image, {
+        contentType: image.type || 'image/jpeg',
+        upsert: false,
+      })
+      if (upErr) throw upErr
+      const { error } = await sb.from('evenements').update({ image: chemin }).eq('id', resultId)
+      if (error) throw error
+    } catch (e) {
+      // Chemin insertion uniquement : la ligne vient d'être créée par CE
+      // formulaire et n'existait pas avant, donc rien à préserver. Sur le
+      // chemin édition, la ligne préexistait déjà avant l'appel — la
+      // supprimer effacerait un contenu potentiellement publié.
+      if (!id) await sb.from('evenements').delete().eq('id', resultId)
+      throw e
+    }
   }
 
   revalidatePath('/[locale]/admin/evenements', 'page')

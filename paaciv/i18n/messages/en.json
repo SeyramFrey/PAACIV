@@ -176,7 +176,9 @@
     "datePublication": "Publication date", "image": "Cover image",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
     "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
-    "erreurEnregistrement": "Saving failed. Please try again."
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurTitreRequis": "The title (FR) is required.",
+    "erreurSlugDuplique": "This slug is already used by another item."
   },
   "formReportage": {
     "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
@@ -185,7 +187,9 @@
     "patrimoine": "Linked building", "date": "Date",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
     "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
-    "erreurEnregistrement": "Saving failed. Please try again."
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurTitreRequis": "The title (FR) is required.",
+    "erreurSlugDuplique": "This slug is already used by another item."
   },
   "formEvenement": {
     "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
@@ -217,7 +221,8 @@
     "titre": "Articles",
     "intro": "Stories, highlights and readings on Ivorian heritage.",
     "toutes": "All categories",
-    "aucun": "No articles yet."
+    "aucun": "No articles yet.",
+    "aucunDansCategorie": "No articles in this category."
   },
   "ficheArticle": {
     "patrimoineLie": "Related heritage",

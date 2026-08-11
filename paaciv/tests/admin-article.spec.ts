@@ -19,6 +19,33 @@ test("création, persistance et relecture d'un article", async ({ page }) => {
   await expect(page.getByLabel('Titre (FR)')).toHaveValue('Test Article E2E')
 })
 
+test('collision de slug : message spécifique, aucune redirection', async ({ page }) => {
+  // Slug préfixé exprès (cf. tests/admin-evenement.spec.ts) : couvert par le
+  // nettoyage `afterAll` (préfixe `test-article-e2e`).
+  const slugCollision = `${SLUG}-collision`
+
+  // Première création : doit réussir et libérer le slug.
+  await page.goto('/fr/admin/articles/nouveau')
+  await page.getByLabel('Titre (FR)').fill('Test Article Collision 1')
+  await page.getByLabel('Slug').fill(slugCollision)
+  await page.getByRole('button', { name: 'Gras' }).first().waitFor()
+  await page.getByRole('button', { name: 'Enregistrer' }).click()
+  await page.waitForURL(/\/admin\/articles(\?|$)/)
+
+  // Deuxième création avec le même slug : c'est l'erreur la plus probable
+  // pour un(e) éditeur/rice qui republie sur le même sujet (spec §7) — elle
+  // doit être visible, pas noyée dans le message générique
+  // « L'enregistrement a échoué » (constat de revue de branche finale).
+  await page.goto('/fr/admin/articles/nouveau')
+  await page.getByLabel('Titre (FR)').fill('Test Article Collision 2')
+  await page.getByLabel('Slug').fill(slugCollision)
+  await page.getByRole('button', { name: 'Gras' }).first().waitFor()
+  await page.getByRole('button', { name: 'Enregistrer' }).click()
+  await expect(page.locator('p[role="alert"]')).toHaveText('Ce slug est déjà utilisé par un autre contenu.')
+  // Toujours sur la page du formulaire : aucune redirection vers la liste.
+  await expect(page).toHaveURL(/\/admin\/articles\/nouveau$/)
+})
+
 // Nettoyage : le test ci-dessus insère une vraie ligne en base. On la
 // supprime après coup (par préfixe de slug) pour ne pas polluer la BDD et
 // garder les relances idempotentes. Le seed éditorial n'est jamais touché

@@ -44,22 +44,32 @@ export function FormulaireArticle({
   const router = useRouter()
   const [onglet, setOnglet] = useState<'fr' | 'en'>('fr')
   const [enCours, setEnCours] = useState(false)
-  const [erreur, setErreur] = useState(false)
+  // `null` = pas d'erreur ; sinon le message déjà traduit à afficher dans la
+  // région d'alerte. `enregistrerArticle` distingue erreurs *attendues*
+  // (retour `{ ok: false, erreur }`, mappé ici vers une clé i18n précise —
+  // titre requis / slug déjà utilisé) et erreurs *inattendues* (`throw`,
+  // catch générique ci-dessous) : voir le commentaire dans actions.ts pour
+  // le raisonnement complet.
+  const [erreur, setErreur] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
-    setErreur(false)
+    setErreur(null)
     const fd = new FormData(e.currentTarget)
     try {
-      await enregistrerArticle(fd)
+      const resultat = await enregistrerArticle(fd)
+      if (!resultat.ok) {
+        setErreur(t(resultat.erreur === 'titreRequis' ? 'erreurTitreRequis' : 'erreurSlugDuplique'))
+        return
+      }
       // Contrairement à FormulaireArchitecte / FormulairePatrimoine (qui
       // rouvrent la fiche éditée), le contrat e2e de cette liste attend un
       // retour sur le tableau après enregistrement.
       router.push('/admin/articles')
       router.refresh()
     } catch {
-      setErreur(true)
+      setErreur(t('erreurEnregistrement'))
     } finally {
       setEnCours(false)
     }
@@ -211,7 +221,7 @@ export function FormulaireArticle({
 
       {erreur && (
         <p role="alert" className="text-sm font-semibold text-brun">
-          {t('erreurEnregistrement')}
+          {erreur}
         </p>
       )}
 

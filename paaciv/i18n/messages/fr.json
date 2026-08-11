@@ -176,7 +176,9 @@
     "datePublication": "Date de publication", "image": "Image de couverture",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
-    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurSlugDuplique": "Ce slug est déjà utilisé par un autre contenu."
   },
   "formReportage": {
     "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
@@ -185,7 +187,9 @@
     "patrimoine": "Patrimoine lié", "date": "Date",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
-    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurSlugDuplique": "Ce slug est déjà utilisé par un autre contenu."
   },
   "formEvenement": {
     "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
@@ -217,7 +221,8 @@
     "titre": "Articles",
     "intro": "Récits, temps forts et lectures autour du patrimoine ivoirien.",
     "toutes": "Toutes les catégories",
-    "aucun": "Aucun article pour le moment."
+    "aucun": "Aucun article pour le moment.",
+    "aucunDansCategorie": "Aucun article dans cette catégorie."
   },
   "ficheArticle": {
     "patrimoineLie": "Patrimoine lié",
