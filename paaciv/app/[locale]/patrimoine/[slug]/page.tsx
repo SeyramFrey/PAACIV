@@ -6,7 +6,8 @@ import { Link } from '@/i18n/navigation'
 import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
-import { getPatrimoineParSlugCache as getPatrimoineParSlug } from '@/lib/data/patrimoine'
+import { FacadeVideo } from '@/components/editorial/FacadeVideo'
+import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
 
@@ -35,8 +36,10 @@ export default async function FichePatrimoine({ params }: Props) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const t = await getTranslations('fiche')
+  const tVideo = await getTranslations('video')
   const p = await getPatrimoineParSlug(slug)
   if (!p) notFound()
+  const { articles, reportages } = await contenusLies(p.id)
 
   const titre = champ(p.titre_fr, p.titre_en, locale)
   const ligne = (label: string, valeur: string | null | undefined) =>
@@ -51,13 +54,6 @@ export default async function FichePatrimoine({ params }: Props) {
     p.date_texte ||
     [p.annee_debut, p.annee_fin].filter(Boolean).join(' – ') ||
     null
-
-  const embedYoutube = (url: string | null) => {
-    if (!url) return null
-    const m = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/)
-    return m ? `https://www.youtube.com/embed/${m[1]}` : null
-  }
-  const yt = embedYoutube(p.video_url)
 
   return (
     <main className="flex-1 py-10">
@@ -76,16 +72,7 @@ export default async function FichePatrimoine({ params }: Props) {
           <h1 className="font-serif text-4xl text-brun">{titre}</h1>
           <Galerie images={p.images} locale={locale} />
           <TexteRiche html={champ(p.description_fr, p.description_en, locale)} />
-          {yt && (
-            <div className="aspect-video overflow-hidden rounded-2xl">
-              <iframe
-                src={yt}
-                title={t('video')}
-                className="h-full w-full"
-                allowFullScreen
-              />
-            </div>
-          )}
+          <FacadeVideo url={p.video_url} titre={titre} labelLire={tVideo('lire')} />
           {champ(p.sources_fr, p.sources_en, locale) && (
             <section>
               <h2 className="font-serif text-lg text-brun">{t('sources')}</h2>
@@ -125,6 +112,38 @@ export default async function FichePatrimoine({ params }: Props) {
                   </li>
                 ))}
               </ul>
+            </section>
+          )}
+          {(articles.length > 0 || reportages.length > 0) && (
+            <section data-testid="contenus-lies" className="space-y-4">
+              {articles.length > 0 && (
+                <div>
+                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aLire')}</h2>
+                  <ul className="space-y-1 text-sm">
+                    {articles.map((a) => (
+                      <li key={a.slug}>
+                        <Link href={`/articles/${a.slug}`} className="text-brun underline">
+                          {champ(a.titre_fr, a.titre_en, locale)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {reportages.length > 0 && (
+                <div>
+                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aVoir')}</h2>
+                  <ul className="space-y-1 text-sm">
+                    {reportages.map((r) => (
+                      <li key={r.slug}>
+                        <Link href={`/reportages/${r.slug}`} className="text-brun underline">
+                          {champ(r.titre_fr, r.titre_en, locale)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </section>
           )}
         </aside>

@@ -4,6 +4,9 @@
     "carte": "Map",
     "archives": "Archive",
     "actualites": "News",
+    "articles": "Articles",
+    "reportages": "Reportages",
+    "evenements": "Events",
     "architectes": "Architects",
     "apropos": "About",
     "contact": "Contact",
@@ -55,6 +58,47 @@
     "publie": "Published",
     "aucun": "No architects yet."
   },
+  "adminArticles": {
+    "titre": "Articles",
+    "nouveau": "New article",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this article?",
+    "colonneTitre": "Title",
+    "categorie": "Category",
+    "date": "Date",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No articles yet."
+  },
+  "adminReportages": {
+    "titre": "Reportages",
+    "nouveau": "New reportage",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this reportage?",
+    "colonneTitre": "Title",
+    "date": "Date",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No reportages yet."
+  },
+  "adminEvenements": {
+    "titre": "Events",
+    "nouveau": "New event",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this event?",
+    "colonneTitre": "Title",
+    "lieu": "Location",
+    "date": "Date",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No events yet."
+  },
   "archives": {
     "titre": "Archive",
     "intro": "Explore the architectural heritage documented by PAACIV.",
@@ -80,7 +124,9 @@
     "video": "Video report",
     "architectes": "Architects",
     "partager": "Share",
-    "retour": "Back to archive"
+    "retour": "Back to archive",
+    "aLire": "To read",
+    "aVoir": "To watch"
   },
   "carte": {
     "titre": "Heritage map",
@@ -122,6 +168,40 @@
     "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
     "erreurEnregistrement": "Saving failed. Please try again."
   },
+  "formArticle": {
+    "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
+    "chapo_fr": "Excerpt (FR)", "chapo_en": "Excerpt (EN)",
+    "corps_fr": "Body (FR)", "corps_en": "Body (EN)",
+    "categorie": "Category", "patrimoine": "Linked building",
+    "datePublication": "Publication date", "image": "Cover image",
+    "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurTitreRequis": "The title (FR) is required.",
+    "erreurSlugDuplique": "This slug is already used by another item."
+  },
+  "formReportage": {
+    "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "video_url": "Video URL", "urlInvalide": "URL not recognised",
+    "patrimoine": "Linked building", "date": "Date",
+    "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurTitreRequis": "The title (FR) is required.",
+    "erreurSlugDuplique": "This slug is already used by another item."
+  },
+  "formEvenement": {
+    "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "lieu": "Location", "dateDebut": "Start date", "dateFin": "End date",
+    "image": "Image",
+    "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurDateDebutRequise": "The start date is required.",
+    "erreurDatesIncoherentes": "The end date cannot be earlier than the start date."
+  },
   "architectes": {
     "titre": "Architects",
     "ivoiriens": "Ivorians",
@@ -133,5 +213,40 @@
     "bio": "Biography",
     "parcours": "Career",
     "realisations": "Works"
+  },
+  "video": {
+    "lire": "Play video"
+  },
+  "articles": {
+    "titre": "Articles",
+    "intro": "Stories, highlights and readings on Ivorian heritage.",
+    "toutes": "All categories",
+    "aucun": "No articles yet.",
+    "aucunDansCategorie": "No articles in this category."
+  },
+  "ficheArticle": {
+    "patrimoineLie": "Related heritage",
+    "retour": "All articles"
+  },
+  "reportages": {
+    "titre": "Reportages",
+    "intro": "Videos and interviews produced by PAACIV.",
+    "aucun": "No reports yet."
+  },
+  "ficheReportage": {
+    "patrimoineLie": "Related heritage",
+    "retour": "All reportages"
+  },
+  "evenements": {
+    "titre": "Events",
+    "intro": "Exhibitions, conferences and activities from the association.",
+    "aVenir": "Upcoming",
+    "passes": "Past",
+    "aucunAVenir": "No upcoming events at the moment.",
+    "aucunPasse": "No past events."
+  },
+  "ficheEvenement": {
+    "lieu": "Location",
+    "retour": "All events"
   }
 }

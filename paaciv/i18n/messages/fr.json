@@ -4,6 +4,9 @@
     "carte": "Carte",
     "archives": "Nos archives",
     "actualites": "Actualités",
+    "articles": "Articles",
+    "reportages": "Reportages",
+    "evenements": "Événements",
     "architectes": "Architectes",
     "apropos": "À propos",
     "contact": "Contact",
@@ -55,6 +58,47 @@
     "publie": "Publié",
     "aucun": "Aucun architecte."
   },
+  "adminArticles": {
+    "titre": "Articles",
+    "nouveau": "Nouvel article",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement cet article ?",
+    "colonneTitre": "Titre",
+    "categorie": "Catégorie",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun article."
+  },
+  "adminReportages": {
+    "titre": "Reportages",
+    "nouveau": "Nouveau reportage",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement ce reportage ?",
+    "colonneTitre": "Titre",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun reportage."
+  },
+  "adminEvenements": {
+    "titre": "Événements",
+    "nouveau": "Nouvel événement",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement cet événement ?",
+    "colonneTitre": "Titre",
+    "lieu": "Lieu",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun événement."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
@@ -80,7 +124,9 @@
     "video": "Reportage vidéo",
     "architectes": "Architectes",
     "partager": "Partager",
-    "retour": "Retour aux archives"
+    "retour": "Retour aux archives",
+    "aLire": "À lire",
+    "aVoir": "À voir"
   },
   "carte": {
     "titre": "Carte du patrimoine",
@@ -122,6 +168,40 @@
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
   },
+  "formArticle": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "chapo_fr": "Chapô (FR)", "chapo_en": "Chapô (EN)",
+    "corps_fr": "Corps (FR)", "corps_en": "Corps (EN)",
+    "categorie": "Catégorie", "patrimoine": "Patrimoine lié",
+    "datePublication": "Date de publication", "image": "Image de couverture",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurSlugDuplique": "Ce slug est déjà utilisé par un autre contenu."
+  },
+  "formReportage": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "video_url": "URL de la vidéo", "urlInvalide": "URL non reconnue",
+    "patrimoine": "Patrimoine lié", "date": "Date",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurSlugDuplique": "Ce slug est déjà utilisé par un autre contenu."
+  },
+  "formEvenement": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "lieu": "Lieu", "dateDebut": "Date de début", "dateFin": "Date de fin",
+    "image": "Image",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurDateDebutRequise": "La date de début est requise.",
+    "erreurDatesIncoherentes": "La date de fin ne peut pas être antérieure à la date de début."
+  },
   "architectes": {
     "titre": "Architectes",
     "ivoiriens": "Ivoiriens",
@@ -133,5 +213,40 @@
     "bio": "Biographie",
     "parcours": "Parcours",
     "realisations": "Réalisations"
+  },
+  "video": {
+    "lire": "Lire la vidéo"
+  },
+  "articles": {
+    "titre": "Articles",
+    "intro": "Récits, temps forts et lectures autour du patrimoine ivoirien.",
+    "toutes": "Toutes les catégories",
+    "aucun": "Aucun article pour le moment.",
+    "aucunDansCategorie": "Aucun article dans cette catégorie."
+  },
+  "ficheArticle": {
+    "patrimoineLie": "Patrimoine lié",
+    "retour": "Tous les articles"
+  },
+  "reportages": {
+    "titre": "Reportages",
+    "intro": "Vidéos et entretiens produits par PAACIV.",
+    "aucun": "Aucun reportage pour le moment."
+  },
+  "ficheReportage": {
+    "patrimoineLie": "Patrimoine lié",
+    "retour": "Tous les reportages"
+  },
+  "evenements": {
+    "titre": "Événements",
+    "intro": "Expositions, conférences et activités de l'association.",
+    "aVenir": "À venir",
+    "passes": "Passés",
+    "aucunAVenir": "Aucun événement à venir pour le moment.",
+    "aucunPasse": "Aucun événement passé."
+  },
+  "ficheEvenement": {
+    "lieu": "Lieu",
+    "retour": "Tous les événements"
   }
 }

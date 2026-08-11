@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { mapLiaisonsArchitectes, type LiaisonArchitecte } from '@/lib/data/patrimoine'
+import {
+  mapLiaisonsArchitectes,
+  filtrerContenusPublies,
+  type LiaisonArchitecte,
+  type ContenuLieRow,
+} from '@/lib/data/patrimoine'
 
 describe('mapLiaisonsArchitectes', () => {
   it('exclut un architecte brouillon', () => {
@@ -42,5 +47,30 @@ describe('mapLiaisonsArchitectes', () => {
       'Pierre Fakhoury',
       'Zoé Kouassi',
     ])
+  })
+})
+
+describe('filtrerContenusPublies', () => {
+  it('exclut une ligne brouillon (le piège BROUILLON du seed) et conserve la publiée', () => {
+    const rows: ContenuLieRow[] = [
+      { slug: 'article-brouillon', titre_fr: 'Article BROUILLON — ne pas publier', titre_en: null, statut: 'brouillon' },
+      { slug: 'pyramide-abidjan-histoire', titre_fr: 'X', titre_en: null, statut: 'publie' },
+    ]
+    expect(filtrerContenusPublies(rows)).toEqual([
+      { slug: 'pyramide-abidjan-histoire', titre_fr: 'X', titre_en: null },
+    ])
+  })
+
+  it('ne renvoie pas le champ statut dans le résultat', () => {
+    const rows: ContenuLieRow[] = [
+      { slug: 'x', titre_fr: 'X', titre_en: 'X-en', statut: 'publie' },
+    ]
+    expect(filtrerContenusPublies(rows)).toEqual([{ slug: 'x', titre_fr: 'X', titre_en: 'X-en' }])
+  })
+
+  it('tableau nul, absent ou vide → []', () => {
+    expect(filtrerContenusPublies(null)).toEqual([])
+    expect(filtrerContenusPublies(undefined)).toEqual([])
+    expect(filtrerContenusPublies([])).toEqual([])
   })
 })
