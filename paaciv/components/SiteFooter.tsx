@@ -6,6 +6,9 @@ const explorerLinks = [
   { href: '/carte', key: 'carte' },
   { href: '/archives', key: 'archives' },
   { href: '/architectes', key: 'architectes' },
+  { href: '/articles', key: 'articles' },
+  { href: '/reportages', key: 'reportages' },
+  { href: '/evenements', key: 'evenements' },
 ] as const
 
 const infosLinks = [
