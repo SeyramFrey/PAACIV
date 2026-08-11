@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
+import { EditeurRiche } from '@/components/admin/EditeurRiche'
 import { enregistrerReportage } from '@/app/[locale]/admin/reportages/actions'
 import { extraireIdYoutube, miniatureYoutube } from '@/lib/youtube'
 
@@ -78,18 +79,6 @@ export function FormulaireReportage({
     </label>
   )
 
-  const zoneTexte = (name: string, label: string) => (
-    <label className="flex flex-col text-sm">
-      <span className="mb-1 font-semibold">{label}</span>
-      <textarea
-        name={name}
-        defaultValue={valeurInitiale(name)}
-        rows={4}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
-      />
-    </label>
-  )
-
   const nomPatrimoine = (p: PatrimoineOption) => (locale === 'en' ? p.titre_en || p.titre_fr : p.titre_fr)
 
   return (
@@ -116,11 +105,17 @@ export function FormulaireReportage({
 
       <div className={onglet === 'fr' ? 'grid gap-4' : 'hidden'}>
         {champ('titre_fr', t('titre_fr'))}
-        {zoneTexte('description_fr', t('description_fr'))}
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('description_fr')}</span>
+          <EditeurRiche name="description_fr" defaultValue={initial?.description_fr ?? ''} ariaLabel={t('description_fr')} />
+        </div>
       </div>
       <div className={onglet === 'en' ? 'grid gap-4' : 'hidden'}>
         {champ('titre_en', t('titre_en'))}
-        {zoneTexte('description_en', t('description_en'))}
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('description_en')}</span>
+          <EditeurRiche name="description_en" defaultValue={initial?.description_en ?? ''} ariaLabel={t('description_en')} />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

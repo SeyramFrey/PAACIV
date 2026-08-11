@@ -5,6 +5,16 @@ test.use({ storageState: 'playwright/.auth/admin.json' })
 
 const SLUG = 'test-reportage-e2e'
 
+test("le formulaire reportage monte l'éditeur riche", async ({ page }) => {
+  await page.goto('/fr/admin/reportages/nouveau')
+  // description_fr/description_en passent par richeOuNull → assainirHtml et
+  // sont rendues en HTML côté public (TexteRiche) : un textarea brut viderait
+  // silencieusement le HTML produit. On vérifie donc que l'éditeur Tiptap est
+  // bien monté (même motif que tests/admin-architecte.spec.ts).
+  await expect(page.getByRole('button', { name: 'Gras' }).first()).toBeVisible()
+  await expect(page.getByLabel('Titre (FR)')).toBeVisible()
+})
+
 test('aperçu de la miniature pour une URL YouTube valide', async ({ page }) => {
   await page.goto('/fr/admin/reportages/nouveau')
   await page.getByLabel('URL de la vidéo').fill('https://www.youtube.com/watch?v=PAACIVdemo9')
@@ -15,6 +25,11 @@ test('aperçu de la miniature pour une URL YouTube valide', async ({ page }) => 
 test('URL invalide : message et aucun enregistrement', async ({ page }) => {
   await page.goto('/fr/admin/reportages/nouveau')
   await page.getByLabel('Titre (FR)').fill('Reportage URL Invalide')
+  // Slug préfixé exprès : si une régression future laissait passer
+  // l'enregistrement malgré l'URL invalide, la ligne resterait couverte par
+  // le nettoyage `afterAll` (préfixe `test-reportage-e2e`) au lieu de
+  // polluer la base sous un slug auto-généré non nettoyé.
+  await page.getByLabel('Slug').fill(`${SLUG}-invalide`)
   await page.getByLabel('URL de la vidéo').fill('https://exemple.test/x')
   await expect(page.getByTestId('url-invalide')).toBeVisible()
   await expect(page.getByTestId('apercu-miniature')).toHaveCount(0)
