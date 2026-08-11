@@ -7,7 +7,7 @@ import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { FacadeVideo } from '@/components/editorial/FacadeVideo'
-import { getPatrimoineParSlugCache as getPatrimoineParSlug } from '@/lib/data/patrimoine'
+import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
 
@@ -39,6 +39,7 @@ export default async function FichePatrimoine({ params }: Props) {
   const tVideo = await getTranslations('video')
   const p = await getPatrimoineParSlug(slug)
   if (!p) notFound()
+  const { articles, reportages } = await contenusLies(p.id)
 
   const titre = champ(p.titre_fr, p.titre_en, locale)
   const ligne = (label: string, valeur: string | null | undefined) =>
@@ -111,6 +112,38 @@ export default async function FichePatrimoine({ params }: Props) {
                   </li>
                 ))}
               </ul>
+            </section>
+          )}
+          {(articles.length > 0 || reportages.length > 0) && (
+            <section data-testid="contenus-lies" className="space-y-4">
+              {articles.length > 0 && (
+                <div>
+                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aLire')}</h2>
+                  <ul className="space-y-1 text-sm">
+                    {articles.map((a) => (
+                      <li key={a.slug}>
+                        <Link href={`/articles/${a.slug}`} className="text-brun underline">
+                          {champ(a.titre_fr, a.titre_en, locale)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {reportages.length > 0 && (
+                <div>
+                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aVoir')}</h2>
+                  <ul className="space-y-1 text-sm">
+                    {reportages.map((r) => (
+                      <li key={r.slug}>
+                        <Link href={`/reportages/${r.slug}`} className="text-brun underline">
+                          {champ(r.titre_fr, r.titre_en, locale)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </section>
           )}
         </aside>

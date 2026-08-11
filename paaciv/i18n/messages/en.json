@@ -83,7 +83,9 @@
     "video": "Video report",
     "architectes": "Architects",
     "partager": "Share",
-    "retour": "Back to archive"
+    "retour": "Back to archive",
+    "aLire": "To read",
+    "aVoir": "To watch"
   },
   "carte": {
     "titre": "Heritage map",

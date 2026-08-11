@@ -168,6 +168,38 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
 // serait deux allers-retours BDD identiques par requête.
 export const getPatrimoineParSlugCache = cache(getPatrimoineParSlug)
 
+export type ContenuLie = { slug: string; titre_fr: string; titre_en: string | null }
+
+export type ContenusLies = { articles: ContenuLie[]; reportages: ContenuLie[] }
+
+// Sélection minimale pour le bloc « À lire / À voir » de la fiche patrimoine
+// (direction inverse de PatrimoineLie : ici on part du patrimoine pour
+// remonter vers les contenus éditoriaux qui le citent).
+export async function contenusLies(patrimoineId: string): Promise<ContenusLies> {
+  const sb = createReadClient()
+  const [{ data: articles, error: erreurArticles }, { data: reportages, error: erreurReportages }] =
+    await Promise.all([
+      sb
+        .from('articles')
+        .select('slug, titre_fr, titre_en')
+        .eq('patrimoine_id', patrimoineId)
+        .eq('statut', 'publie')
+        .order('date_publication', { ascending: false }),
+      sb
+        .from('reportages')
+        .select('slug, titre_fr, titre_en')
+        .eq('patrimoine_id', patrimoineId)
+        .eq('statut', 'publie')
+        .order('date', { ascending: false }),
+    ])
+  if (erreurArticles) throw erreurArticles
+  if (erreurReportages) throw erreurReportages
+  return {
+    articles: (articles ?? []) as ContenuLie[],
+    reportages: (reportages ?? []) as ContenuLie[],
+  }
+}
+
 export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPublie[]> {
   const sb = createReadClient()
   let q = sb
