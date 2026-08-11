@@ -28,3 +28,16 @@ test('les catégories d\'articles sont lisibles publiquement', async () => {
   expect(error).toBeNull()
   expect(data).not.toBeNull()
 })
+
+const BROUILLONS = { articles: 'article-brouillon', reportages: 'reportage-brouillon', evenements: 'evenement-brouillon' } as const
+
+for (const [table, slugBrouillon] of Object.entries(BROUILLONS)) {
+  test(`le public ne voit que les ${table} publiés`, async () => {
+    const { data, error } = await sb().from(table).select('slug, statut')
+    expect(error).toBeNull()
+    const lignes = data ?? []
+    expect(lignes.length).toBeGreaterThan(0)                                  // sinon l'assertion suivante est vide de sens
+    expect(lignes.every((l) => l.statut === 'publie')).toBe(true)
+    expect(lignes.some((l) => l.slug === slugBrouillon)).toBe(false)          // le brouillon existe en base et doit rester invisible
+  })
+}
