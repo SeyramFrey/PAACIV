@@ -195,10 +195,22 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const sb = () => createClient(url, anon)
 
-for (const table of ['articles', 'reportages', 'evenements'] as const) {
+// ATTENTION : chaque charge utile ne doit contenir que des colonnes EXISTANT sur la table
+// visée. PostgREST valide les colonnes contre son cache de schéma AVANT d'évaluer la RLS :
+// une colonne inconnue renvoie un PGRST204 (« could not find the column ») qui ressemble à
+// un refus mais n'en est pas un — le test resterait vert même si l'insertion anonyme était
+// ouverte par erreur. On assert donc aussi sur le code d'erreur RLS de Postgres.
+const CHARGES = {
+  articles:   { slug: 'x-test-articles',   titre_fr: 'X', date_publication: '2026-01-01' },
+  reportages: { slug: 'x-test-reportages', titre_fr: 'X', video_url: 'https://youtu.be/dQw4w9WgXcQ' },
+  evenements: { slug: 'x-test-evenements', titre_fr: 'X', date_debut: '2026-01-01' },
+} as const
+
+for (const [table, charge] of Object.entries(CHARGES)) {
   test(`RLS : un anonyme ne peut pas insérer dans ${table}`, async () => {
-    const { error } = await sb().from(table).insert({ slug: `x-test-${table}`, titre_fr: 'X', video_url: 'x', date_debut: '2026-01-01' })
+    const { error } = await sb().from(table).insert(charge)
     expect(error).not.toBeNull()
+    expect(error!.code).toBe('42501')   // violation RLS, et non une erreur de schéma PGRST2xx
   })
 }
 
