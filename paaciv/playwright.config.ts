@@ -13,17 +13,17 @@ export default defineConfig({
   workers: 2,
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3100',
     reuseExistingServer: true,
     timeout: 120_000,
   },
-  use: { baseURL: 'http://localhost:3000' },
+  use: { baseURL: 'http://localhost:3100' },
   projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     {
       name: 'e2e',
       dependencies: ['setup'],
-      use: { baseURL: 'http://localhost:3000' },
+      use: { baseURL: 'http://localhost:3100' },
       testIgnore: /auth\.setup\.ts/,
     },
   ],
