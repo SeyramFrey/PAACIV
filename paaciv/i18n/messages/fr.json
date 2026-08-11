@@ -193,8 +193,10 @@
     "lieu": "Lieu", "dateDebut": "Date de début", "dateFin": "Date de fin",
     "image": "Image",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
-    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
-    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurDateDebutRequise": "La date de début est requise.",
+    "erreurDatesIncoherentes": "La date de fin ne peut pas être antérieure à la date de début."
   },
   "architectes": {
     "titre": "Architectes",

@@ -29,22 +29,32 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
   const router = useRouter()
   const [onglet, setOnglet] = useState<'fr' | 'en'>('fr')
   const [enCours, setEnCours] = useState(false)
-  const [erreur, setErreur] = useState(false)
+  // `null` = pas d'erreur ; sinon le message déjà traduit à afficher dans la
+  // région d'alerte. `enregistrerEvenement` distingue erreurs *attendues*
+  // (retour `{ ok: false, erreur }`, mappé ici vers une clé i18n précise —
+  // « date de début requise » / « dates incohérentes ») et erreurs
+  // *inattendues* (`throw`, catch générique ci-dessous) : voir le commentaire
+  // dans actions.ts pour le raisonnement complet.
+  const [erreur, setErreur] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
-    setErreur(false)
+    setErreur(null)
     const fd = new FormData(e.currentTarget)
     try {
-      await enregistrerEvenement(fd)
+      const resultat = await enregistrerEvenement(fd)
+      if (!resultat.ok) {
+        setErreur(t(resultat.erreur === 'dateDebutRequise' ? 'erreurDateDebutRequise' : 'erreurDatesIncoherentes'))
+        return
+      }
       // Même contrat que FormulaireArticle / FormulaireReportage : retour sur
       // la liste après enregistrement (décision de contrôleur, cohérence de
       // l'admin éditorial).
       router.push('/admin/evenements')
       router.refresh()
     } catch {
-      setErreur(true)
+      setErreur(t('erreurEnregistrement'))
     } finally {
       setEnCours(false)
     }
@@ -158,7 +168,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
 
       {erreur && (
         <p role="alert" className="text-sm font-semibold text-brun">
-          {t('erreurEnregistrement')}
+          {erreur}
         </p>
       )}
 

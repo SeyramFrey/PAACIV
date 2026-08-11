@@ -193,8 +193,10 @@
     "lieu": "Location", "dateDebut": "Start date", "dateFin": "End date",
     "image": "Image",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
-    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
-    "erreurEnregistrement": "Saving failed. Please try again."
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurDateDebutRequise": "The start date is required.",
+    "erreurDatesIncoherentes": "The end date cannot be earlier than the start date."
   },
   "architectes": {
     "titre": "Architects",

@@ -27,7 +27,15 @@ test('date de fin antérieure à la date de début : erreur affichée, rien enre
   await page.getByLabel('Date de début').fill('2026-06-10')
   await page.getByLabel('Date de fin').fill('2026-06-01')
   await page.getByRole('button', { name: 'Enregistrer' }).click()
-  await expect(page.getByRole('alert')).toBeVisible()
+  // Le message doit être spécifique aux dates, pas le générique
+  // « L'enregistrement a échoué » : sinon l'utilisateur n'a aucune indication
+  // que le problème vient des dates (constat de revue, fix round 1).
+  // `getByRole('alert')` seul matche aussi le `__next-route-announcer__` de
+  // Next (role="alert" mais vide, un <div>) : on cible le <p> pour lever
+  // l'ambiguïté, plutôt que le filtre `name` du rôle ARIA.
+  await expect(page.locator('p[role="alert"]')).toHaveText(
+    'La date de fin ne peut pas être antérieure à la date de début.',
+  )
   // Toujours sur la page du formulaire : aucune redirection vers la liste.
   await expect(page).toHaveURL(/\/admin\/evenements\/nouveau$/)
 })
