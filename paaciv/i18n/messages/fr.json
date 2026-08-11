@@ -58,6 +58,20 @@
     "publie": "Publié",
     "aucun": "Aucun architecte."
   },
+  "adminArticles": {
+    "titre": "Articles",
+    "nouveau": "Nouvel article",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement cet article ?",
+    "colonneTitre": "Titre",
+    "categorie": "Catégorie",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun article."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
@@ -124,6 +138,16 @@
     "anneeNaissance": "Année de naissance", "anneeDeces": "Année de décès", "periode": "Période (texte)",
     "bio": "Biographie", "parcours": "Parcours", "realisations": "Réalisations (texte)",
     "photo": "Photo", "ordre": "Ordre", "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "formArticle": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "chapo_fr": "Chapô (FR)", "chapo_en": "Chapô (EN)",
+    "corps_fr": "Corps (FR)", "corps_en": "Corps (EN)",
+    "categorie": "Catégorie", "patrimoine": "Patrimoine lié",
+    "datePublication": "Date de publication", "image": "Image de couverture",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
   },
