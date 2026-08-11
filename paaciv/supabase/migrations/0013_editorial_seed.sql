@@ -159,8 +159,8 @@ insert into evenements (
   '<p>Une exposition photographique consacrée aux grands édifices du patrimoine architectural ivoirien.</p>',
   '<p>A photography exhibition dedicated to the great buildings of Ivorian architectural heritage.</p>',
   'Abidjan, Le Plateau',
-  (current_date + interval '30 days')::date,
-  (current_date + interval '37 days')::date,
+  (current_date + interval '365 days')::date,
+  (current_date + interval '372 days')::date,
   'publie'
 ),
 (
