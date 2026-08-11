@@ -136,5 +136,15 @@
   },
   "video": {
     "lire": "Play video"
+  },
+  "articles": {
+    "titre": "Articles",
+    "intro": "Stories, highlights and readings on Ivorian heritage.",
+    "toutes": "All categories",
+    "aucun": "No articles yet."
+  },
+  "ficheArticle": {
+    "patrimoineLie": "Related heritage",
+    "retour": "All articles"
   }
 }

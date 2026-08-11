@@ -136,5 +136,15 @@
   },
   "video": {
     "lire": "Lire la vidéo"
+  },
+  "articles": {
+    "titre": "Articles",
+    "intro": "Récits, temps forts et lectures autour du patrimoine ivoirien.",
+    "toutes": "Toutes les catégories",
+    "aucun": "Aucun article pour le moment."
+  },
+  "ficheArticle": {
+    "patrimoineLie": "Patrimoine lié",
+    "retour": "Tous les articles"
   }
 }

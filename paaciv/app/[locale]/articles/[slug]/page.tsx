@@ -1,0 +1,82 @@
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { Container } from '@/components/ui/Container'
+import { Link } from '@/i18n/navigation'
+import { TexteRiche } from '@/components/patrimoine/TexteRiche'
+import { getArticleParSlugCache as getArticle } from '@/lib/data/articles'
+import { champ } from '@/lib/i18n-champ'
+
+type Props = { params: Promise<{ locale: string; slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug } = await params
+  const a = await getArticle(slug)
+  if (!a) return {}
+  const titre = champ(a.titre_fr, a.titre_en, locale)
+  const description = champ(a.chapo_fr, a.chapo_en, locale).replace(/<[^>]+>/g, '')
+  return {
+    title: `${titre} — PAACIV`,
+    description,
+    openGraph: {
+      title: titre,
+      description,
+      images: a.image ? [a.image] : [],
+      type: 'article',
+    },
+  }
+}
+
+function dateLocalisee(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
+    new Date(iso),
+  )
+}
+
+export default async function FicheArticle({ params }: Props) {
+  const { locale, slug } = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('ficheArticle')
+  const a = await getArticle(slug)
+  if (!a) notFound()
+
+  const titre = champ(a.titre_fr, a.titre_en, locale)
+  const chapo = champ(a.chapo_fr, a.chapo_en, locale)
+  const corps = champ(a.corps_fr, a.corps_en, locale)
+  const categorie = a.categorie ? champ(a.categorie.nom_fr, a.categorie.nom_en, locale) : null
+
+  return (
+    <main className="flex-1 py-10">
+      <Container className="mx-auto max-w-3xl space-y-6">
+        <Link href="/articles" className="text-sm text-brun underline">
+          {t('retour')}
+        </Link>
+
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-encre/50">
+            {categorie && <span>{categorie}</span>}
+            <span>{dateLocalisee(a.date_publication, locale)}</span>
+          </div>
+          <h1 className="font-serif text-4xl text-brun">{titre}</h1>
+          {chapo && <p className="text-lg text-encre/70">{chapo}</p>}
+        </header>
+
+        {a.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={a.image} alt={titre} className="w-full rounded-2xl object-cover" />
+        )}
+
+        <TexteRiche html={corps} />
+
+        {a.patrimoine && (
+          <section data-testid="patrimoine-lie" className="rounded-2xl border border-creme2 p-4">
+            <h2 className="mb-2 font-serif text-lg text-brun">{t('patrimoineLie')}</h2>
+            <Link href={`/patrimoine/${a.patrimoine.slug}`} className="text-brun underline">
+              {champ(a.patrimoine.titre_fr, a.patrimoine.titre_en, locale)}
+            </Link>
+          </section>
+        )}
+      </Container>
+    </main>
+  )
+}
