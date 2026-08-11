@@ -7,6 +7,12 @@ import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { getArticleParSlugCache as getArticle } from '@/lib/data/articles'
 import { champ } from '@/lib/i18n-champ'
 
+// Segment dynamique ([slug]) : cette page est déjà `ƒ` par construction
+// (aucune donnée dynamique en dehors du paramètre de route). Export explicite
+// pour que l'invariant reste local plutôt qu'implicite : il court-circuiterait
+// silencieusement si `generateStaticParams` était ajouté un jour.
+export const dynamic = 'force-dynamic'
+
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

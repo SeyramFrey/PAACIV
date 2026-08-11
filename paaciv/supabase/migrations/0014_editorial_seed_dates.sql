@@ -7,6 +7,18 @@
 -- installation neuve obtienne directement le même résultat (son
 -- `on conflict (slug) do nothing` empêche toute réapplication ici d'avoir un
 -- effet sur une base déjà seedée, d'où cet update ciblé).
+--
+-- ⚠️ Fuse à retardement : `current_date` est évalué une seule fois, au moment
+-- où cette migration a été appliquée sur la base PAACIV (ref
+-- yognzzhrrllomokvoooy) — pas à chaque lecture. Sur cette base, cela a figé
+-- `date_debut = 2027-08-11` et `date_fin = 2027-08-18`, en dur, pour de bon.
+-- Aux alentours de cette date, `exposition-a-venir` basculera côté « Passés »
+-- et la section « À venir » de /evenements redeviendra vide sans qu'aucun
+-- code n'ait changé — et tests/evenements.spec.ts recommencera à échouer.
+-- Ce n'est PAS un bug à corriger dans ce fichier (ne pas changer ces dates
+-- ici) : c'est un événement seed de démonstration qui doit être remplacé par
+-- du contenu réel — ou sa date repoussée par une nouvelle migration — avant
+-- cette échéance.
 
 update evenements
 set

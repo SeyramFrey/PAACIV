@@ -52,7 +52,7 @@ export default async function ArticlesPage({
         />
 
         {items.length === 0 ? (
-          <p className="text-encre/70">{t('aucun')}</p>
+          <p className="text-encre/70">{f.categorie ? t('aucunDansCategorie') : t('aucun')}</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((a) => (

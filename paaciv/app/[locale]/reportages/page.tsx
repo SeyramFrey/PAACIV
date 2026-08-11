@@ -49,6 +49,7 @@ export default async function ReportagesPage({
                 image={miniatureReportage(r.video_url)}
                 date={dateLocalisee(r.date, locale)}
                 titre={champ(r.titre_fr, r.titre_en, locale)}
+                badgeLecture
               />
             ))}
           </div>

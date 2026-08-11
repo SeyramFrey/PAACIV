@@ -29,7 +29,7 @@ describe('CarteContenu', () => {
   })
 
   it('rend le badge, la date et l\'image quand ils sont fournis', () => {
-    renderAvecProvider(
+    const { container } = renderAvecProvider(
       <CarteContenu
         href="/x"
         image="https://exemple.test/i.jpg"
@@ -41,6 +41,24 @@ describe('CarteContenu', () => {
     )
     expect(screen.getByTestId('carte-badge')).toHaveTextContent('Histoires')
     expect(screen.getByTestId('carte-date')).toHaveTextContent('12 mars 2026')
-    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://exemple.test/i.jpg')
+    // `alt=""` (décoratif, le titre est déjà porté par le <h3>) : l'image
+    // perd le rôle ARIA « img », on la retrouve donc par sélecteur CSS plutôt
+    // que par `getByRole`.
+    expect(container.querySelector('img')).toHaveAttribute('src', 'https://exemple.test/i.jpg')
+  })
+
+  it('superpose la pastille de lecture quand badgeLecture est fourni', () => {
+    const { container } = renderAvecProvider(
+      <CarteContenu href="/x" image="https://exemple.test/i.jpg" titre="T" badgeLecture testId="carte-reportage" />,
+    )
+    expect(container.querySelector('img')).not.toBeNull()
+    expect(container.textContent).toContain('▶')
+  })
+
+  it('omet la pastille de lecture par défaut', () => {
+    const { container } = renderAvecProvider(
+      <CarteContenu href="/x" image="https://exemple.test/i.jpg" titre="T" />,
+    )
+    expect(container.textContent).not.toContain('▶')
   })
 })

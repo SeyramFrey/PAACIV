@@ -26,3 +26,12 @@ test('un article brouillon renvoie 404', async ({ page }) => {
   const res = await page.goto('/fr/articles/article-brouillon')
   expect(res?.status()).toBe(404)
 })
+
+test('un filtre catégorie sans résultat affiche un message dédié, pas le message générique', async ({ page }) => {
+  // Valeur de catégorie bidon : aucun seed nécessaire, aucun article ne peut
+  // matcher. Le message générique « Aucun article pour le moment. » laisse
+  // croire que le site entier est vide (constat de revue de branche finale).
+  await page.goto('/fr/articles?categorie=inexistante-xyz')
+  await expect(page.getByText('Aucun article dans cette catégorie.')).toBeVisible()
+  await expect(page.getByText('Aucun article pour le moment.')).toHaveCount(0)
+})

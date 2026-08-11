@@ -32,7 +32,14 @@ export function FacadeVideo({ url, titre, labelLire }: Props) {
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-encre" data-testid="facade-video">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={miniatureYoutube(id)} alt="" aria-hidden="true" className="h-full w-full object-cover" loading="lazy" />
+      <img
+        src={miniatureYoutube(id)}
+        alt=""
+        aria-hidden="true"
+        className="h-full w-full object-cover"
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
       <button
         type="button"
         onClick={() => setLecture(true)}

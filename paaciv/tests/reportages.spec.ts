@@ -6,6 +6,9 @@ test("l'index reportages affiche des vignettes vidéo", async ({ page }) => {
   const premiere = page.getByTestId('carte-reportage').first()
   await expect(premiere).toBeVisible()
   await expect(premiere.locator('img')).toHaveAttribute('src', /i\.ytimg\.com/)
+  // Pastille de lecture (spec §6) : distingue la grille reportages des
+  // cartes articles, qui partagent le même composant CarteContenu.
+  await expect(premiere.getByText('▶')).toBeVisible()
 })
 
 test("la fiche reportage ne charge l'iframe qu'au clic", async ({ page }) => {
