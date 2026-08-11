@@ -85,6 +85,20 @@
     "publie": "Publié",
     "aucun": "Aucun reportage."
   },
+  "adminEvenements": {
+    "titre": "Événements",
+    "nouveau": "Nouvel événement",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement cet événement ?",
+    "colonneTitre": "Titre",
+    "lieu": "Lieu",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun événement."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
@@ -169,6 +183,15 @@
     "description_fr": "Description (FR)", "description_en": "Description (EN)",
     "video_url": "URL de la vidéo", "urlInvalide": "URL non reconnue",
     "patrimoine": "Patrimoine lié", "date": "Date",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "formEvenement": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "lieu": "Lieu", "dateDebut": "Date de début", "dateFin": "Date de fin",
+    "image": "Image",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
