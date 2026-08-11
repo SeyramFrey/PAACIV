@@ -172,6 +172,20 @@ export type ContenuLie = { slug: string; titre_fr: string; titre_en: string | nu
 
 export type ContenusLies = { articles: ContenuLie[]; reportages: ContenuLie[] }
 
+export type ContenuLieRow = { slug: string; titre_fr: string; titre_en: string | null; statut: string }
+
+// Un contenu lié n'est exposé côté public que s'il est lui-même publié.
+// La RLS filtre déjà la ligne côté anon, donc seul ce test unitaire prouve
+// que le filtrage applicatif fait réellement son travail (même leçon que
+// mapPatrimoineLie / mapLiaisonsArchitectes : un test d'intégration seul ne
+// peut pas le prouver, RLS ferait passer le test même si ce filtre était
+// supprimé).
+export function filtrerContenusPublies(rows: ContenuLieRow[] | null | undefined): ContenuLie[] {
+  return (rows ?? [])
+    .filter((r) => r.statut === 'publie')
+    .map((r) => ({ slug: r.slug, titre_fr: r.titre_fr, titre_en: r.titre_en }))
+}
+
 // Sélection minimale pour le bloc « À lire / À voir » de la fiche patrimoine
 // (direction inverse de PatrimoineLie : ici on part du patrimoine pour
 // remonter vers les contenus éditoriaux qui le citent).
@@ -181,13 +195,13 @@ export async function contenusLies(patrimoineId: string): Promise<ContenusLies> 
     await Promise.all([
       sb
         .from('articles')
-        .select('slug, titre_fr, titre_en')
+        .select('slug, titre_fr, titre_en, statut')
         .eq('patrimoine_id', patrimoineId)
         .eq('statut', 'publie')
         .order('date_publication', { ascending: false }),
       sb
         .from('reportages')
-        .select('slug, titre_fr, titre_en')
+        .select('slug, titre_fr, titre_en, statut')
         .eq('patrimoine_id', patrimoineId)
         .eq('statut', 'publie')
         .order('date', { ascending: false }),
@@ -195,8 +209,8 @@ export async function contenusLies(patrimoineId: string): Promise<ContenusLies> 
   if (erreurArticles) throw erreurArticles
   if (erreurReportages) throw erreurReportages
   return {
-    articles: (articles ?? []) as ContenuLie[],
-    reportages: (reportages ?? []) as ContenuLie[],
+    articles: filtrerContenusPublies(articles as unknown as ContenuLieRow[]),
+    reportages: filtrerContenusPublies(reportages as unknown as ContenuLieRow[]),
   }
 }
 
