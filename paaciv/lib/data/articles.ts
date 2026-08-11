@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imageUrl } from '@/lib/media'
+import { mapPatrimoineLie, type PatrimoineLie, type PatrimoineLieRow } from '@/lib/data/patrimoine-lie'
 
 export type CategorieArticle = { id: string; nom_fr: string; nom_en: string | null }
 
@@ -15,8 +16,6 @@ export type ArticleListItem = {
   categorie: CategorieArticle | null
   date_publication: string
 }
-
-export type PatrimoineLie = { slug: string; titre_fr: string; titre_en: string | null }
 
 export type ArticleDetail = ArticleListItem & {
   corps_fr: string | null
@@ -54,21 +53,6 @@ export async function listeArticles(categorie?: string): Promise<ArticleListItem
   const { data, error } = await requete
   if (error) throw error
   return ((data ?? []) as unknown as ArticleListRow[]).map(mapArticleListItem)
-}
-
-export type PatrimoineLieRow =
-  | { slug: string; titre_fr: string; titre_en: string | null; statut: string }
-  | null
-  | undefined
-
-// Le patrimoine lié n'est exposé côté public que s'il est lui-même publié.
-// La RLS masque déjà la ligne côté anon, donc seul ce test unitaire prouve
-// que le filtrage applicatif fait réellement son travail (c'est la leçon de
-// la Phase 3 : un test d'intégration seul ne peut pas le prouver, RLS
-// ferait passer le test même si ce filtre était supprimé).
-export function mapPatrimoineLie(row: PatrimoineLieRow): PatrimoineLie | null {
-  if (!row || row.statut !== 'publie') return null
-  return { slug: row.slug, titre_fr: row.titre_fr, titre_en: row.titre_en }
 }
 
 type ArticleDetailRow = ArticleListRow & {

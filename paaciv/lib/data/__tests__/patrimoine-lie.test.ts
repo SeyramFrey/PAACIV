@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { mapPatrimoineLie, type PatrimoineLieRow } from '@/lib/data/articles'
+import { mapPatrimoineLie, type PatrimoineLieRow } from '@/lib/data/patrimoine-lie'
 
+// Fonction partagée entre articles.ts et reportages.ts : un seul jeu de
+// tests couvre les deux consommateurs (voir la revue de la tâche 7, qui a
+// signalé la duplication verbatim de cette logique).
 describe('mapPatrimoineLie', () => {
   it('exclut un patrimoine brouillon', () => {
     const row: PatrimoineLieRow = {
