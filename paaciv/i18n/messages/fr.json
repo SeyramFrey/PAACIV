@@ -146,5 +146,14 @@
   "ficheArticle": {
     "patrimoineLie": "Patrimoine lié",
     "retour": "Tous les articles"
+  },
+  "reportages": {
+    "titre": "Reportages",
+    "intro": "Vidéos et entretiens produits par PAACIV.",
+    "aucun": "Aucun reportage pour le moment."
+  },
+  "ficheReportage": {
+    "patrimoineLie": "Patrimoine lié",
+    "retour": "Tous les reportages"
   }
 }

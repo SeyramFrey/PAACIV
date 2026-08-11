@@ -146,5 +146,14 @@
   "ficheArticle": {
     "patrimoineLie": "Related heritage",
     "retour": "All articles"
+  },
+  "reportages": {
+    "titre": "Reportages",
+    "intro": "Videos and interviews produced by PAACIV.",
+    "aucun": "No reports yet."
+  },
+  "ficheReportage": {
+    "patrimoineLie": "Related heritage",
+    "retour": "All reportages"
   }
 }
