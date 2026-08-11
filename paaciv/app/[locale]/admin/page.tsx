@@ -7,6 +7,7 @@ export default async function AdminDashboard() {
   const tPatrimoine = await getTranslations('adminPatrimoine')
   const tArchitectes = await getTranslations('adminArchitectes')
   const tArticles = await getTranslations('adminArticles')
+  const tReportages = await getTranslations('adminReportages')
 
   return (
     <div className="space-y-6">
@@ -24,6 +25,9 @@ export default async function AdminDashboard() {
         </Link>
         <Link href="/admin/articles" className="text-brun underline">
           {tArticles('titre')}
+        </Link>
+        <Link href="/admin/reportages" className="text-brun underline">
+          {tReportages('titre')}
         </Link>
       </div>
     </div>

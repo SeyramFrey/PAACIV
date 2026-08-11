@@ -72,6 +72,19 @@
     "publie": "Publié",
     "aucun": "Aucun article."
   },
+  "adminReportages": {
+    "titre": "Reportages",
+    "nouveau": "Nouveau reportage",
+    "editer": "Éditer",
+    "supprimer": "Supprimer",
+    "confirmer": "Supprimer définitivement ce reportage ?",
+    "colonneTitre": "Titre",
+    "date": "Date",
+    "statut": "Statut",
+    "brouillon": "Brouillon",
+    "publie": "Publié",
+    "aucun": "Aucun reportage."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
@@ -147,6 +160,15 @@
     "corps_fr": "Corps (FR)", "corps_en": "Corps (EN)",
     "categorie": "Catégorie", "patrimoine": "Patrimoine lié",
     "datePublication": "Date de publication", "image": "Image de couverture",
+    "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "formReportage": {
+    "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "video_url": "URL de la vidéo", "urlInvalide": "URL non reconnue",
+    "patrimoine": "Patrimoine lié", "date": "Date",
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer", "choisir": "— choisir —",
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."

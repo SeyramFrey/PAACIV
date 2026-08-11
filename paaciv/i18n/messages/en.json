@@ -72,6 +72,19 @@
     "publie": "Published",
     "aucun": "No articles yet."
   },
+  "adminReportages": {
+    "titre": "Reportages",
+    "nouveau": "New reportage",
+    "editer": "Edit",
+    "supprimer": "Delete",
+    "confirmer": "Permanently delete this reportage?",
+    "colonneTitre": "Title",
+    "date": "Date",
+    "statut": "Status",
+    "brouillon": "Draft",
+    "publie": "Published",
+    "aucun": "No reportages yet."
+  },
   "archives": {
     "titre": "Archive",
     "intro": "Explore the architectural heritage documented by PAACIV.",
@@ -147,6 +160,15 @@
     "corps_fr": "Body (FR)", "corps_en": "Body (EN)",
     "categorie": "Category", "patrimoine": "Linked building",
     "datePublication": "Publication date", "image": "Cover image",
+    "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
+    "erreurEnregistrement": "Saving failed. Please try again."
+  },
+  "formReportage": {
+    "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "slug": "Slug",
+    "description_fr": "Description (FR)", "description_en": "Description (EN)",
+    "video_url": "Video URL", "urlInvalide": "URL not recognised",
+    "patrimoine": "Linked building", "date": "Date",
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
     "ongletFr": "French", "ongletEn": "English", "enregistrer": "Save", "choisir": "— choose —",
     "erreurEnregistrement": "Saving failed. Please try again."
