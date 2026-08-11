@@ -5,10 +5,21 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const sb = () => createClient(url, anon)
 
+const payloads = {
+  articles: { slug: 'x-test-articles', titre_fr: 'X', date_publication: '2026-01-01' },
+  reportages: { slug: 'x-test-reportages', titre_fr: 'X', video_url: 'https://youtu.be/dQw4w9WgXcQ' },
+  evenements: { slug: 'x-test-evenements', titre_fr: 'X', date_debut: '2026-01-01' },
+} as const
+
 for (const table of ['articles', 'reportages', 'evenements'] as const) {
   test(`RLS : un anonyme ne peut pas insérer dans ${table}`, async () => {
-    const { error } = await sb().from(table).insert({ slug: `x-test-${table}`, titre_fr: 'X', video_url: 'x', date_debut: '2026-01-01' })
-    expect(error).not.toBeNull()
+    const { error } = await sb().from(table).insert(payloads[table])
+    // Code Postgres 42501 = violation de row-level security policy. On
+    // vérifie précisément ce code (et pas juste « error non nul ») pour que
+    // le test échoue vraiment si la policy RLS est un jour trop permissive,
+    // plutôt que de réussir par accident sur une erreur de validation de
+    // schéma PostgREST (PGRST2xx) sans rapport avec les permissions.
+    expect(error?.code).toBe('42501')
   })
 }
 
