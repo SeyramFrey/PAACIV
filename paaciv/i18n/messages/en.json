@@ -155,5 +155,17 @@
   "ficheReportage": {
     "patrimoineLie": "Related heritage",
     "retour": "All reportages"
+  },
+  "evenements": {
+    "titre": "Events",
+    "intro": "Exhibitions, conferences and activities from the association.",
+    "aVenir": "Upcoming",
+    "passes": "Past",
+    "aucunAVenir": "No upcoming events at the moment.",
+    "aucunPasse": "No past events."
+  },
+  "ficheEvenement": {
+    "lieu": "Location",
+    "retour": "All events"
   }
 }

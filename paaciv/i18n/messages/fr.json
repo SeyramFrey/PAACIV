@@ -155,5 +155,17 @@
   "ficheReportage": {
     "patrimoineLie": "Patrimoine lié",
     "retour": "Tous les reportages"
+  },
+  "evenements": {
+    "titre": "Événements",
+    "intro": "Expositions, conférences et activités de l'association.",
+    "aVenir": "À venir",
+    "passes": "Passés",
+    "aucunAVenir": "Aucun événement à venir pour le moment.",
+    "aucunPasse": "Aucun événement passé."
+  },
+  "ficheEvenement": {
+    "lieu": "Lieu",
+    "retour": "Tous les événements"
   }
 }
