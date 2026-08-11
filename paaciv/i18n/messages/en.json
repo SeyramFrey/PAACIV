@@ -133,5 +133,8 @@
     "bio": "Biography",
     "parcours": "Career",
     "realisations": "Works"
+  },
+  "video": {
+    "lire": "Play video"
   }
 }

@@ -133,5 +133,8 @@
     "bio": "Biographie",
     "parcours": "Parcours",
     "realisations": "Réalisations"
+  },
+  "video": {
+    "lire": "Lire la vidéo"
   }
 }
