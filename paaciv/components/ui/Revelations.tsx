@@ -24,7 +24,19 @@ export function Revelations() {
   // relancerait son animation depuis 0 à chaque clic sur un lien interne,
   // alors qu'il n'a jamais quitté l'écran. Le ref survit aux
   // réexécutions ; seul un vrai démontage du composant en crée un nouveau.
-  const animesRef = useRef<Set<HTMLElement>>(new Set())
+  //
+  // `WeakSet`, et non `Set`, pour `animes` : `Revelations` vit dans le
+  // layout racine et ne démonte réellement qu'au rechargement complet de
+  // la page. Un `Set` retiendrait une référence forte vers chaque élément
+  // de chaque page visitée pendant toute la session, y compris ceux que la
+  // navigation a retirés du DOM — une fuite mémoire qui grossit sans
+  // jamais rien libérer. Le `WeakSet` ne retient pas ses membres : un
+  // élément détaché devient éligible au ramasse-miettes, tandis qu'un
+  // élément persistant du layout reste référencé par le DOM lui-même et
+  // continue donc d'être dédupliqué normalement. On n'y itère jamais et on
+  // ne lit jamais sa taille, seulement `has`/`add`, donc rien ne dépend
+  // des méthodes qu'un `WeakSet` n'expose pas.
+  const animesRef = useRef<WeakSet<HTMLElement>>(new WeakSet())
   const minuteriesRef = useRef<Set<number>>(new Set())
 
   // Effet à part, aux dépendances vides : son retour ne s'exécute donc
