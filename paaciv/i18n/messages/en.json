@@ -1,4 +1,5 @@
 {
+  "modal": { "fermer": "Close" },
   "accueil": { "accroche": "Discover the heritage of Côte d'Ivoire" },
   "nav": {
     "carte": "Map",
