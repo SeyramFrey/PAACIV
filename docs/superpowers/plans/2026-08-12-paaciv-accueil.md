@@ -25,6 +25,7 @@
 - **`export const dynamic = 'force-dynamic'`** sur toute page qui lit Supabase et n'a pas de segment dynamique. Sans ce flag, Next la prérend au build et le contenu publié ensuite n'apparaît jamais.
 - **Commandes de vérification :** `npm run lint` · `npx tsc --noEmit` · `npm test` · `npm run e2e`. Le lint ne fait pas de vérification de types : les deux sont nécessaires.
 - **Commits fréquents**, un par tâche minimum, message en français au format conventionnel.
+- **La base Supabase `yognzzhrrllomokvoooy` est une base de PRODUCTION contenant de vraies données.** On n'y affaiblit jamais une politique RLS, même temporairement, même pour prouver qu'un test est discriminant : si le processus meurt entre l'ouverture et la fermeture, la base reste ouverte. Un test de sécurité se rend discriminant par un **témoin positif interne** — une lecture ou une insertion réussie qui prouve que le client anonyme atteint bien la ligne visée — et non par mutation de la politique. La vérification par mutation ne se fera que le jour où le projet disposera d'une base de préproduction jetable.
 
 ---
 
@@ -74,7 +75,7 @@
 `lib/data/accueil.ts` · `lib/data/contenu-site.ts` · `app/[locale]/actions/newsletter.ts` · `app/[locale]/actions/soutien.ts`
 
 **Base**
-`supabase/migrations/0016_accueil.sql` · `supabase/migrations/0017_accueil_seed.sql`
+`supabase/migrations/0016_accueil.sql` · `supabase/migrations/0017_accueil_index_statut.sql` · `supabase/migrations/0018_accueil_seed.sql`
 
 **Admin** — `app/[locale]/admin/{contenu,points-cles,activites,temoignages,abonnes,demandes}/`
 
@@ -755,15 +756,27 @@ test('le public ne voit que les contenus publiés', async () => {
   }
 })
 
+// ⚠️ Piège Postgres, découvert à l'exécution : un UPDATE bloqué par RLS ne
+// lève PAS d'erreur. Sans policy UPDATE, la clause USING vaut false, la
+// requête ne matche aucune ligne et renvoie un succès avec un jeu vide.
+// Seul INSERT lève 42501 sur un WITH CHECK en échec — d'où le patron
+// existant de tests/db/editorial.spec.ts, qui ne se transpose pas ici.
+// Le test doit donc vérifier que la DONNÉE n'a pas bougé, pas qu'une
+// erreur est remontée. Et il doit rester discriminant : une assertion
+// « jeu de résultats vide » passerait aussi avec une policy grande ouverte.
 test('contenu_site est lisible publiquement mais non modifiable', async () => {
   const sb = createClient(url, anon)
-  const { error: lecture } = await sb.from('contenu_site').select('cle').limit(1)
+  const { data: avant, error: lecture } = await sb
+    .from('contenu_site').select('valeur_fr').eq('cle', 'hero_titre').maybeSingle()
   expect(lecture).toBeNull()
-  const { error: ecriture } = await sb
-    .from('contenu_site')
-    .update({ valeur_fr: 'piraté' })
-    .eq('cle', 'hero_titre')
-  expect(ecriture).not.toBeNull()
+
+  const sentinelle = `piraté-${Date.now()}`
+  await sb.from('contenu_site').update({ valeur_fr: sentinelle }).eq('cle', 'hero_titre')
+
+  const { data: apres } = await sb
+    .from('contenu_site').select('valeur_fr').eq('cle', 'hero_titre').maybeSingle()
+  expect(apres?.valeur_fr).not.toBe(sentinelle)
+  expect(apres?.valeur_fr).toBe(avant?.valeur_fr)
 })
 
 // Le point de sécurité de la phase : ces deux tables portent des adresses
@@ -791,10 +804,24 @@ test('un anonyme peut déposer mais jamais relire les demandes', async () => {
   expect(data ?? []).toHaveLength(0)
 })
 
+// L'anonyme ne peut pas relire `demandes` : impossible de vérifier par
+// relecture. On compte donc les lignes concernées par l'UPDATE. Le test
+// insère d'abord sa propre ligne pour ne dépendre ni de l'ordre
+// d'exécution ni de données préexistantes.
 test("un anonyme ne peut pas marquer une demande comme traitée", async () => {
   const sb = createClient(url, anon)
-  const { error } = await sb.from('demandes').update({ statut: 'traitee' }).eq('type', 'don')
-  expect(error).not.toBeNull()
+  const marqueur = `rls-update-${Date.now()}@exemple.ci`
+  const { error: insertion } = await sb
+    .from('demandes')
+    .insert({ type: 'don', nom: 'Test RLS update', email: marqueur })
+  expect(insertion).toBeNull()
+
+  const { count } = await sb
+    .from('demandes')
+    .update({ statut: 'traitee' }, { count: 'exact' })
+    .eq('email', marqueur)
+  // Zéro ligne touchée. Si la policy disparaissait, ce serait 1.
+  expect(count ?? 0).toBe(0)
 })
 ```
 
@@ -967,14 +994,14 @@ git commit -m "feat(accueil): six tables de contenus et de collecte, avec RLS as
 ### Task 5 : Seed des contenus
 
 **Files:**
-- Create: `supabase/migrations/0017_accueil_seed.sql`
+- Create: `supabase/migrations/0018_accueil_seed.sql`
 - Modify: `tests/db/accueil-rls.spec.ts` (ajout d'un discriminant)
 
 **Interfaces:**
 - Consumes: les tables de la Task 4.
 - Produces: les clés de `contenu_site` listées ci-dessous, 4 lignes `pourquoi`, 5 lignes `raisons`, 4 `activites`. Un brouillon piège dans chaque table à statut, pour rendre le test RLS discriminant.
 
-- [ ] **Step 1 : Écrire `supabase/migrations/0017_accueil_seed.sql`**
+- [ ] **Step 1 : Écrire `supabase/migrations/0018_accueil_seed.sql`**
 
 Les textes proviennent de `docs/design-ref/Accueil PAACIV.dc.html`. **Les chiffres, coordonnées et montants inventés par le design sont remplacés par le marqueur `À COMPLÉTER`** (spec §8) — ils doivent sauter aux yeux en préproduction plutôt que partir en ligne déguisés en vérité.
 
@@ -1054,7 +1081,7 @@ insert into activites (titre_fr, titre_en, cadence_fr, cadence_en, description_f
 
 - [ ] **Step 2 : Appliquer la migration**
 
-Appliquer via l'outil MCP `apply_migration`, sous le nom `0017_accueil_seed`.
+Appliquer via l'outil MCP `apply_migration`, sous le nom `0018_accueil_seed`.
 
 - [ ] **Step 3 : Rendre le test RLS discriminant**
 
@@ -1079,7 +1106,7 @@ Expected: PASS (6 tests).
 - [ ] **Step 5 : Commit**
 
 ```bash
-git add supabase/migrations/0017_accueil_seed.sql tests/db/accueil-rls.spec.ts
+git add supabase/migrations/0018_accueil_seed.sql tests/db/accueil-rls.spec.ts
 git commit -m "feat(accueil): seed des contenus, marqueurs À COMPLÉTER sur les valeurs factuelles"
 ```
 
