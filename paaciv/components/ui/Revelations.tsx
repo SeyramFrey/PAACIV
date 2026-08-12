@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname } from '@/i18n/navigation'
 import { paliersCompteur } from '@/lib/compteur'
 
@@ -16,6 +16,32 @@ export function Revelations() {
   // à un élément qui l'a déjà est sans effet.
   const pathname = usePathname()
 
+  // Dans des `useRef`, et non des variables locales à l'effet : un élément
+  // persistant du layout (en-tête, pied de page) n'est jamais remonté par
+  // la navigation, mais l'effet ci-dessous se relance à chaque changement
+  // de route et rescanne tout le DOM. Si `animes` était recréé à chaque
+  // exécution, un compteur d'en-tête déjà terminé serait vu comme neuf et
+  // relancerait son animation depuis 0 à chaque clic sur un lien interne,
+  // alors qu'il n'a jamais quitté l'écran. Le ref survit aux
+  // réexécutions ; seul un vrai démontage du composant en crée un nouveau.
+  const animesRef = useRef<Set<HTMLElement>>(new Set())
+  const minuteriesRef = useRef<Set<number>>(new Set())
+
+  // Effet à part, aux dépendances vides : son retour ne s'exécute donc
+  // qu'au vrai démontage du composant, jamais à un simple changement de
+  // route. C'est le seul moment où il faut arrêter les compteurs encore en
+  // vol — les arrêter à chaque changement de route interromprait le
+  // compteur d'un élément persistant du layout à mi-course, et le garde
+  // `animes` (jamais vidé, par design) l'empêcherait alors de jamais
+  // reprendre.
+  useEffect(() => {
+    const minuteries = minuteriesRef.current
+    return () => {
+      minuteries.forEach((timer) => window.clearInterval(timer))
+      minuteries.clear()
+    }
+  }, [])
+
   useEffect(() => {
     const mouvement = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const tous = Array.from(
@@ -24,12 +50,12 @@ export function Revelations() {
 
     // Éléments déjà révélés/comptés : évite que le filet de sécurité ne
     // relance l'animation d'un compteur déjà déclenché par l'observateur
-    // (et inversement).
-    const animes = new Set<HTMLElement>()
-    // Minuteries des compteurs en cours : un compteur qui tourne encore au
-    // démontage (double montage du mode strict, changement de route)
-    // écrirait sinon dans un nœud détaché indéfiniment.
-    const minuteries = new Set<number>()
+    // (et inversement), et — grâce au ref — qu'un changement de route ne
+    // relance celle d'un élément persistant déjà animé.
+    const animes = animesRef.current
+    // Minuteries des compteurs en cours, partagées avec l'effet de
+    // démontage ci-dessus.
+    const minuteries = minuteriesRef.current
 
     function compter(el: HTMLElement) {
       if (animes.has(el)) return
@@ -120,7 +146,11 @@ export function Revelations() {
       observateur?.disconnect()
       if (secours !== undefined) window.clearTimeout(secours)
       window.removeEventListener('scroll', auScroll)
-      minuteries.forEach((timer) => window.clearInterval(timer))
+      // Les minuteries des compteurs ne sont volontairement pas annulées
+      // ici : ce nettoyage se déclenche à chaque changement de route, et
+      // un compteur d'élément persistant interrompu à mi-course ne
+      // reprendrait jamais (le garde `animes` bloque toute reprise). Leur
+      // annulation au vrai démontage est gérée par l'effet dédié ci-dessus.
     }
   }, [pathname])
 

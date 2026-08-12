@@ -57,6 +57,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
   vi.useRealTimers()
   document.body.innerHTML = ''
 })
@@ -101,22 +102,32 @@ describe('Revelations — nettoyage au démontage', () => {
 })
 
 describe('Revelations — filet de sécurité', () => {
-  it('révèle et anime les compteurs jamais intersectés, sans double déclenchement', () => {
+  it('révèle et anime les compteurs jamais intersectés, sans relancer celui déjà animé', () => {
     vi.useFakeTimers()
     setMatchMedia(false)
     const jamaisVu = ajouterCible({ 'data-rv': '', 'data-count': '37' })
     const dejaVu = ajouterCible({ 'data-rv': '', 'data-count': '9' })
+    // Preuve directe du non-double-déclenchement : la seule valeur finale
+    // ne suffit pas, deux intervalles concurrents sur le même élément
+    // convergeraient vers la même cible sans que ça ne prouve qu'un seul a
+    // tourné. On compte donc les appels à `setInterval` lui-même.
+    const setIntervalSpy = vi.spyOn(window, 'setInterval')
 
     render(<Revelations />)
     const io = IOMock.instances[0]
     // Celui-ci est révélé normalement, avant le filet de sécurité.
     io.trigger(dejaVu)
+    expect(setIntervalSpy).toHaveBeenCalledTimes(1)
+
     vi.advanceTimersByTime(26 * 40 + 10)
     expect(dejaVu.textContent).toBe('9')
     expect(dejaVu.classList.contains('rv-in')).toBe(true)
 
-    // Le filet de sécurité (4 s) doit rattraper le second, jamais intersecté.
+    // Le filet de sécurité (4 s) doit rattraper le second, jamais intersecté,
+    // et créer un unique nouvel intervalle pour lui — aucun pour `dejaVu`.
     vi.advanceTimersByTime(4000)
+    expect(setIntervalSpy).toHaveBeenCalledTimes(2)
+
     // Sous mouvement activé, `compter()` écrit la cible via son propre
     // intervalle : on laisse le temps aux 40 paliers de s'écouler.
     vi.advanceTimersByTime(26 * 40 + 10)
@@ -124,8 +135,10 @@ describe('Revelations — filet de sécurité', () => {
     expect(jamaisVu.classList.contains('rv-in')).toBe(true)
     expect(jamaisVu.textContent).toBe('37')
 
-    // Le premier n'a pas été relancé par le filet de sécurité.
+    // Le premier n'a pas été relancé par le filet de sécurité : toujours
+    // exactement deux appels à `setInterval` au total sur tout le test.
     expect(dejaVu.textContent).toBe('9')
+    expect(setIntervalSpy).toHaveBeenCalledTimes(2)
   })
 })
 
@@ -179,5 +192,39 @@ describe('Revelations — rescan au changement de route', () => {
     expect(nouvelIo.observed).toContain(nouveauBloc)
     // L'observateur précédent a bien été libéré, pas laissé actif en double.
     expect(premierIo.disconnect).toHaveBeenCalledTimes(1)
+  })
+
+  it("ne réanime pas un data-count resté monté à travers un changement de route", () => {
+    // Simule un compteur d'un élément persistant du layout (en-tête, pied
+    // de page) : il n'est jamais remonté par la navigation, contrairement
+    // au contenu de la page. Le rescan déclenché par le changement de route
+    // doit le retrouver mais ne doit jamais relancer son animation.
+    vi.useFakeTimers()
+    setMatchMedia(false)
+    const persistant = ajouterCible({ 'data-rv': '', 'data-count': '20' })
+    const setIntervalSpy = vi.spyOn(window, 'setInterval')
+
+    const { rerender } = render(<Revelations />)
+    const premierIo = IOMock.instances[0]
+    premierIo.trigger(persistant)
+    vi.advanceTimersByTime(26 * 40 + 10)
+    expect(persistant.textContent).toBe('20')
+    expect(setIntervalSpy).toHaveBeenCalledTimes(1)
+
+    // Navigation : le pathname change, l'effet se relance et rescanne le
+    // DOM — l'élément persistant y est toujours et se retrouve réobservé.
+    usePathnameMock.mockReturnValue('/fr/carte')
+    rerender(<Revelations />)
+    const nouvelIo = IOMock.instances[IOMock.instances.length - 1]
+    expect(nouvelIo.observed).toContain(persistant)
+
+    // Il intersecte de nouveau (il n'a jamais quitté l'écran) : si le garde
+    // anti-relance ne survivait pas au changement de route, ceci créerait
+    // un second intervalle et repartirait de 0.
+    nouvelIo.trigger(persistant)
+    vi.advanceTimersByTime(26 * 40 + 10)
+
+    expect(setIntervalSpy).toHaveBeenCalledTimes(1)
+    expect(persistant.textContent).toBe('20')
   })
 })
