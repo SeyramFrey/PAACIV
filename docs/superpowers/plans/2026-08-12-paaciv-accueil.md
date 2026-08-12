@@ -17,7 +17,9 @@
 - **Répertoire de travail :** toutes les commandes s'exécutent depuis `C:\Projets\PAACIV\paaciv`.
 - **Langue du code :** identifiants, noms de fichiers, commentaires et messages de commit en français, comme tout le projet existant.
 - **Bilingue :** toute colonne de texte visible existe en paire `*_fr` / `*_en`. FR requis, EN facultatif avec repli sur FR via `champ()` de `lib/i18n-champ.ts`.
-- **Aucun jaune.** Le token `--gold` du design est renommé `--accent` et vaut Ocre brûlé `#CE7A33`. À la fin de la Task 1, `grep -ri "gold" app components` doit ne rien renvoyer.
+- **Aucun jaune.** Le token `--gold` du design est renommé `--accent` et vaut Ocre brûlé `#CE7A33`. Vérification : `grep -rn -- "--gold" app components lib` doit ne rien renvoyer, et aucun fichier créé par ce plan ne doit référencer la couleur `or` / `#D9A441`.
+
+  > Le variant `variant="gold"` de `components/ui/Button.tsx` est **hors périmètre** : il date de la Phase 1, désigne la couleur Tailwind `or` et non le token du design, et il est utilisé dans dix fichiers d'admin livrés. Le renommer ici polluerait le diff de la Task 1 sans rien apporter. Son sort — comme celui de la couleur `--or` elle-même — est arbitré à l'étape 2.
 - **Aucune couleur Tailwind existante n'est modifiée ni supprimée.** `terracotta`, `brun`, `or`, `vert`, `sable`, `creme2`, `encre` restent déclarées telles quelles : les pages livrées en phases 1 à 4 en dépendent et ne doivent pas bouger.
 - **Erreurs attendues en valeur de retour**, jamais en exception — convention établie en Phase 4 (commit `033dec0`). Les erreurs inattendues restent des exceptions.
 - **`export const dynamic = 'force-dynamic'`** sur toute page qui lit Supabase et n'a pas de segment dynamique. Sans ce flag, Next la prérend au build et le contenu publié ensuite n'apparaît jamais.
