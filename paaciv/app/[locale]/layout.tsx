@@ -7,6 +7,8 @@ import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScriptTheme } from "@/components/ScriptTheme";
+import { Grain } from "@/components/ui/Grain";
+import { Revelations } from "@/components/ui/Revelations";
 import "../globals.css";
 
 const fraunces = Fraunces({
@@ -55,6 +57,8 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider>
+          <Grain />
+          <Revelations />
           <SiteHeader />
           {children}
           <SiteFooter />
