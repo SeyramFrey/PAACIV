@@ -2563,6 +2563,8 @@ const paiement = texte(textes, 'soutien_paiement', locale)
 </NextIntlClientProvider>
 ```
 
+> **Report de la Task 1 (défaut mineur relevé en revue).** Ajouter `data-scroll-behavior="smooth"` sur le `<html>` de ce même fichier. Sans cet attribut, Next 16 avertit à chaque chargement (`Detected 'scroll-behavior: smooth' on the <html> element`) et désactive silencieusement le défilement doux pendant les transitions de route — le `scroll-behavior: smooth` posé par `globals.css` en Task 1 ne s'applique alors qu'aux ancres, pas à la navigation.
+
 > **Le layout lit désormais Supabase.** `chargerTextes()` est un simple `fetch`, pas une API dynamique de Next : sans précaution, le layout serait prérendu au build et les textes du pied de page y seraient figés — exactement le bug déjà rencontré côté architectes, mais déplacé dans le layout où le flag de page ne l'atteint pas. Ajouter `export const dynamic = 'force-dynamic'` dans `app/[locale]/layout.tsx`, et vérifier après `npm run build` que la sortie ne marque aucune route en statique (`○`).
 
 > Le hero de l'accueil passe **sous** le header (fond sombre plein écran, c'est voulu). Les autres pages doivent au contraire dégager la barre : ajouter `pt-20` sur leur `<main>` plutôt qu'un padding global, pour ne pas créer un bandeau vide en haut de l'accueil.
