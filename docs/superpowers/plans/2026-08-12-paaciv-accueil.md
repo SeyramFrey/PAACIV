@@ -2561,6 +2561,8 @@ const paiement = texte(textes, 'soutien_paiement', locale)
 </NextIntlClientProvider>
 ```
 
+> **Le layout lit désormais Supabase.** `chargerTextes()` est un simple `fetch`, pas une API dynamique de Next : sans précaution, le layout serait prérendu au build et les textes du pied de page y seraient figés — exactement le bug déjà rencontré côté architectes, mais déplacé dans le layout où le flag de page ne l'atteint pas. Ajouter `export const dynamic = 'force-dynamic'` dans `app/[locale]/layout.tsx`, et vérifier après `npm run build` que la sortie ne marque aucune route en statique (`○`).
+
 > Le hero de l'accueil passe **sous** le header (fond sombre plein écran, c'est voulu). Les autres pages doivent au contraire dégager la barre : ajouter `pt-20` sur leur `<main>` plutôt qu'un padding global, pour ne pas créer un bandeau vide en haut de l'accueil.
 
 Appliquer `pt-20` au `<main>` de : `admin/layout.tsx`, `carte/page.tsx`, `archives/page.tsx`, `architectes/page.tsx`, `articles/page.tsx`, `reportages/page.tsx`, `evenements/page.tsx`, `patrimoine/[slug]/page.tsx`, `architectes/[slug]/page.tsx`, `articles/[slug]/page.tsx`, `reportages/[slug]/page.tsx`, `evenements/[slug]/page.tsx`, `login/page.tsx`.
