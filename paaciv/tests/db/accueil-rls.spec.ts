@@ -126,3 +126,43 @@ test('une tentative anonyme de marquer une demande comme traitée ne touche aucu
   expect(error).toBeNull()
   expect(count, 'aucune ligne ne doit être affectée par une mise à jour anonyme').toBe(0)
 })
+
+// La policy d'insertion sur `demandes` impose `with check (statut = 'nouvelle')`
+// : c'est ce qui empêche un déposant de créer sa propre demande déjà
+// marquée « traitée », et donc de la faire disparaître du suivi de
+// l'association avant même d'y entrer. Les tests précédents insèrent tous
+// sans préciser `statut` (donc avec la valeur par défaut) : cette branche du
+// `WITH CHECK` n'était jamais exercée. Contrairement à `UPDATE`, un `INSERT`
+// dont le `WITH CHECK` échoue lève bien une erreur — on ancre l'assertion
+// sur le code Postgres `42501` (violation de policy RLS) précisément pour
+// distinguer un rejet par la policy d'un rejet pour une tout autre raison
+// (une contrainte de colonne manquante, par exemple, lèverait aussi une
+// erreur, mais pas ce code-là).
+test('un anonyme ne peut pas déposer une demande déjà marquée comme traitée', async () => {
+  const sb = createClient(url, anon)
+  const { error } = await sb.from('demandes').insert({
+    type: 'don',
+    nom: 'Test RLS statut',
+    email: `test-rls-statut-${Date.now()}@exemple.ci`,
+    montant: 5000,
+    statut: 'traitee',
+  })
+  expect(error?.code, 'rejet attendu par le WITH CHECK de la policy insert (42501)').toBe('42501')
+})
+
+// Contre-épreuve du test précédent : sans elle, un test qui rejetterait
+// systématiquement toute insertion (policy insert absente, ou WITH CHECK mal
+// écrit et toujours faux) passerait aussi bien que la policy actuelle.
+// L'insertion avec `statut: 'nouvelle'` explicite doit réussir exactement
+// comme celle sans `statut` (valeur par défaut) des tests précédents.
+test('un anonyme peut déposer une demande avec le statut nouvelle explicite', async () => {
+  const sb = createClient(url, anon)
+  const { error } = await sb.from('demandes').insert({
+    type: 'don',
+    nom: 'Test RLS statut explicite',
+    email: `test-rls-statut-ok-${Date.now()}@exemple.ci`,
+    montant: 5000,
+    statut: 'nouvelle',
+  })
+  expect(error).toBeNull()
+})
