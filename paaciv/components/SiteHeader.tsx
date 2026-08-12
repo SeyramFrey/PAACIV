@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/ui/Container'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { BasculeTheme } from '@/components/ui/BasculeTheme'
 
 // Éléments de navigation avant le regroupement « Actualités » (position
 // historique du lien mort /actualites, conservée pour l'ordre visuel).
@@ -95,6 +96,8 @@ export function SiteHeader() {
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </button>
+
+          <BasculeTheme className="rounded-full p-2 text-brun transition hover:bg-creme2" />
 
           <LanguageSwitcher />
         </div>

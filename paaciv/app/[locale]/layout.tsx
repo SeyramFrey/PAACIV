@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ScriptTheme } from "@/components/ScriptTheme";
 import "../globals.css";
 
 const fraunces = Fraunces({
@@ -47,7 +48,11 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html
       lang={locale}
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <ScriptTheme />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider>
           <SiteHeader />

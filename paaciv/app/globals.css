@@ -1,5 +1,65 @@
 @import "tailwindcss";
 
+/* Le mode sombre du projet est piloté par un attribut sur <html>, pas par la
+   media query système : le site s'ouvre en sombre quelle que soit la
+   préférence de l'OS, et la bascule doit gagner dans les deux sens. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg:     oklch(0.943 0.021 79);
+  --bg2:    oklch(0.907 0.029 83);
+  --bg3:    oklch(0.868 0.034 81);
+  --ink:    oklch(0.263 0.012 45);
+  --soft:   oklch(0.470 0.030 50);
+  --line:   oklch(0.840 0.025 78);
+  --terra:  oklch(0.566 0.138 48);
+  --ocre:   oklch(0.458 0.114 43);
+  --accent: oklch(0.642 0.129 53);
+  --vert:   oklch(0.459 0.061 139);
+  --deep:   oklch(0.190 0.012 45);
+  --onDeep: oklch(0.943 0.021 79);
+  --veil:   linear-gradient(180deg, oklch(0.19 0.012 45/.28), oklch(0.16 0.012 45/.72));
+  --imgf:   saturate(1.02) contrast(1.02);
+}
+
+[data-theme="dark"] {
+  --bg:     oklch(0.148 0.014 45);
+  --bg2:    oklch(0.196 0.020 47);
+  --bg3:    oklch(0.245 0.024 49);
+  --ink:    oklch(0.945 0.020 82);
+  --soft:   oklch(0.735 0.028 70);
+  --line:   oklch(0.305 0.028 50);
+  --terra:  oklch(0.680 0.150 48);
+  --ocre:   oklch(0.600 0.130 45);
+  --accent: oklch(0.730 0.140 53);
+  --vert:   oklch(0.657 0.065 138);
+  --deep:   oklch(0.115 0.012 45);
+  --onDeep: oklch(0.943 0.021 79);
+  --veil:   linear-gradient(180deg, oklch(0.12 0.012 45/.42), oklch(0.10 0.012 45/.86));
+  --imgf:   saturate(.92) contrast(1.08) brightness(.86);
+}
+
+/* `@theme inline` fait pointer les utilitaires générés vers var(--x) au lieu
+   d'y copier la valeur : c'est ce qui permet à [data-theme] de rebasculer les
+   couleurs à l'exécution, sans recompiler le CSS. */
+@theme inline {
+  --color-fond:    var(--bg);
+  --color-fond2:   var(--bg2);
+  --color-fond3:   var(--bg3);
+  --color-encre-t: var(--ink);
+  --color-doux:    var(--soft);
+  --color-filet:   var(--line);
+  --color-terra:   var(--terra);
+  --color-ocre:    var(--ocre);
+  --color-accent:  var(--accent);
+  --color-foret:   var(--vert);
+  --color-profond: var(--deep);
+  --color-surprofond: var(--onDeep);
+}
+
+/* Palette « Terre & Ocre » des phases 1 à 4. Conservée à l'identique : les
+   pages livrées s'en servent plus de cent fois et ne bougent pas avant
+   l'étape 2 (propagation de la nouvelle identité au reste du site). */
 @theme {
   --color-terracotta: #B5581F;
   --color-brun: #8A3E1B;
@@ -12,4 +72,40 @@
   --font-sans: var(--font-inter);
 }
 
-body { background: var(--color-sable); color: var(--color-encre); }
+html { scroll-behavior: smooth; background-color: var(--bg); }
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  transition: background-color .7s ease, color .7s ease;
+}
+img { display: block; }
+::selection { background: var(--accent); color: oklch(0.15 0.012 45); }
+
+/* Révélations au scroll : l'état de départ est posé en CSS, la classe .rv-in
+   est ajoutée par components/ui/Revelations.tsx à l'entrée dans le viewport. */
+[data-rv] {
+  opacity: 0;
+  transform: translateY(34px);
+  filter: blur(10px);
+  transition: opacity 1s cubic-bezier(.16,1,.3,1),
+              transform 1.15s cubic-bezier(.16,1,.3,1),
+              filter 1s ease;
+}
+[data-rv].rv-in { opacity: 1; transform: none; filter: none; }
+[data-clip] { clip-path: inset(0 0 100% 0); transition: clip-path 1.4s cubic-bezier(.16,1,.3,1); }
+[data-clip].rv-in { clip-path: inset(0 0 0 0); }
+[data-line] { transform: scaleX(0); transform-origin: left; transition: transform 1.2s cubic-bezier(.16,1,.3,1); }
+[data-line].rv-in { transform: scaleX(1); }
+
+@keyframes mq     { to { transform: translate3d(-50%,0,0) } }
+@keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
+@keyframes sweep  { 0% { transform: translateX(-120%) skewX(-12deg) } 100% { transform: translateX(320%) skewX(-12deg) } }
+@keyframes pulse  { 0% { transform: scale(1); opacity:.55 } 70% { transform: scale(2.1); opacity:0 } 100% { opacity:0 } }
+@keyframes drop   { 0% { opacity:0; transform: translateY(26px) } 100% { opacity:1; transform:none } }
+@keyframes spin   { to { transform: rotate(360deg) } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-rv], [data-clip], [data-line] { opacity: 1; transform: none; filter: none; clip-path: none; transition: none; }
+  [data-mq], [data-floaty] { animation: none !important; }
+}

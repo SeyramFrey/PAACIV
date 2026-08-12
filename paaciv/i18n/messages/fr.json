@@ -248,5 +248,6 @@
   "ficheEvenement": {
     "lieu": "Lieu",
     "retour": "Tous les événements"
-  }
+  },
+  "theme": { "basculer": "Changer de thème" }
 }
