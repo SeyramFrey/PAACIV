@@ -166,3 +166,20 @@ test('un anonyme peut déposer une demande avec le statut nouvelle explicite', a
   })
   expect(error).toBeNull()
 })
+
+// Le seed (migration 0018) pose délibérément un brouillon piège dans
+// points_cles : sans lui, le test générique plus haut (« le public ne voit
+// que les contenus publiés ») était trivialement vrai tant que la table
+// était vide. Ce test rend l'assertion réelle : si la policy de lecture
+// publique disparaissait (using (true) au lieu de using (statut = 'publie')),
+// le brouillon deviendrait visible et le test échouerait. La contre-épreuve
+// (Grand-Bassam, publié, doit rester visible) exclut la policy trop stricte
+// symétrique — celle qui cacherait tout, brouillons et publiés confondus.
+test('le brouillon piège de points_cles ne fuit pas côté public', async () => {
+  const sb = createClient(url, anon)
+  const { data } = await sb.from('points_cles').select('titre_fr')
+  const titres = (data ?? []).map((r) => r.titre_fr)
+  expect(titres).not.toContain('Raison en brouillon')
+  // Contre-épreuve : la policy ne doit pas non plus être trop stricte.
+  expect(titres).toContain('Grand-Bassam')
+})
