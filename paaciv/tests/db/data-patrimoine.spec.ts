@@ -44,3 +44,22 @@ test('pointsPublies renvoie des points avec coordonnées', async () => {
   expect(pts.length).toBe(7)
   expect(pts.every((p) => typeof p.lat === 'number' && typeof p.lng === 'number')).toBe(true)
 })
+
+// Les bornes [-90, 90] / [-180, 180] (contrainte `patrimoine_lat_bornes`,
+// migration 0019) empêchent les valeurs absurdes, pas les valeurs plausibles
+// mais fausses : `quartier-france-de-grand-bassam` était enregistré à
+// lat 51.1996 au lieu de 5.1996 — un chiffre en trop qui plaçait le marqueur
+// dans le canal de Bristol, au large du pays de Galles, tout en restant dans
+// les bornes. Un site du patrimoine ivoirien est forcément dans l'enveloppe du
+// pays : c'est le seul filet qui attrape ce genre de faute de frappe.
+const ENVELOPPE_CI = { latMin: 4, latMax: 11, lngMin: -9, lngMax: -2 }
+
+test('tous les points publiés tombent dans l’enveloppe de la Côte d’Ivoire', async () => {
+  const pts = await pointsPublies()
+  const horsZone = pts.filter(
+    (p) =>
+      p.lat < ENVELOPPE_CI.latMin || p.lat > ENVELOPPE_CI.latMax ||
+      p.lng < ENVELOPPE_CI.lngMin || p.lng > ENVELOPPE_CI.lngMax,
+  )
+  expect(horsZone.map((p) => `${p.slug} (${p.lat}, ${p.lng})`)).toEqual([])
+})
