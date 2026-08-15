@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/slug'
-import { texteOuNull, intOuNull, richeOuNull } from '@/lib/admin/champs'
+import { texteOuNull, intOuNull, richeOuNull, validerCoordonnee, BORNE_LAT, BORNE_LNG } from '@/lib/admin/champs'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
@@ -12,13 +12,37 @@ export async function supprimerPatrimoine(id: string) {
   revalidatePath('/[locale]/admin/patrimoine', 'page')
 }
 
-export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: string }> {
+// Coordonnées hors bornes : erreur *attendue* (un chiffre en trop à la saisie
+// suffit), modélisée en valeur de retour plutôt qu'en exception — même
+// raisonnement et même pattern que evenements/actions.ts, à lire en premier
+// (Next redacte le message des erreurs `throw`ées depuis une Server Action en
+// build de production, et sa doc recommande de modéliser les erreurs attendues
+// en valeurs de retour). Ici l'enjeu est direct : une latitude aberrante ne
+// dégrade pas seulement la fiche concernée, elle fait tomber la carte publique
+// entière (maplibre-gl lève `Invalid LngLat latitude value` en boucle), donc
+// l'éditeur/rice doit savoir *quel* champ corriger, pas recevoir un « échec »
+// générique. Les erreurs *inattendues* (échecs Supabase, upload) restent des
+// exceptions.
+export type ResultatPatrimoine =
+  | { ok: true; id: string }
+  | { ok: false; erreur: 'latitudeHorsBornes' | 'longitudeHorsBornes' }
+
+export async function enregistrerPatrimoine(formData: FormData): Promise<ResultatPatrimoine> {
   const sb = await createServerClient()
   const id = texteOuNull(formData.get('id'))
   const titre_fr = (formData.get('titre_fr') ?? '').toString().trim()
   if (!titre_fr) throw new Error('Titre FR requis')
 
   const slug = texteOuNull(formData.get('slug')) ?? slugify(titre_fr)
+
+  // Défense en profondeur devant la contrainte `patrimoine_lat_bornes` /
+  // `patrimoine_lng_bornes` (0019) : le message de violation de contrainte
+  // Postgres brut est illisible pour un utilisateur final, on valide donc ici
+  // avant toute écriture.
+  const lat = validerCoordonnee(formData.get('lat'), BORNE_LAT)
+  if (!lat.ok) return { ok: false, erreur: 'latitudeHorsBornes' }
+  const lng = validerCoordonnee(formData.get('lng'), BORNE_LNG)
+  if (!lng.ok) return { ok: false, erreur: 'longitudeHorsBornes' }
 
   const valeurs = {
     slug,
@@ -37,8 +61,8 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
     date_texte: texteOuNull(formData.get('date_texte')),
     annee_debut: intOuNull(formData.get('annee_debut')),
     annee_fin: intOuNull(formData.get('annee_fin')),
-    lat: formData.get('lat') ? Number(formData.get('lat')) : null,
-    lng: formData.get('lng') ? Number(formData.get('lng')) : null,
+    lat: lat.valeur,
+    lng: lng.valeur,
     ville: texteOuNull(formData.get('ville')),
     adresse_fr: texteOuNull(formData.get('adresse_fr')),
     adresse_en: texteOuNull(formData.get('adresse_en')),
@@ -83,7 +107,7 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<{ id: s
   }
 
   revalidatePath('/[locale]/admin/patrimoine', 'page')
-  return { id: resultId }
+  return { ok: true, id: resultId }
 }
 
 export async function ajouterImage(formData: FormData): Promise<void> {

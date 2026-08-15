@@ -33,21 +33,31 @@ export function FormulairePatrimoine({
   const [lat, setLat] = useState<number | ''>(initial?.lat ?? '')
   const [lng, setLng] = useState<number | ''>(initial?.lng ?? '')
   const [enCours, setEnCours] = useState(false)
-  const [erreur, setErreur] = useState(false)
+  // `null` = pas d'erreur ; sinon le message déjà traduit à afficher dans la
+  // région d'alerte. `enregistrerPatrimoine` distingue erreurs *attendues*
+  // (retour `{ ok: false, erreur }`, mappé ici vers une clé i18n précise — la
+  // latitude ou la longitude est hors bornes) et erreurs *inattendues*
+  // (`throw`, catch générique ci-dessous) : voir le commentaire dans actions.ts
+  // pour le raisonnement complet.
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setEnCours(true)
-    setErreur(false)
+    setErreur(null)
     const fd = new FormData(e.currentTarget)
     try {
-      const { id } = await enregistrerPatrimoine(fd)
-      router.push(`/admin/patrimoine/${id}`)
+      const resultat = await enregistrerPatrimoine(fd)
+      if (!resultat.ok) {
+        setErreur(t(resultat.erreur === 'latitudeHorsBornes' ? 'erreurLatitudeHorsBornes' : 'erreurLongitudeHorsBornes'))
+        return
+      }
+      router.push(`/admin/patrimoine/${resultat.id}`)
       router.refresh()
     } catch {
-      setErreur(true)
+      setErreur(t('erreurEnregistrement'))
     } finally {
       setEnCours(false)
     }
@@ -149,14 +159,20 @@ export function FormulairePatrimoine({
             setLng(Number(ln.toFixed(6)))
           }}
         />
+        {/* `min`/`max` : première des trois barrières contre une coordonnée hors
+            bornes (puis `validerCoordonnee` côté serveur, puis la contrainte
+            CHECK de 0019). Le navigateur refuse la soumission et signale le
+            champ dès la frappe, sans aller-retour. `step="any"` est
+            indispensable : le pas par défaut d'un `type="number"` vaut 1, ce
+            qui invaliderait toute décimale — or la carte écrit six décimales. */}
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm">
             lat
-            <input name="lat" aria-label="lat" value={lat} onChange={(e) => setLat(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
+            <input name="lat" aria-label="lat" type="number" min={-90} max={90} step="any" value={lat} onChange={(e) => setLat(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
             lng
-            <input name="lng" aria-label="lng" value={lng} onChange={(e) => setLng(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
+            <input name="lng" aria-label="lng" type="number" min={-180} max={180} step="any" value={lng} onChange={(e) => setLng(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
           </label>
         </div>
       </div>
@@ -178,7 +194,7 @@ export function FormulairePatrimoine({
 
       {erreur && (
         <p role="alert" className="text-sm font-semibold text-brun">
-          {t('erreurEnregistrement')}
+          {erreur}
         </p>
       )}
 

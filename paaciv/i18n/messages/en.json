@@ -153,7 +153,9 @@
     "statut": "Status", "brouillon": "Draft", "publie": "Published",
     "enregistrer": "Save", "choisir": "— choose —", "ongletFr": "French", "ongletEn": "English",
     "architectes": "Architects", "roleAria": "Role of {nom}", "aucunRole": "— none —",
-    "erreurEnregistrement": "Saving failed. Please try again."
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "erreurLatitudeHorsBornes": "Latitude must be between -90 and 90.",
+    "erreurLongitudeHorsBornes": "Longitude must be between -180 and 180."
   },
   "adminImages": {
     "titre": "Images", "ajouter": "Add images", "credit": "Credit / source",

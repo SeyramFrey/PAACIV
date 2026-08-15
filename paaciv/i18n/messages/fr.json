@@ -153,7 +153,9 @@
     "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
     "enregistrer": "Enregistrer", "choisir": "— choisir —", "ongletFr": "Français", "ongletEn": "English",
     "architectes": "Architectes", "roleAria": "Rôle de {nom}", "aucunRole": "— aucun —",
-    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "erreurLatitudeHorsBornes": "La latitude doit être comprise entre -90 et 90.",
+    "erreurLongitudeHorsBornes": "La longitude doit être comprise entre -180 et 180."
   },
   "adminImages": {
     "titre": "Images", "ajouter": "Ajouter des images", "credit": "Crédit / source",
