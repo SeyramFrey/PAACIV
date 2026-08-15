@@ -81,6 +81,28 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     ;(window as unknown as { __carteMap?: Map }).__carteMap = map
     map.addControl(new NavigationControl(), 'top-right')
 
+    // Quitter /carte avant la fin du chargement appelle `map.remove()`, qui
+    // annule les requêtes encore en vol (sprite, TileJSON, tuiles). L'AbortError
+    // native qui en résulte (« signal is aborted without reason ») est émise en
+    // évènement `error` par le Style — et `Map._updateStyle` a pris soin de le
+    // détacher de la carte (`setEventedParent(null)`) AVANT de déclencher
+    // l'annulation. Un `map.on('error')` ne peut donc rien intercepter :
+    // l'écouteur doit être posé sur le style lui-même. Sans lui, `Evented.fire`
+    // déverse l'erreur dans `console.error` faute d'écouteur — Next 16 en fait
+    // une carte d'erreur bloquante posée sur la carte, et le bruit atteint aussi
+    // la console des visiteurs en production (vérifié sur `next build`).
+    //
+    // La fenêtre s'ouvre à chaque montage en StrictMode (effet monté deux fois
+    // en développement), à chaque Fast Refresh, et pour un visiteur qui quitte
+    // la page trop tôt.
+    //
+    // L'écouteur est volontairement vide : sa seule présence suffit à empêcher
+    // le repli sur `console.error`. Toute erreur NON liée à une annulation
+    // continue de remonter à la carte (l'évènement est propagé au parent après
+    // les écouteurs), qui la journalise exactement comme avant — journaliser
+    // ici en plus la ferait apparaître deux fois.
+    map.style.on('error', () => {})
+
     map.on('load', async () => {
       // Fond satellite (masqué par défaut). Inséré SANS beforeId : il se place
       // au-dessus du fond vectoriel mais sous les couches clusters/points
