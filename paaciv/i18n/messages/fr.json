@@ -1,4 +1,5 @@
 {
+  "modal": { "fermer": "Fermer" },
   "accueil": { "accroche": "Découvrir le patrimoine de la Côte d'Ivoire" },
   "nav": {
     "carte": "Carte",
@@ -250,5 +251,6 @@
   "ficheEvenement": {
     "lieu": "Lieu",
     "retour": "Tous les événements"
-  }
+  },
+  "theme": { "basculer": "Changer de thème" }
 }
