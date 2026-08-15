@@ -117,9 +117,19 @@ export async function vedettesHero(limite = 5): Promise<VedetteHero[]> {
     .order('created_at', { ascending: false })
   if (error) throw error
 
-  // On filtre les fiches sans image APRÈS la requête plutôt que par un
-  // `inner join` : la relation `images` est optionnelle et un join interne
-  // exclurait aussi les fiches dont l'unique image est en cours d'upload.
+  // On charge tout puis on tranche en mémoire, plutôt que d'ajouter
+  // `images!inner(...)` et un `.limit(limite)` sur la requête : c'est du
+  // sur-fetch assumé (pas un optimum), mais ça garde un seul type
+  // `LigneAvecImages` partagé avec `vignettesArchive` au lieu de dupliquer un
+  // hint de jointure sur deux requêtes — et le volume actuel (une poignée de
+  // fiches publiées) rend ce sur-fetch sans conséquence.
+  //
+  // Piège pour un futur changement : ajouter `.limit(limite)` à la requête
+  // SANS passer aussi à `images!inner(...)` serait un bug. La troncature SQL
+  // s'appliquerait avant le filtre `.image !== null` ci-dessous, et la
+  // fonction pourrait renvoyer moins de `limite` éléments alors que d'autres
+  // fiches éligibles existent plus loin dans la table. Les deux changements
+  // vont ensemble, ou pas du tout.
   return ((data ?? []) as unknown as LigneAvecImages[])
     .map((r) => ({
       slug: r.slug,
@@ -142,6 +152,8 @@ export async function vignettesArchive(limite = 12): Promise<VignetteArchive[]> 
     .order('created_at', { ascending: false })
   if (error) throw error
 
+  // Sur-fetch assumé, même raison que `vedettesHero` ci-dessus : ne pas
+  // ajouter `.limit(limite)` sans passer aussi `images!inner(...)`.
   return ((data ?? []) as unknown as LigneAvecImages[])
     .map((r) => ({
       slug: r.slug,
