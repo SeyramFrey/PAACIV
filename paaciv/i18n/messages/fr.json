@@ -1,4 +1,24 @@
 {
+  "soutien": {
+    "adhesion": "Adhérer à l'association",
+    "don": "Faire un don",
+    "archive": "Confier une archive",
+    "nom": "Nom",
+    "email": "Adresse e-mail",
+    "telephone": "Téléphone",
+    "montant": "Montant (F CFA)",
+    "message": "Message",
+    "messageArchive": "Décrivez ce que vous détenez",
+    "envoyer": "Envoyer",
+    "envoi": "Envoi…",
+    "merci": "Merci, votre demande est enregistrée.",
+    "paiement": "Pour finaliser :",
+    "erreurNomRequis": "Le nom est requis.",
+    "erreurEmailInvalide": "Cette adresse e-mail n'est pas valide.",
+    "erreurMontantInvalide": "Le montant doit être un nombre supérieur à zéro.",
+    "erreurTypeInvalide": "Type de demande inconnu.",
+    "erreurEchec": "L'enregistrement a échoué. Veuillez réessayer."
+  },
   "modal": { "fermer": "Fermer" },
   "accueil": { "accroche": "Découvrir le patrimoine de la Côte d'Ivoire" },
   "nav": {

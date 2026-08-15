@@ -1,4 +1,24 @@
 {
+  "soutien": {
+    "adhesion": "Join the association",
+    "don": "Make a donation",
+    "archive": "Entrust an archive",
+    "nom": "Name",
+    "email": "Email address",
+    "telephone": "Phone",
+    "montant": "Amount (CFA francs)",
+    "message": "Message",
+    "messageArchive": "Describe what you hold",
+    "envoyer": "Send",
+    "envoi": "Sending…",
+    "merci": "Thank you, your request has been recorded.",
+    "paiement": "To complete:",
+    "erreurNomRequis": "A name is required.",
+    "erreurEmailInvalide": "This email address is not valid.",
+    "erreurMontantInvalide": "The amount must be a number greater than zero.",
+    "erreurTypeInvalide": "Unknown request type.",
+    "erreurEchec": "Saving failed. Please try again."
+  },
   "modal": { "fermer": "Close" },
   "accueil": { "accroche": "Discover the heritage of Côte d'Ivoire" },
   "nav": {
