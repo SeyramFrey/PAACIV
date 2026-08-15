@@ -30,10 +30,19 @@ describe('FormulaireSoutien', () => {
   it('affiche le message d’erreur renvoyé par l’action', async () => {
     deposer.mockResolvedValue({ ok: false, erreur: 'emailInvalide' })
     monter('don')
+    // 'a@b' passe la validation HTML5 native (pas de point de domaine exigé)
+    // mais échoue RE_EMAIL côté serveur (Task 7) : même aller-retour que
+    // 'x', sans dépendre d'une désactivation de la validation native.
     await userEvent.type(screen.getByLabelText(/nom/i), 'Test')
-    await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'x')
+    await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b')
     await userEvent.click(screen.getByRole('button', { name: /envoyer/i }))
     expect(await screen.findByRole('alert')).toHaveTextContent(/adresse/i)
+    // La saisie doit survivre à une erreur : un formulaire vidé forcerait le
+    // donateur à tout retaper, y compris un message d'archive détaillé.
+    expect(screen.getByLabelText(/nom/i)).toHaveValue('Test')
+    // Verrou du câblage : si `formData.set('type', type)` disparaissait,
+    // chaque soumission reviendrait `typeInvalide` en silence côté tests.
+    expect(deposer.mock.calls[0][0].get('type')).toBe('don')
   })
 
   it('affiche la confirmation et les moyens de paiement après succès', async () => {

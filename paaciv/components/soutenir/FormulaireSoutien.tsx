@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { deposerDemande } from '@/app/[locale]/actions/soutien'
 import type { TypeDemande } from '@/app/[locale]/actions/soutien'
 
@@ -19,7 +19,6 @@ export function FormulaireSoutien({
   onSucces?: () => void
 }) {
   const t = useTranslations('soutien')
-  const locale = useLocale()
   const [erreur, setErreur] = useState<string | null>(null)
   const [envoye, setEnvoye] = useState(false)
   const [enCours, demarrer] = useTransition()
@@ -42,7 +41,6 @@ export function FormulaireSoutien({
     setErreur(null)
     demarrer(async () => {
       formData.set('type', type)
-      formData.set('langue', locale)
       const r = await deposerDemande(formData)
       if (r.ok) {
         setEnvoye(true)
@@ -57,13 +55,20 @@ export function FormulaireSoutien({
   }
 
   return (
-    // noValidate : ce formulaire délègue la validation au serveur
-    // (`deposerDemande`), qui renvoie une clé d'erreur précise affichée en
-    // `role="alert"`. Sans cet attribut, la validation native du navigateur
-    // (ex. `type="email"` + `required`) intercepterait la soumission avant
-    // que l'action ne soit jamais appelée, et ces messages ne s'afficheraient
-    // jamais.
-    <form action={soumettre} noValidate className="space-y-4">
+    // onSubmit plutôt que `action={soumettre}` : React 19 réinitialise
+    // inconditionnellement un formulaire soumis via `action` dès que celle-ci
+    // est synchrone (elle ne reporte le reset que si l'action retourne un
+    // thenable). `soumettre` déclenche `demarrer(...)` et retourne aussitôt
+    // `undefined`, donc le formulaire se viderait au clic — avant même que
+    // l'erreur serveur ne s'affiche. `onSubmit` + `preventDefault` laisse la
+    // saisie intacte, y compris après une erreur.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        soumettre(new FormData(e.currentTarget))
+      }}
+      className="space-y-4"
+    >
       <label className="block space-y-1">
         <span className="text-xs uppercase tracking-widest" style={{ color: 'var(--soft)' }}>
           {t('nom')}
