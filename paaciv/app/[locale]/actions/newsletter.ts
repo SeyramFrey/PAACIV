@@ -26,6 +26,7 @@ export async function inscrireNewsletter(formData: FormData): Promise<ResultatNe
     // transformerait le formulaire en oracle permettant de tester si une
     // adresse donnée figure dans la liste.
     if (error.code === '23505') return { ok: true }
+    console.error('newsletter insert', error)
     return { ok: false, erreur: 'echec' }
   }
   return { ok: true }

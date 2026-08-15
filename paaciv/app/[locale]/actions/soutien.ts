@@ -36,6 +36,9 @@ export async function deposerDemande(formData: FormData): Promise<ResultatDemand
     // dépôt public ne peut pas se marquer traité lui-même.
     statut: 'nouvelle',
   })
-  if (error) return { ok: false, erreur: 'echec' }
+  if (error) {
+    console.error('demandes insert', error)
+    return { ok: false, erreur: 'echec' }
+  }
   return { ok: true }
 }
