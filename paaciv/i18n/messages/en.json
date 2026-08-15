@@ -22,25 +22,25 @@
   "modal": { "fermer": "Close" },
   "accueil": { "accroche": "Discover the heritage of Côte d'Ivoire" },
   "nav": {
-    "carte": "Map",
-    "archives": "Archive",
-    "actualites": "News",
-    "articles": "Articles",
-    "reportages": "Reportages",
-    "evenements": "Events",
+    "carte": "The map",
+    "archives": "The archive",
     "architectes": "Architects",
-    "apropos": "About",
-    "contact": "Contact",
-    "recherche": "Search",
-    "principale": "Main navigation"
+    "articles": "Journal",
+    "reportages": "Films",
+    "evenements": "Calendar",
+    "adherer": "Join",
+    "principale": "Main navigation",
+    "ouvrirMenu": "Open menu",
+    "fermerMenu": "Close menu",
+    "menu": "Menu"
   },
   "footer": {
-    "description": "PAACIV documents and celebrates the architectural heritage of Côte d'Ivoire.",
-    "explorer": "Explore",
-    "infos": "Information",
-    "suivezNous": "Follow us",
-    "conditions": "Terms of use",
-    "droits": "All rights reserved."
+    "naviguer": "Browse",
+    "joindre": "Contact us",
+    "suivre": "Follow",
+    "langue": "Language",
+    "droits": "All rights reserved.",
+    "credits": "Photographs: PAACIV and contributors."
   },
   "login": {
     "titre": "Administrator area",

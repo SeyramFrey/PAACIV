@@ -42,7 +42,7 @@ export default async function FicheArchitecte({ params }: Props) {
   const realisationsTexte = champ(a.realisations_texte_fr, a.realisations_texte_en, locale)
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="grid gap-10 lg:grid-cols-[1fr_1.6fr]">
         <aside className="space-y-4">
           {a.photo && (

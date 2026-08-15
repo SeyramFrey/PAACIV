@@ -25,7 +25,7 @@ export default async function ArchitectesPage({
   const etrangers = tous.filter((a) => a.origine === 'etranger')
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="space-y-10">
         <header className="space-y-2">
           <h1 className="font-serif text-4xl text-brun">{t('titre')}</h1>

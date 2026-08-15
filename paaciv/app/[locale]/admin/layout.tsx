@@ -22,7 +22,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container>{children}</Container>
     </main>
   )

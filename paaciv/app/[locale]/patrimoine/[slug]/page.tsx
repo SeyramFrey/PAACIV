@@ -56,7 +56,7 @@ export default async function FichePatrimoine({ params }: Props) {
     null
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">

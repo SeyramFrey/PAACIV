@@ -53,7 +53,7 @@ export default async function FicheEvenement({ params }: Props) {
   const description = champ(e.description_fr, e.description_en, locale)
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="mx-auto max-w-3xl space-y-6">
         <Link href="/evenements" className="text-sm text-brun underline">
           {t('retour')}

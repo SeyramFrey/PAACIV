@@ -53,7 +53,7 @@ export default async function FicheReportage({ params }: Props) {
   const description = champ(r.description_fr, r.description_en, locale)
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="mx-auto max-w-3xl space-y-6">
         <Link href="/reportages" className="text-sm text-brun underline">
           {t('retour')}

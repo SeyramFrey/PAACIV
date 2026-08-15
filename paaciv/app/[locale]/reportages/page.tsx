@@ -30,7 +30,7 @@ export default async function ReportagesPage({
   const items = await listeReportages()
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="space-y-8">
         <header className="space-y-2">
           <h1 className="font-serif text-4xl text-brun">{t('titre')}</h1>

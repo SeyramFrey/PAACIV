@@ -22,25 +22,25 @@
   "modal": { "fermer": "Fermer" },
   "accueil": { "accroche": "Découvrir le patrimoine de la Côte d'Ivoire" },
   "nav": {
-    "carte": "Carte",
-    "archives": "Nos archives",
-    "actualites": "Actualités",
-    "articles": "Articles",
-    "reportages": "Reportages",
-    "evenements": "Événements",
+    "carte": "La carte",
+    "archives": "L'archive",
     "architectes": "Architectes",
-    "apropos": "À propos",
-    "contact": "Contact",
-    "recherche": "Rechercher",
-    "principale": "Navigation principale"
+    "articles": "Journal",
+    "reportages": "Reportages",
+    "evenements": "Agenda",
+    "adherer": "Adhérer",
+    "principale": "Navigation principale",
+    "ouvrirMenu": "Ouvrir le menu",
+    "fermerMenu": "Fermer le menu",
+    "menu": "Menu"
   },
   "footer": {
-    "description": "PAACIV recense, documente et valorise le patrimoine architectural de Côte d'Ivoire.",
-    "explorer": "Explorer",
-    "infos": "Informations",
-    "suivezNous": "Suivez-nous",
-    "conditions": "Conditions d'utilisation",
-    "droits": "Tous droits réservés."
+    "naviguer": "Naviguer",
+    "joindre": "Nous joindre",
+    "suivre": "Suivre",
+    "langue": "Langue",
+    "droits": "Tous droits réservés.",
+    "credits": "Photographies : PAACIV et contributeurs."
   },
   "login": {
     "titre": "Espace administrateur",

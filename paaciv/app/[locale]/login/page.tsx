@@ -37,7 +37,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex-1 py-16">
+    <main className="flex-1 pt-20 py-16">
       <Container className="max-w-md">
         <h1 className="mb-8 font-serif text-3xl text-brun">{t('titre')}</h1>
         <form onSubmit={connexion} className="space-y-5">

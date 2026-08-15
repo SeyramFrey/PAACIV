@@ -9,7 +9,14 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ScriptTheme } from "@/components/ScriptTheme";
 import { Grain } from "@/components/ui/Grain";
 import { Revelations } from "@/components/ui/Revelations";
+import { FournisseurSoutien } from "@/components/soutenir/ContexteSoutien";
+import { chargerTextes, texte } from "@/lib/data/contenu-site";
 import "../globals.css";
+
+// Le layout lit désormais Supabase via `chargerTextes()`, un simple `fetch`
+// et non une API dynamique de Next : sans ce drapeau, il serait prérendu au
+// build et les textes du pied de page y resteraient figés pour toujours.
+export const dynamic = "force-dynamic";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -46,10 +53,14 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
+  const textes = await chargerTextes();
+  const paiement = texte(textes, "soutien_paiement", locale);
+
   return (
     <html
       lang={locale}
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
@@ -57,11 +68,13 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider>
-          <Grain />
-          <Revelations />
-          <SiteHeader />
-          {children}
-          <SiteFooter />
+          <FournisseurSoutien paiement={paiement}>
+            <Grain />
+            <Revelations />
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </FournisseurSoutien>
         </NextIntlClientProvider>
       </body>
     </html>
