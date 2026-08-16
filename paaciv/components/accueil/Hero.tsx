@@ -132,6 +132,7 @@ export function Hero({
       <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(120px,16vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="max-w-[900px]">
           <p
+            data-testid="accroche"
             data-rv=""
             data-d="200"
             className="mb-[22px] text-[11px] font-medium uppercase tracking-[0.3em]"

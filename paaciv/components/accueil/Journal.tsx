@@ -41,7 +41,10 @@ export function Journal({
   const dernier = articles.length - 1
 
   return (
-    <section className="relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]">
+    <section
+      id="journal"
+      className="relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]"
+    >
       <img
         data-par="0.08"
         src="https://commons.wikimedia.org/wiki/Special:FilePath/Cathedrale%20St%20Paul%20Abidjan%201.jpg?width=1800"

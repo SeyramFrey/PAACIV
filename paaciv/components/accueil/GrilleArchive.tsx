@@ -31,6 +31,13 @@ export function GrilleArchive({
   // `null` = « Tout ». Une chaîne = l'id du type actif.
   const [filtre, setFiltre] = useState<string | null>(null)
 
+  // Aucune vignette (aucune fiche publiée avec image) : le bloc entier
+  // disparaît plutôt que d'afficher un titre, un unique filtre « Tout » et
+  // les trois pastilles décoratives flottant au-dessus d'une grille vide —
+  // même garde que partout ailleurs dans l'accueil (Activites,
+  // PourquoiNousSuivre, CinqRaisons, Journal, Temoignages).
+  if (vignettes.length === 0) return null
+
   // Filtres par types réellement représentés dans les vignettes chargées
   // (spec §3.4), pas les quatre catégories inventées de la maquette : un
   // filtre qui ne renverrait jamais rien serait un piège pour l'utilisateur.
@@ -42,7 +49,10 @@ export function GrilleArchive({
   const visibles = filtre === null ? vignettes : vignettes.filter((v) => v.type_id === filtre)
 
   return (
-    <section className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,130px)] pb-[clamp(60px,7vw,110px)]">
+    <section
+      id="archive"
+      className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,130px)] pb-[clamp(60px,7vw,110px)]"
+    >
       <div className="mx-auto max-w-[1440px]">
         <div className="text-center">
           <p
