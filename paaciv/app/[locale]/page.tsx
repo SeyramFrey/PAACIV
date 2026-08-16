@@ -1,13 +1,12 @@
 import { setRequestLocale } from 'next-intl/server'
 import { chargerTextes, texte } from '@/lib/data/contenu-site'
 import {
-  chiffresCles, listeActivites, listePointsCles, listeTemoignages,
+  chiffresCles, listeActivites, listePointsCles, listeTemoignages, listeTypes,
   vedettesHero, vignettesArchive, villesArchive,
 } from '@/lib/data/accueil'
 import { listeArticles } from '@/lib/data/articles'
 import { listeEvenements } from '@/lib/data/evenements'
 import { partitionnerEvenements } from '@/lib/evenements-dates'
-import { chargerReferences } from '@/lib/data/references'
 import { Hero } from '@/components/accueil/Hero'
 import { CarteFilm } from '@/components/accueil/CarteFilm'
 import { BandeauVilles } from '@/components/accueil/BandeauVilles'
@@ -37,7 +36,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
   // enchaîner en série multiplierait le temps de rendu par dix.
   const [
     textes, vedettes, villes, chiffres, pourquoi, raisons,
-    activites, references, evenements, vignettes, temoignages, articles,
+    activites, types, evenements, vignettes, temoignages, articles,
   ] = await Promise.all([
     chargerTextes(),
     vedettesHero(5),
@@ -46,7 +45,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
     listePointsCles('pourquoi'),
     listePointsCles('raisons'),
     listeActivites(),
-    chargerReferences(),
+    listeTypes(),
     listeEvenements(),
     vignettesArchive(12),
     listeTemoignages(),
@@ -71,7 +70,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         intro={tx('activites_intro')}
       />
       <ApercuCarte
-        types={references.types}
+        types={types}
         nombre={chiffres.fiches}
         surtitre={tx('carte_surtitre')}
         titre={tx('carte_titre')}
@@ -82,7 +81,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
       <AppelArchives texte={tx('parallaxe_texte')} />
       <GrilleArchive
         vignettes={vignettes}
-        types={references.types}
+        types={types}
         total={chiffres.fiches}
         surtitre={tx('archive_surtitre')}
         titre={tx('archive_titre')}

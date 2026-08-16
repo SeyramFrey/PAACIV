@@ -96,6 +96,7 @@ export async function CinqRaisons({ points, textes }: { points: PointCle[]; text
                 <img
                   src={p.src}
                   alt=""
+                  loading="lazy"
                   className="-m-[25%] h-[150%] w-[150%] -rotate-45 object-cover"
                   style={{ filter: 'var(--imgf)' }}
                 />

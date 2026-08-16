@@ -49,6 +49,7 @@ export function Journal({
         data-par="0.08"
         src="https://commons.wikimedia.org/wiki/Special:FilePath/Cathedrale%20St%20Paul%20Abidjan%201.jpg?width=1800"
         alt=""
+        loading="lazy"
         className="absolute inset-0 h-full w-full object-cover"
         style={{ filter: 'var(--imgf)' }}
       />
@@ -113,6 +114,7 @@ export function Journal({
                         <img
                           src={a.image}
                           alt=""
+                          loading="lazy"
                           className="h-full w-full object-cover"
                           style={{ filter: 'var(--imgf)' }}
                         />

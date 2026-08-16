@@ -8,10 +8,10 @@ import { FormulaireSoutien } from '@/components/soutenir/FormulaireSoutien'
 const deposer = vi.hoisted(() => vi.fn())
 vi.mock('@/app/[locale]/actions/soutien', () => ({ deposerDemande: deposer }))
 
-function monter(type: 'adhesion' | 'don' | 'archive' = 'don') {
+function monter(type: 'adhesion' | 'don' | 'archive' = 'don', paiement = 'Wave 07 00 00 00 00') {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <FormulaireSoutien type={type} paiement="Wave 07 00 00 00 00" onSucces={() => {}} />
+      <FormulaireSoutien type={type} paiement={paiement} onSucces={() => {}} />
     </NextIntlClientProvider>,
   )
 }
@@ -52,5 +52,19 @@ describe('FormulaireSoutien', () => {
     await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b.ci')
     await userEvent.click(screen.getByRole('button', { name: /envoyer/i }))
     expect(await screen.findByText(/Wave 07 00 00 00 00/)).toBeInTheDocument()
+  })
+
+  it('masque le bloc « Pour finaliser » tant que le moyen de paiement n’est pas renseigné', async () => {
+    // Agnostique au type : l'adhésion et l'archive passent par le même
+    // écran de confirmation que le don, avec le même risque de fuite du
+    // marqueur « À COMPLÉTER » tant que l'association ne l'a pas remplacé.
+    deposer.mockResolvedValue({ ok: true })
+    monter('adhesion', 'À COMPLÉTER — coordonnées bancaires, Wave, Orange Money')
+    await userEvent.type(screen.getByLabelText(/nom/i), 'Test')
+    await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b.ci')
+    await userEvent.click(screen.getByRole('button', { name: /envoyer/i }))
+    expect(await screen.findByText(/merci/i)).toBeInTheDocument()
+    expect(screen.queryByText(/À COMPLÉTER/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/pour finaliser/i)).not.toBeInTheDocument()
   })
 })

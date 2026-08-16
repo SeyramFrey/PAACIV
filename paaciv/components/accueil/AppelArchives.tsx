@@ -26,6 +26,7 @@ export function AppelArchives({ texte }: { texte: string }) {
         data-par="0.14"
         src="https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20notre%20Dame%20de%20la%20Paix%20de%20Yamoussoukro%2020.jpg?width=1800"
         alt="Basilique Notre-Dame de la Paix, Yamoussoukro"
+        loading="lazy"
         className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
         style={{ filter: 'var(--imgf)' }}
       />

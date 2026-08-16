@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imagePrincipale, imageUrl, type ImageMini } from '@/lib/media'
+import type { Ref } from '@/lib/data/patrimoine'
 
 export type PointCle = {
   id: string
@@ -167,7 +168,11 @@ export async function vignettesArchive(limite = 12): Promise<VignetteArchive[]> 
     .slice(0, limite)
 }
 
-export async function villesArchive(): Promise<string[]> {
+// Mémoïsé : appelée à la fois depuis la page d'accueil (bandeau des villes)
+// et depuis `chiffresCles()` ci-dessous (comptage des communes distinctes) —
+// sans `cache()`, les deux appels d'une même requête interrogeraient deux
+// fois la table `patrimoine`.
+export const villesArchive = cache(async function villesArchive(): Promise<string[]> {
   const sb = createReadClient()
   const { data, error } = await sb.from('patrimoine').select('ville').eq('statut', 'publie')
   if (error) throw error
@@ -175,6 +180,19 @@ export async function villesArchive(): Promise<string[]> {
     .map((r) => (r.ville ?? '').trim())
     .filter((v) => v.length > 0)
   return Array.from(new Set(villes)).sort((a, b) => a.localeCompare(b, 'fr'))
+})
+
+// Les types de patrimoine, en lecture publique (`createReadClient`, sans
+// cookies) : la page d'accueil n'a besoin que de ceux-ci parmi les quatre
+// tables de référence lues par `chargerReferences()` (types, programmes,
+// districts, époques) — l'accueil ne filtre que par type, jamais par
+// programme, district ou époque. Trois allers-retours économisés à chaque
+// chargement de la page la plus visitée du site.
+export async function listeTypes(): Promise<Ref[]> {
+  const sb = createReadClient()
+  const { data, error } = await sb.from('types').select('*').order('ordre')
+  if (error) throw error
+  return (data ?? []) as Ref[]
 }
 
 // Compteurs du bloc « L'association ». Mémoïsé : le bloc les affiche et le

@@ -36,6 +36,7 @@ function Carte({
       <img
         src={image}
         alt=""
+        loading="lazy"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
         style={{ filter: 'var(--imgf)' }}
       />

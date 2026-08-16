@@ -5,8 +5,23 @@ test('la page affiche ses blocs dans l’ordre du design', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   // Un seul h1 sur la page : les quinze autres blocs sont des h2.
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
-  for (const id of ['top', 'association', 'archive', 'agenda', 'journal', 'contact']) {
-    await expect(page.locator(`#${id}`)).toHaveCount(1)
+  // Ordre réel de la maquette (docs/design-ref, lignes 24 à 582) : l'agenda
+  // (368) précède l'archive (400), qui précède le journal (526) — dans cet
+  // ordre, et non celui, erroné, du brief d'origine (qui plaçait « archive »
+  // avant « agenda »). Compare les positions verticales, pas seulement la
+  // présence des ancres : la seule présence des six `id` sur la page ne
+  // dirait rien de leur ordre, la propriété que seul l'assemblage révèle.
+  const ordre = ['top', 'association', 'agenda', 'archive', 'journal', 'contact']
+  const positions: number[] = []
+  for (const id of ordre) {
+    const ancre = page.locator(`#${id}`)
+    await expect(ancre).toHaveCount(1)
+    const boite = await ancre.boundingBox()
+    expect(boite, `#${id} doit être mesurable (pas display:none)`).not.toBeNull()
+    positions.push(boite!.y)
+  }
+  for (let i = 1; i < positions.length; i++) {
+    expect(positions[i], `#${ordre[i]} doit suivre #${ordre[i - 1]}`).toBeGreaterThan(positions[i - 1])
   }
 })
 
@@ -14,6 +29,17 @@ test('aucun lien mort ni bouton inerte sur toute la page', async ({ page }) => {
   await page.goto('/fr')
   const hrefs = await page.locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))
   expect(hrefs.some((h) => h === '#' || h === '')).toBe(false)
+  // Une ancre `#bloc-inexistant` passerait la vérification ci-dessus (elle
+  // n'est ni vide ni `#` seul) tout en ne menant nulle part : on vérifie
+  // donc que toute ancre interne cible un `id` réellement présent sur la
+  // page.
+  const ancresMortes = await page.evaluate(() => {
+    const ids = new Set(Array.from(document.querySelectorAll('[id]')).map((el) => el.id))
+    return Array.from(document.querySelectorAll('a[href^="#"]'))
+      .map((a) => a.getAttribute('href')!.slice(1))
+      .filter((id) => id.length > 0 && !ids.has(id))
+  })
+  expect(ancresMortes).toEqual([])
 })
 
 test('les vignettes d’archive mènent aux fiches', async ({ page }) => {
@@ -58,4 +84,13 @@ test('la version anglaise rend la page sans texte français résiduel', async ({
   await page.goto('/en')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Explore the archive' })).toBeVisible()
+  // Repères de traduction STATIQUE (namespace `accueil`/`nav`, indépendants
+  // du contenu Supabase, donc non tributaires des données de production) :
+  // leur présence en français signalerait que la bascule de langue n'a pas
+  // atteint tel ou tel bloc, ce que le seul lien « Explore the archive »
+  // ci-dessus ne peut pas révéler à lui seul.
+  const texte = await page.locator('body').innerText()
+  for (const francais of ['Adhérer', "Explorer l'archive", "Soutenir l'association", "S'inscrire", 'Voir le programme']) {
+    expect(texte, `« ${francais} » ne doit pas apparaître sur /en`).not.toContain(francais)
+  }
 })

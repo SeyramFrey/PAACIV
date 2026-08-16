@@ -21,6 +21,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
           <img
             src="https://commons.wikimedia.org/wiki/Special:FilePath/Maison%20du%20Resident%20(c'etait%20le%20logement%20du%20directeur%20de%20l'ecole%20regionale%20a%20l'epoque%20coloniale).jpg?width=1100"
             alt="Maison du Résident, Grand-Bassam"
+            loading="lazy"
             className="h-full w-full object-cover"
             style={{ filter: 'var(--imgf)' }}
           />
@@ -83,6 +84,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
           <img
             src="https://commons.wikimedia.org/wiki/Special:FilePath/Int%C3%A9rieur%20Mosqu%C3%A9e%20Dieng%20%C3%A0%20Grand-Bassam.jpg?width=1100"
             alt="Intérieur de la mosquée Dieng"
+            loading="lazy"
             className="h-full w-full object-cover"
             style={{ filter: 'var(--imgf)' }}
           />

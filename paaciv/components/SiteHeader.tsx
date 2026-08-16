@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { BasculeTheme } from '@/components/ui/BasculeTheme'
@@ -31,28 +31,53 @@ export function SiteHeader() {
   // clair (ou l'inverse), illisible en permanence puisque le seuil de
   // défilement ci-dessous n'est jamais atteint sur une page courte.
   const estAccueil = pathname === '/'
-  const [opaqueDefilement, setOpaqueDefilement] = useState(false)
+  const header = useRef<HTMLElement>(null)
+  // État sûr par défaut : OPAQUE. Un en-tête transparent qui écrirait
+  // `--onDeep` sur un fond clair (identiques en thème clair, dette de la
+  // Task 9) est le pire des deux erreurs possibles ; un en-tête opaque un
+  // instant de trop au-dessus du hero n'est qu'un flash cosmétique. Cet état
+  // est donc celui du rendu serveur (pas de JS → jamais transparent), et
+  // celui qui tient tant que l'effet ci-dessous n'a pas positivement
+  // confirmé que le hero est encore derrière l'en-tête.
+  const [opaqueDefilement, setOpaqueDefilement] = useState(true)
 
-  // Sur l'accueil, le header devient opaque une fois le hero dépassé — un
-  // seuil fixe (85 % de la hauteur d'écran), pas une détection de contenu :
-  // il est franchi tôt ou tard sur *toute* page assez longue, hero ou pas.
-  // Ailleurs, l'écoute du défilement est inutile : l'en-tête y est opaque en
-  // permanence, une valeur dérivée au rendu (ci-dessous) plutôt qu'un état à
-  // synchroniser dans cet effet.
+  // Sur l'accueil, le header redevient transparent tant que le hero est
+  // visuellement derrière lui, puis repasse opaque une fois le hero
+  // dépassé. Le seuil est dérivé du bas RÉEL du hero (`#top`), pas d'un
+  // pourcentage de `innerHeight` : le hero fait `min-h-[100svh]`, et
+  // `100svh` est par définition inférieur à `window.innerHeight` dès que la
+  // barre d'URL mobile se masque — un seuil en pourcentage de `innerHeight`
+  // ne se déclencherait alors jamais avant que le hero ne soit déjà passé,
+  // laissant l'en-tête transparent sur fond clair. Absence de `#top` (toutes
+  // les autres pages, ou avant montage) : reste opaque, l'état sûr.
+  // Ailleurs qu'à l'accueil, l'écoute du défilement est inutile : l'en-tête
+  // y est opaque en permanence, une valeur dérivée au rendu (ci-dessous)
+  // plutôt qu'un état à synchroniser dans cet effet.
   useEffect(() => {
     if (!estAccueil) return
-    function auScroll() {
-      setOpaqueDefilement(window.scrollY > window.innerHeight * 0.85)
+    function evaluer() {
+      const hero = document.getElementById('top')
+      const h = header.current
+      if (!hero || !h) {
+        setOpaqueDefilement(true)
+        return
+      }
+      setOpaqueDefilement(hero.getBoundingClientRect().bottom <= h.getBoundingClientRect().height)
     }
-    window.addEventListener('scroll', auScroll, { passive: true })
-    auScroll()
-    return () => window.removeEventListener('scroll', auScroll)
+    window.addEventListener('scroll', evaluer, { passive: true })
+    window.addEventListener('resize', evaluer, { passive: true })
+    evaluer()
+    return () => {
+      window.removeEventListener('scroll', evaluer)
+      window.removeEventListener('resize', evaluer)
+    }
   }, [estAccueil])
 
   const opaque = estAccueil ? opaqueDefilement : true
 
   return (
     <header
+      ref={header}
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-6 px-5 py-4 backdrop-blur-[14px] transition-[background-color] duration-500 sm:px-8 lg:px-14"
       style={{
         background: opaque ? 'color-mix(in oklab, var(--bg) 82%, transparent)' : 'transparent',

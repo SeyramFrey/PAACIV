@@ -115,6 +115,11 @@ export function Hero({
             key={v.slug}
             src={v.image}
             alt=""
+            // Seule la première (contenu du premier écran) charge
+            // immédiatement ; les autres, empilées derrière elle en attente
+            // de leur tour de rotation, n'ont pas à concurrencer le premier
+            // rendu pour la bande passante.
+            loading={i === 0 ? undefined : 'lazy'}
             className="absolute inset-0 h-full w-full object-cover"
             style={{
               filter: 'var(--imgf)',
@@ -209,7 +214,7 @@ export function Hero({
                       i === actif ? 'var(--accent)' : 'color-mix(in oklab, var(--onDeep) 30%, transparent)',
                   }}
                 >
-                  <img src={v.image} alt="" className="h-full w-full object-cover" />
+                  <img src={v.image} alt="" loading="lazy" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>

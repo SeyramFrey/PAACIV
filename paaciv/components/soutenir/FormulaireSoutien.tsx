@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { deposerDemande } from '@/app/[locale]/actions/soutien'
 import type { TypeDemande } from '@/app/[locale]/actions/soutien'
+import { renseigne } from '@/lib/data/contenu-site'
 
 const champ =
   'w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]'
@@ -27,12 +28,24 @@ export function FormulaireSoutien({
     return (
       <div className="space-y-4">
         <p style={{ color: 'var(--ink)' }}>{t('merci')}</p>
-        <p className="text-sm" style={{ color: 'var(--soft)' }}>
-          {t('paiement')}
-        </p>
-        <p className="whitespace-pre-line text-sm" style={{ color: 'var(--ink)' }}>
-          {paiement}
-        </p>
+        {/* Écran de confirmation agnostique au type (adhésion, don, archive :
+            les trois passent par ce même composant) : sans cette garde,
+            n'importe lequel des trois afficherait à un visiteur réel le
+            marqueur brut « À COMPLÉTER — coordonnées bancaires… » tant que
+            l'association n'a pas renseigné `soutien_paiement`. Le bloc
+            entier disparaît plutôt que de laisser un titre « Pour
+            finaliser : » orphelin — même logique que `renseigne()` partout
+            ailleurs dans le projet (SiteFooter, CartesSoutien). */}
+        {renseigne(paiement) && (
+          <>
+            <p className="text-sm" style={{ color: 'var(--soft)' }}>
+              {t('paiement')}
+            </p>
+            <p className="whitespace-pre-line text-sm" style={{ color: 'var(--ink)' }}>
+              {paiement}
+            </p>
+          </>
+        )}
       </div>
     )
   }

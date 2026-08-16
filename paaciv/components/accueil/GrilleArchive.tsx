@@ -150,6 +150,7 @@ export function GrilleArchive({
                     <img
                       src={v.image}
                       alt=""
+                      loading="lazy"
                       className="h-full w-full object-cover"
                       style={{ filter: 'var(--imgf)' }}
                     />

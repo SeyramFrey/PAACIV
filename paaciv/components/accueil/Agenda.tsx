@@ -77,6 +77,7 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
                   <img
                     src={vedette.image}
                     alt=""
+                    loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{ filter: 'var(--imgf)' }}
                   />

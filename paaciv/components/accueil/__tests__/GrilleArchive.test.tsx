@@ -55,6 +55,13 @@ describe('GrilleArchive', () => {
     expect(lien).toHaveAttribute('href', '/fr/archives')
   })
 
+  it('ne rend rien sans vignette, plutôt qu’un titre et un filtre « Tout » esseulé au-dessus d’une grille vide', () => {
+    const { container } = monter([])
+    expect(container).toBeEmptyDOMElement()
+    expect(screen.queryByText('Archive photographique')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tout' })).not.toBeInTheDocument()
+  })
+
   it('une vignette recréée après un aller-retour de filtre reste immédiatement visible', async () => {
     monter()
     await userEvent.click(screen.getByRole('button', { name: 'Religieux' }))
