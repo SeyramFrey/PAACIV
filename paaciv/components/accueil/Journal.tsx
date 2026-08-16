@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
+import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
 import type { ArticleListItem } from '@/lib/data/articles'
 
 // `date_publication` est une colonne `date` (YYYY-MM-DD) : `timeZone: 'UTC'`
@@ -118,8 +119,12 @@ export function Journal({
                     className="grid flex-none basis-full items-stretch"
                     style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
                   >
+                    {/* Aucun article n'a d'image de couverture en base : la
+                        moitié gauche du cadre restait littéralement vide à
+                        côté du panneau de texte. Le repli lui donne une
+                        surface, sans rien inventer ni charger d'ailleurs. */}
                     <div className="overflow-hidden" style={{ minHeight: 'clamp(260px,26vw,360px)' }}>
-                      {a.image && (
+                      {a.image ? (
                         <img
                           src={a.image}
                           alt=""
@@ -127,6 +132,8 @@ export function Journal({
                           className="h-full w-full object-cover"
                           style={{ filter: 'var(--imgf)' }}
                         />
+                      ) : (
+                        <VisuelAbsent />
                       )}
                     </div>
                     <div

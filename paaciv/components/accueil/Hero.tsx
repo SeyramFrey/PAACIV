@@ -135,33 +135,50 @@ export function Hero({
       <div ref={lampe} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2]" />
 
       <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(120px,16vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <div className="max-w-[900px]">
+        {/* Plus de `max-w-[900px]`. La maquette casse son `<h1>` en DEUX lignes
+            explicites (« Ce qui tient debout » / « raconte encore ») ; le nôtre
+            reçoit un titre unique venu du CMS, qu'un plafond de 900 px faisait
+            retomber sur QUATRE lignes — 523 px au lieu de 261 px, mesurés. Le
+            hero dépassait alors `100svh` et sa colonne de droite passait sous
+            la ligne de flottaison. Sans plafond, la largeur disponible rend le
+            titre sur deux lignes dès 1900 px, comme la maquette. */}
+        <div>
           <p
             data-testid="accroche"
-            data-rv=""
-            data-d="200"
+            data-drop=""
             className="mb-[22px] text-[11px] font-medium uppercase tracking-[0.3em]"
-            style={{ color: 'var(--accent)' }}
+            style={{ color: 'var(--accent)', animation: 'drop 1s .2s both cubic-bezier(.16,1,.3,1)' }}
           >
             {t('accroche')}
           </p>
+          {/* `min(8.4vw, 11.5vh)` : la taille de la maquette est purement
+              horizontale, or ce titre occupe un hero haut de `100svh`. Sur un
+              écran large mais court (2000×1000, portable en paysage), 8.4vw
+              seul donnait un titre plus haut que la place disponible. Le terme
+              en `vh` ne mord que là — au-delà de 1235 px de hauteur, la valeur
+              de la maquette reprend la main intacte. */}
           <h1
-            data-clip=""
-            data-d="350"
-            className="m-0 font-serif text-[clamp(46px,8.4vw,142px)] leading-[0.92] tracking-[-0.02em] text-balance"
-            style={{ color: 'var(--onDeep)' }}
+            data-drop=""
+            className="m-0 font-serif text-[clamp(46px,min(8.4vw,11.5vh),142px)] leading-[0.92] tracking-[-0.02em] text-balance"
+            style={{ color: 'var(--onDeep)', animation: 'drop 1.1s .35s both cubic-bezier(.16,1,.3,1)' }}
           >
             {titre}
           </h1>
           <p
-            data-rv=""
-            data-d="700"
+            data-drop=""
             className="mt-6 max-w-[560px] text-[17px] font-light leading-[1.75]"
-            style={{ color: 'color-mix(in oklab, var(--onDeep) 82%, transparent)' }}
+            style={{
+              color: 'color-mix(in oklab, var(--onDeep) 82%, transparent)',
+              animation: 'drop 1.1s .7s both cubic-bezier(.16,1,.3,1)',
+            }}
           >
             {intro}
           </p>
-          <div data-rv="" data-d="850" className="mt-9 flex flex-wrap gap-3.5">
+          <div
+            data-drop=""
+            className="mt-9 flex flex-wrap gap-3.5"
+            style={{ animation: 'drop 1.1s .85s both cubic-bezier(.16,1,.3,1)' }}
+          >
             <Link
               href="/archives"
               className="inline-flex items-center gap-3 rounded-full px-[30px] py-[17px] text-xs font-semibold uppercase tracking-[0.16em] transition"
@@ -180,7 +197,11 @@ export function Hero({
             </button>
           </div>
           {villes.length > 0 && (
-            <div data-rv="" data-d="1000" className="mt-11 flex flex-wrap gap-2.5">
+            <div
+              data-drop=""
+              className="mt-11 flex flex-wrap gap-2.5"
+              style={{ animation: 'drop 1.1s 1s both cubic-bezier(.16,1,.3,1)' }}
+            >
               {villes.map((ville) => (
                 <span
                   key={ville}
@@ -195,7 +216,11 @@ export function Hero({
         </div>
 
         {vedettes.length > 0 && (
-          <div data-rv="" data-d="1100" className="flex flex-col items-end gap-4">
+          <div
+            data-drop=""
+            className="flex flex-col items-end gap-4"
+            style={{ animation: 'drop 1.2s 1.1s both cubic-bezier(.16,1,.3,1)' }}
+          >
             <div className="flex items-center gap-3.5" style={{ color: 'var(--onDeep)' }}>
               <span className="text-[10px] uppercase tracking-[0.24em] opacity-80">{t('vues')}</span>
               <span className="h-px w-[52px]" style={{ background: 'color-mix(in oklab, var(--onDeep) 50%, transparent)' }} />

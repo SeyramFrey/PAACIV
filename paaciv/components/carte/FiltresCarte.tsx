@@ -27,6 +27,13 @@ export function FiltresCarte({
     ['epoque', options.epoques],
   ]
 
+  // Fond et texte pris aux MÊMES jetons de thème. Les champs portaient
+  // `bg-white` en dur alors que leur couleur de texte était héritée du thème :
+  // en mode sombre, `--ink` (presque blanc) sur blanc rendait la saisie et les
+  // options illisibles. C'est le pendant, côté surface, du piège déjà consigné
+  // « un `color` en style inline tue toute classe `hover:` ».
+  const champStyle = { background: 'var(--bg)', color: 'var(--ink)', borderColor: 'var(--line)' }
+
   return (
     <div className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col text-sm">
@@ -36,7 +43,8 @@ export function FiltresCarte({
           defaultValue=""
           onChange={(e) => onChange('q', e.target.value)}
           placeholder={t('recherche')}
-          className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="rounded-xl border px-3 py-2"
+          style={champStyle}
         />
       </label>
       {selects.map(([cle, refs]) => (
@@ -45,7 +53,8 @@ export function FiltresCarte({
           <select
             value={valeurs[cle]}
             onChange={(e) => onChange(cle, e.target.value)}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border px-3 py-2"
+            style={champStyle}
           >
             <option value="">{t('tous')}</option>
             {refs.map((r) => (

@@ -112,5 +112,10 @@ button:not(:disabled) { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   [data-rv], [data-clip], [data-line] { opacity: 1; transform: none; filter: none; clip-path: none; transition: none; }
-  [data-mq], [data-floaty] { animation: none !important; }
+  /* `data-drop` marque les éléments animés par `drop` au CHARGEMENT (le hero,
+     toujours au-dessus de la ligne de flottaison, qui n'a donc rien à
+     observer). `animation: none` suffit à les rendre normalement : le
+     `opacity: 0` de l'image-clé 0% n'existe que tant qu'une animation est
+     posée, contrairement à `[data-rv]` dont l'état de départ est en CSS. */
+  [data-mq], [data-floaty], [data-drop] { animation: none !important; }
 }

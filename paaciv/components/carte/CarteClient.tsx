@@ -274,63 +274,83 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   }
 
   return (
-    <div className="relative h-[calc(100vh-8rem)] w-full">
-      <div ref={conteneur} className="h-full w-full" />
-
-      {/* Barre de filtres + compteur */}
-      <div className="absolute left-3 right-3 top-3 z-10 flex flex-wrap items-end gap-3 rounded-2xl bg-white/95 p-3 shadow">
+    <div className="w-full">
+      {/* Barre de filtres + compteur, HORS de la carte. Elle flottait
+          auparavant par-dessus (`absolute … bg-white/95`) : elle masquait le
+          haut du territoire, capturait les clics destinés à la carte, et son
+          fond blanc EN DUR recevait un texte dont la couleur, elle, venait du
+          thème (`--ink`, presque blanc en mode sombre) — libellés et champs
+          étaient donc illisibles. Surface et texte viennent maintenant tous
+          deux des mêmes jetons, donc le contraste tient dans les deux thèmes. */}
+      <div
+        className="flex flex-wrap items-end gap-3 border-b px-[clamp(12px,3vw,32px)] py-4"
+        style={{ background: 'var(--bg2)', color: 'var(--ink)', borderColor: 'var(--line)' }}
+      >
         <FiltresCarte
           options={options}
           valeurs={{ type: filtres.type, programme: filtres.programme, district: filtres.district, epoque: filtres.epoque }}
           onChange={onChangeFiltre}
           locale={locale}
         />
-        <span data-testid="compteur-carte" className="text-sm text-encre/70">
+        <span data-testid="compteur-carte" className="pb-2 text-sm opacity-70">
           {t('compteur', { n: nombre })}
         </span>
       </div>
 
-      {/* Bascule Plan / Satellite */}
-      <div className="absolute bottom-12 right-3 z-10 flex overflow-hidden rounded-full bg-white shadow">
-        <button
-          type="button"
-          onClick={() => satellite && basculerSatellite()}
-          className={`px-4 py-2 text-sm font-semibold ${!satellite ? 'bg-or text-encre' : 'text-brun'}`}
-        >
-          {t('plan')}
-        </button>
-        <button
-          type="button"
-          onClick={() => !satellite && basculerSatellite()}
-          className={`px-4 py-2 text-sm font-semibold ${satellite ? 'bg-or text-encre' : 'text-brun'}`}
-        >
-          {t('satellite')}
-        </button>
-      </div>
+      <div className="relative h-[calc(100svh-17rem)] min-h-[420px] w-full">
+        <div ref={conteneur} className="h-full w-full" />
 
-      {/* Légende */}
-      <section
-        role="region"
-        aria-label={t('legende')}
-        className="absolute bottom-3 left-3 max-w-xs rounded-2xl bg-white/95 p-4 shadow"
-      >
-        <h2 className="mb-2 font-serif text-sm text-brun">{t('legende')}</h2>
-        <ul className="grid grid-cols-1 gap-1 text-xs">
-          {options.types.map((ty) => (
-            <li key={ty.id} data-testid="legende-type" className="flex items-center gap-2">
-              <span
-                className="inline-block h-3 w-3 rounded-full"
-                style={{ backgroundColor: ty.couleur ?? COULEUR_DEFAUT }}
-              />
-              {nomType(ty)}
-            </li>
-          ))}
-        </ul>
-      </section>
+        {/* Bascule Plan / Satellite */}
+        <div className="absolute bottom-12 right-3 z-10 flex overflow-hidden rounded-full bg-white shadow">
+          <button
+            type="button"
+            onClick={() => satellite && basculerSatellite()}
+            className={`px-4 py-2 text-sm font-semibold ${!satellite ? 'bg-or text-encre' : 'text-brun'}`}
+          >
+            {t('plan')}
+          </button>
+          <button
+            type="button"
+            onClick={() => !satellite && basculerSatellite()}
+            className={`px-4 py-2 text-sm font-semibold ${satellite ? 'bg-or text-encre' : 'text-brun'}`}
+          >
+            {t('satellite')}
+          </button>
+        </div>
 
-      {/* Inset « CI en Afrique » */}
-      <div className="absolute right-3 top-16 hidden h-24 w-24 items-center justify-center rounded-lg bg-vert/90 text-[10px] font-semibold text-sable shadow sm:flex">
-        CI · Afrique
+        {/* Légende. Même défaut que la barre de filtres avant correction : le
+            fond était blanc en dur et la couleur du texte venait du thème, donc
+            les noms de types disparaissaient en mode sombre. Les deux viennent
+            désormais des mêmes jetons. */}
+        <section
+          role="region"
+          aria-label={t('legende')}
+          className="absolute bottom-3 left-3 z-10 max-w-xs rounded-2xl p-4 shadow"
+          style={{ background: 'color-mix(in oklab, var(--bg) 94%, transparent)', color: 'var(--ink)' }}
+        >
+          <h2 className="mb-2 font-serif text-sm" style={{ color: 'var(--ocre)' }}>
+            {t('legende')}
+          </h2>
+          <ul className="grid grid-cols-1 gap-1 text-xs">
+            {options.types.map((ty) => (
+              <li key={ty.id} data-testid="legende-type" className="flex items-center gap-2">
+                <span
+                  className="inline-block h-3 w-3 rounded-full"
+                  style={{ backgroundColor: ty.couleur ?? COULEUR_DEFAUT }}
+                />
+                {nomType(ty)}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Inset « CI en Afrique », passé à GAUCHE : il était calé sous la
+            barre de filtres flottante (`top-16`), et la barre partie, il
+            recouvrait les commandes de zoom de MapLibre, ancrées en haut à
+            droite. */}
+        <div className="absolute left-3 top-3 hidden h-24 w-24 items-center justify-center rounded-lg bg-vert/90 text-[10px] font-semibold text-sable shadow sm:flex">
+          CI · Afrique
+        </div>
       </div>
     </div>
   )

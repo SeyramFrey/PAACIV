@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import { texte, type Textes } from '@/lib/data/contenu-site'
 import { partitionnerEvenements } from '@/lib/evenements-dates'
+import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
 import type { EvenementListItem } from '@/lib/data/evenements'
 
 // `date_debut` est une colonne `date` (« 2026-09-12 »), sans heure ni fuseau.
@@ -70,10 +71,17 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
               <Link
                 href={`/evenements/${vedette.slug}`}
                 data-clip=""
-                className="relative flex min-h-[clamp(340px,34vw,480px)] flex-col justify-end overflow-hidden rounded p-8"
+                // `mx-auto max-w-[720px]` quand elle est SEULE : la maquette
+                // pose cette carte à côté de trois lignes d'agenda. Avec un
+                // seul événement publié, la colonne des lignes disparaît et la
+                // carte s'étirait sur toute la largeur — 1440 px de vide pour
+                // une ligne de texte. Bornée, elle reste une carte.
+                className={`relative flex min-h-[clamp(340px,34vw,480px)] flex-col justify-end overflow-hidden rounded p-8 ${
+                  suite.length === 0 ? 'mx-auto w-full max-w-[720px]' : ''
+                }`}
                 style={{ color: 'var(--onDeep)' }}
               >
-                {vedette.image && (
+                {vedette.image ? (
                   <img
                     src={vedette.image}
                     alt=""
@@ -81,6 +89,14 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{ filter: 'var(--imgf)' }}
                   />
+                ) : (
+                  // Sans ce repli, la carte n'avait AUCUN fond propre : elle se
+                  // confondait avec le `var(--deep)` de la section et donnait
+                  // un rectangle vide de 480 px de haut, le titre semblant
+                  // flotter seul. Aucun événement n'a d'image en base.
+                  <span className="absolute inset-0">
+                    <VisuelAbsent />
+                  </span>
                 )}
                 <span
                   aria-hidden="true"
