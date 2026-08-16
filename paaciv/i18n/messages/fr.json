@@ -51,7 +51,8 @@
     "montantParAn": "{montant} par an.",
     "sInscrire": "S'inscrire",
     "votreEmail": "Votre adresse e-mail",
-    "merciNewsletter": "Merci, vous êtes inscrit."
+    "merciNewsletter": "Merci, vous êtes inscrit.",
+    "aucunEvenement": "Aucun événement à venir pour le moment."
   },
   "nav": {
     "carte": "La carte",

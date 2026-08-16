@@ -11,11 +11,9 @@ import type { ReferencesFiltres } from '@/lib/data/references'
 import { construirePopupContenu } from '@/components/carte/popup'
 import { FiltresCarte } from '@/components/carte/FiltresCarte'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
+import { STYLE_CARTE, COULEUR_DEFAUT } from '@/lib/carte-style'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
-const STYLE = MAPTILER_KEY
-  ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`
-  : 'https://tiles.openfreemap.org/styles/liberty'
 const SATELLITE_TILES = MAPTILER_KEY
   ? `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`
   : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
@@ -40,8 +38,8 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   // Expression de couleur `match` sur type_id, stable tant que `options.types`
   // ne change pas (référence identique entre rendus dans notre usage).
   const couleurExpression = useMemo(() => {
-    const couleurParType = options.types.map((ty) => [ty.id, ty.couleur ?? '#8A3E1B']).flat()
-    return ['match', ['get', 'type_id'], ...couleurParType, '#8A3E1B'] as unknown as
+    const couleurParType = options.types.map((ty) => [ty.id, ty.couleur ?? COULEUR_DEFAUT]).flat()
+    return ['match', ['get', 'type_id'], ...couleurParType, COULEUR_DEFAUT] as unknown as
       | string
       | number[]
   }, [options.types])
@@ -50,7 +48,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   // `globalThis.Map` évite la collision avec le `Map` importé de maplibre-gl.
   const typeInfo = useMemo(() => {
     const m = new globalThis.Map<string, { nom: string; couleur: string }>()
-    for (const ty of options.types) m.set(ty.id, { nom: nomType(ty), couleur: ty.couleur ?? '#8A3E1B' })
+    for (const ty of options.types) m.set(ty.id, { nom: nomType(ty), couleur: ty.couleur ?? COULEUR_DEFAUT })
     return m
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options.types, locale])
@@ -73,7 +71,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     if (!conteneur.current) return
     const map = new Map({
       container: conteneur.current,
-      style: STYLE,
+      style: STYLE_CARTE,
       center: [-5.5, 7.5], // Côte d'Ivoire
       zoom: 6,
     })
@@ -322,7 +320,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
             <li key={ty.id} data-testid="legende-type" className="flex items-center gap-2">
               <span
                 className="inline-block h-3 w-3 rounded-full"
-                style={{ backgroundColor: ty.couleur ?? '#8A3E1B' }}
+                style={{ backgroundColor: ty.couleur ?? COULEUR_DEFAUT }}
               />
               {nomType(ty)}
             </li>
