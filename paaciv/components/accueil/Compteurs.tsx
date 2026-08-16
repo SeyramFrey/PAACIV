@@ -14,20 +14,34 @@ export function Compteurs({ chiffres }: { chiffres: Chiffres }) {
   ]
 
   return (
-    <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+    <dl className="flex flex-wrap justify-center gap-[clamp(28px,5vw,72px)]">
       {lignes.map((l) => (
-        <div key={l.libelle}>
-          <dd
-            data-count={l.valeur}
-            data-testid="compteur"
-            className="font-serif text-5xl"
-            style={{ color: 'var(--terra)' }}
-          >
-            0
-          </dd>
-          <dt className="mt-2 text-[11px] uppercase tracking-[0.2em]" style={{ color: 'var(--soft)' }}>
+        // `flex-col-reverse` : le DOM porte `<dt>` avant `<dd>` (modèle de
+        // contenu correct, ordre d'annonce correct pour les lecteurs
+        // d'écran), tandis que l'affichage garde le grand nombre au-dessus
+        // du libellé, comme la maquette.
+        <div key={l.libelle} className="flex flex-col-reverse items-center gap-2">
+          <dt className="text-[10px] font-medium uppercase leading-none tracking-[0.2em]" style={{ color: 'var(--soft)' }}>
             {l.libelle}
           </dt>
+          <dd className="m-0">
+            {/* Doublon accessible : l'élément animé est masqué aux
+                technologies d'assistance — le moteur de Revelations réécrit
+                son texte à chaque palier (~40 par seconde), donc un
+                utilisateur qui arrive en cours d'animation s'entendrait
+                annoncer un nombre faux. Le `sr-only` porte la valeur finale,
+                stable dès le premier rendu. */}
+            <span
+              aria-hidden="true"
+              data-count={l.valeur}
+              data-testid="compteur"
+              className="block font-serif text-[clamp(34px,4vw,60px)] leading-none"
+              style={{ color: 'var(--terra)' }}
+            >
+              0
+            </span>
+            <span className="sr-only">{l.valeur}</span>
+          </dd>
         </div>
       ))}
     </dl>

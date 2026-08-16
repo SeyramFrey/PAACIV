@@ -48,10 +48,7 @@
     "chiffreArchitectes": "Architects",
     "chiffreArticles": "Publications",
     "enSavoirPlus": "Find out more",
-    "chantiersTexte": "Restoration projects followed by the association, backed by our surveys.",
-    "adhererTexteAvecMontant": "{montant} a year. Access to our surveys, visits and publications.",
-    "adhererTexteSansMontant": "Access to our surveys, visits and publications.",
-    "donTexte": "Every donation funds surveys, equipment and everyday upkeep.",
+    "montantParAn": "{montant} a year.",
     "sInscrire": "Subscribe",
     "votreEmail": "Your email address",
     "merciNewsletter": "Thank you, you are subscribed."

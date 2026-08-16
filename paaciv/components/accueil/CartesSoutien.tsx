@@ -3,13 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
-
-// Une valeur encore marquée « À COMPLÉTER » (contenu_site.soutien_adhesion_montant,
-// en attente d'être renseignée par l'association) est un chantier interne :
-// elle ne doit jamais atteindre un visiteur. Même garde que SiteFooter.tsx.
-function renseigne(valeur: string): boolean {
-  return valeur.length > 0 && !valeur.startsWith('À COMPLÉTER')
-}
+import { renseigne } from '@/lib/data/contenu-site'
 
 const CLASSE_CARTE =
   'group relative flex h-[clamp(340px,34vw,440px)] flex-col justify-end overflow-hidden rounded-[6px] border-0 bg-transparent p-[34px] text-left'
@@ -27,7 +21,10 @@ function Carte({
   onClick?: () => void
   image: string
   titre: string
-  texte: string
+  // `null` : rien à afficher (valeur absente ou encore marquée « À
+  // COMPLÉTER ») — le paragraphe entier disparaît plutôt que de montrer un
+  // avantage ou un chiffre inventé.
+  texte: string | null
   libelle: string
   delai?: string
 }) {
@@ -48,9 +45,13 @@ function Carte({
         style={{ background: 'linear-gradient(180deg, transparent 20%, oklch(0.14 0.02 46 / 0.82))' }}
       />
       <span className="relative font-serif text-[clamp(26px,2.4vw,34px)] leading-[1.1]">{titre}</span>
-      <span className="relative mt-2.5 max-w-[280px] text-sm font-light leading-[1.6] opacity-80">{texte}</span>
+      {texte && (
+        <span className="relative mt-2.5 max-w-[280px] text-sm font-light leading-[1.6] opacity-[.82]">
+          {texte}
+        </span>
+      )}
       <span
-        className="relative mt-5 self-start rounded-full border px-5 py-[11px] text-[10px] font-semibold uppercase tracking-[0.18em]"
+        className="relative mt-5 self-start rounded-full border px-5 py-[11px] text-[10px] font-semibold uppercase leading-none tracking-[0.18em]"
         style={{ borderColor: 'color-mix(in oklab, var(--onDeep) 50%, transparent)' }}
       >
         {libelle}
@@ -79,13 +80,30 @@ function Carte({
   )
 }
 
-export function CartesSoutien({ montant }: { montant: string }) {
+export function CartesSoutien({
+  montant,
+  chantiersTexte,
+  adhesionAvantages,
+  donTexte,
+}: {
+  montant: string
+  chantiersTexte: string
+  adhesionAvantages: string
+  donTexte: string
+}) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
 
-  const texteAdhesion = renseigne(montant)
-    ? t('adhererTexteAvecMontant', { montant })
-    : t('adhererTexteSansMontant')
+  // Le montant et les avantages viennent de deux clés `contenu_site`
+  // indépendantes : chacune peut manquer sans l'autre. On les assemble
+  // seulement si au moins l'une des deux est renseignée — jamais de gabarit
+  // « {montant} par an. » affiché seul avec un montant à blanc, jamais
+  // d'avantages promis pendant qu'aucun prix n'existe encore.
+  const segmentsAdhesion = [
+    renseigne(montant) ? t('montantParAn', { montant }) : null,
+    renseigne(adhesionAvantages) ? adhesionAvantages : null,
+  ].filter((s): s is string => Boolean(s))
+  const texteAdhesion = segmentsAdhesion.length > 0 ? segmentsAdhesion.join(' ') : null
 
   return (
     <div className="mt-[clamp(56px,7vw,96px)] grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[clamp(16px,2vw,28px)]">
@@ -93,7 +111,7 @@ export function CartesSoutien({ montant }: { montant: string }) {
         href="/articles"
         image="https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900"
         titre={t('chantiers')}
-        texte={t('chantiersTexte')}
+        texte={renseigne(chantiersTexte) ? chantiersTexte : null}
         libelle={t('voir')}
       />
       <Carte
@@ -108,7 +126,7 @@ export function CartesSoutien({ montant }: { montant: string }) {
         onClick={() => ouvrir('don')}
         image="https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900"
         titre={t('don')}
-        texte={t('donTexte')}
+        texte={renseigne(donTexte) ? donTexte : null}
         libelle={t('donner')}
         delai="180"
       />

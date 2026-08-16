@@ -17,6 +17,9 @@ export async function Association({
   const surtitre = texte(textes, 'association_surtitre', locale)
   const titre = texte(textes, 'association_titre', locale)
   const intro = texte(textes, 'association_texte', locale)
+  const chantiersTexte = texte(textes, 'soutien_chantiers_texte', locale)
+  const adhesionAvantages = texte(textes, 'soutien_adhesion_avantages', locale)
+  const donTexte = texte(textes, 'soutien_don_usage', locale)
 
   return (
     <section
@@ -27,7 +30,7 @@ export async function Association({
         <div className="mx-auto max-w-[860px] text-center">
           <p
             data-rv=""
-            className="mb-5 text-[11px] font-medium uppercase tracking-[0.3em]"
+            className="mb-5 text-[11px] font-medium uppercase leading-none tracking-[0.3em]"
             style={{ color: 'var(--ocre)' }}
           >
             {surtitre}
@@ -53,7 +56,12 @@ export async function Association({
           </div>
         </div>
 
-        <CartesSoutien montant={montant} />
+        <CartesSoutien
+          montant={montant}
+          chantiersTexte={chantiersTexte}
+          adhesionAvantages={adhesionAvantages}
+          donTexte={donTexte}
+        />
       </div>
     </section>
   )

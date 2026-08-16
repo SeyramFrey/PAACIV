@@ -29,7 +29,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
         <div className="p-[clamp(8px,2vw,32px)]">
           <p
             data-rv=""
-            className="mb-[18px] text-[11px] font-medium uppercase tracking-[0.3em]"
+            className="mb-[18px] text-[11px] font-medium uppercase leading-none tracking-[0.3em]"
             style={{ color: 'var(--ocre)' }}
           >
             {surtitre}
@@ -52,7 +52,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
           </p>
           <div data-rv="" data-d="180" className="mt-[34px] grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-5">
             <div className="border-t pt-3.5" style={{ borderColor: 'var(--line)' }}>
-              <p className="m-0 text-xs font-medium uppercase tracking-[0.14em]" style={{ color: 'var(--ink)' }}>
+              <p className="m-0 text-xs font-medium uppercase leading-none tracking-[0.14em]" style={{ color: 'var(--ink)' }}>
                 {releveTitre}
               </p>
               <p className="mt-2 text-sm font-light leading-[1.6]" style={{ color: 'var(--soft)' }}>
@@ -60,7 +60,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
               </p>
             </div>
             <div className="border-t pt-3.5" style={{ borderColor: 'var(--line)' }}>
-              <p className="m-0 text-xs font-medium uppercase tracking-[0.14em]" style={{ color: 'var(--ink)' }}>
+              <p className="m-0 text-xs font-medium uppercase leading-none tracking-[0.14em]" style={{ color: 'var(--ink)' }}>
                 {recitTitre}
               </p>
               <p className="mt-2 text-sm font-light leading-[1.6]" style={{ color: 'var(--soft)' }}>
@@ -72,7 +72,7 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
             href="/archives"
             data-rv=""
             data-d="240"
-            className="mt-[34px] inline-flex items-center gap-2.5 border-b pb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em]"
+            className="mt-[34px] inline-flex items-center gap-2.5 border-b pb-1.5 text-[11px] font-semibold uppercase leading-none tracking-[0.2em]"
             style={{ borderColor: 'var(--terra)' }}
           >
             {t('enSavoirPlus')} <span aria-hidden="true">↗</span>

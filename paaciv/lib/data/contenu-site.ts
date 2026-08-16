@@ -22,3 +22,14 @@ export function texte(textes: Textes, cle: string, locale: string): string {
   if (!v) return ''
   return champ(v.fr, v.en, locale)
 }
+
+// Une valeur vide ou encore marquée « À COMPLÉTER » (chantier interne, en
+// attente d'être renseigné par l'association) n'est pas une information
+// prête pour un visiteur — elle ne doit jamais atteindre le public. Garde
+// partagée par tout bloc qui affiche une valeur de `contenu_site` : la
+// Task 9 avait dû la poser dans le pied de page après coup, faute d'y avoir
+// pensé au premier passage ; elle vit ici pour ne plus jamais repartir sans
+// filet dans un nouveau bloc.
+export function renseigne(valeur: string): boolean {
+  return valeur.length > 0 && !valeur.startsWith('À COMPLÉTER')
+}

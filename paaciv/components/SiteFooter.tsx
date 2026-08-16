@@ -1,6 +1,6 @@
 import { getTranslations, getLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { chargerTextes, texte } from '@/lib/data/contenu-site'
+import { chargerTextes, texte, renseigne } from '@/lib/data/contenu-site'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 const ENTREES = [
@@ -16,14 +16,6 @@ const RESEAUX = [
   { libelle: 'Instagram', href: 'https://www.instagram.com/paaciv' },
   { libelle: 'LinkedIn', href: 'https://www.linkedin.com/company/paaciv' },
 ] as const
-
-// Une coordonnée vide ou encore marquée « À COMPLÉTER » (cinq valeurs de
-// `contenu_site` le sont volontairement, en attendant que l'association les
-// fournisse) est un chantier interne, pas une information de contact : elle
-// ne doit jamais atteindre le public.
-function renseigne(valeur: string): boolean {
-  return valeur.length > 0 && !valeur.startsWith('À COMPLÉTER')
-}
 
 export async function SiteFooter() {
   const t = await getTranslations('nav')

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { texte, type Textes } from '@/lib/data/contenu-site'
+import { texte, renseigne, type Textes } from '@/lib/data/contenu-site'
 
 const textes: Textes = {
   hero_titre: { fr: 'Ce qui tient debout', en: 'What still stands' },
@@ -18,5 +18,19 @@ describe('texte', () => {
 
   it('renvoie une chaîne vide pour une clé absente, sans planter', () => {
     expect(texte(textes, 'cle_inexistante', 'fr')).toBe('')
+  })
+})
+
+describe('renseigne', () => {
+  it('refuse une chaîne vide', () => {
+    expect(renseigne('')).toBe(false)
+  })
+
+  it('refuse une valeur encore marquée comme chantier interne', () => {
+    expect(renseigne('À COMPLÉTER — montant de l’adhésion annuelle')).toBe(false)
+  })
+
+  it('accepte une valeur renseignée', () => {
+    expect(renseigne('15 000 F CFA')).toBe(true)
   })
 })
