@@ -69,23 +69,38 @@ export function Hero({
         .join(' — ')
     : ''
 
-  // Fondu de la légende : le texte lui-même reste dérivé directement de
-  // `actif` (rendu synchrone, sans délai — le test de clic sur une vignette
-  // asserte le nouveau texte immédiatement après l'événement). Seule
-  // l'opacité est animée séparément, via une transition CSS pilotée par cet
-  // état local, pour retrouver le fondu de la maquette sans reproduire son
-  // `setTimeout` de remplacement différé.
+  // Fondu de la légende, comme la maquette : fondu sortant, texte remplacé
+  // au creux du fondu (260 ms — le texte affiché est donc `legendeAffichee`,
+  // qui traîne délibérément derrière `actif`/`legende`, pas la même chose),
+  // puis fondu entrant — le tout sous une seule `transition: opacity`. Le
+  // texte n'est jamais visible en train de changer : contrairement à une
+  // dérivation synchrone de `actif`, l'échange a lieu pendant que
+  // `legendeVisible` vaut déjà `false`.
+  const [legendeAffichee, setLegendeAffichee] = useState(legende)
   const [legendeVisible, setLegendeVisible] = useState(true)
-  const premierRendu = useRef(true)
+  // Distingue « la vedette a changé » (creux de fondu à respecter) de
+  // « le texte a changé sans elle » (bascule FR/EN sur la même vedette) :
+  // ce second cas n'est pas la rotation que la maquette anime, il se
+  // resynchronise donc immédiatement plutôt que d'attendre 260 ms.
+  const actifPrecedent = useRef(actif)
   useEffect(() => {
-    if (premierRendu.current) {
-      premierRendu.current = false
+    if (actifPrecedent.current === actif) {
+      setLegendeAffichee(legende)
       return
     }
+    actifPrecedent.current = actif
     setLegendeVisible(false)
-    const id = requestAnimationFrame(() => setLegendeVisible(true))
-    return () => cancelAnimationFrame(id)
-  }, [actif])
+    const id = window.setTimeout(() => {
+      setLegendeAffichee(legende)
+      setLegendeVisible(true)
+    }, 260)
+    // Nettoyage symétrique à celui du minuteur de rotation ci-dessus : sans
+    // lui, un clic sur une autre vignette pendant le creux du fondu (ou un
+    // démontage à ce moment précis) laisserait ce minuteur en vol et
+    // écrirait, 260 ms plus tard, une légende déjà périmée — ou une mise à
+    // jour d'état sur un composant démonté.
+    return () => window.clearTimeout(id)
+  }, [actif, legende])
 
   return (
     <section
@@ -202,7 +217,7 @@ export function Hero({
               className="mt-1 max-w-[300px] text-right text-xs"
               style={{ color: 'var(--onDeep)', opacity: legendeVisible ? 0.72 : 0, transition: 'opacity .4s ease' }}
             >
-              {legende}
+              {legendeAffichee}
             </p>
           </div>
         )}

@@ -28,7 +28,7 @@ export async function CarteFilm() {
           boxShadow: '0 30px 60px -30px oklch(0.1 0.02 48 / 0.6)',
         }}
       >
-        <div className="relative h-[88px] w-[132px] flex-none overflow-hidden rounded-[6px]">
+        <div className="relative h-[88px] w-[132px] flex-none overflow-hidden rounded">
           {vignette ? (
             // Décorative : le titre est déjà porté en texte visible juste à
             // côté, dans le même lien — un `alt` non vide le dupliquerait

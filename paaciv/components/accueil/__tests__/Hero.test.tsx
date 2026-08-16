@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NextIntlClientProvider } from 'next-intl'
 import messages from '@/i18n/messages/fr.json'
@@ -54,10 +54,19 @@ describe('Hero', () => {
     expect(screen.getByTestId('hero-legende')).toHaveTextContent('Grande mosquée de Kong')
   })
 
-  it('change la légende au clic sur une vignette', async () => {
+  it('change la légende au clic sur une vignette, en l’échangeant au creux du fondu', async () => {
     monter()
     await userEvent.click(screen.getAllByRole('button', { name: /voir/i })[1])
-    expect(screen.getByTestId('hero-legende')).toHaveTextContent('Mairie de Grand-Bassam')
+
+    // Immédiatement après le clic, le fondu sortant vient de démarrer : la
+    // maquette échange le texte à 260 ms, pas avant. S'il changeait déjà ici,
+    // ce serait un saut visible plutôt que le fondu attendu.
+    expect(screen.getByTestId('hero-legende')).toHaveTextContent('Grande mosquée de Kong')
+
+    // Le texte n'apparaît qu'une fois le creux du fondu passé.
+    await waitFor(() => {
+      expect(screen.getByTestId('hero-legende')).toHaveTextContent('Mairie de Grand-Bassam')
+    })
   })
 
   it('reste affichable sans aucune vedette, fond sombre plein écran conservé', () => {
