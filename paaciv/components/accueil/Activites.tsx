@@ -39,11 +39,15 @@ export function Activites({
     boutons.current[suivant]?.focus()
   }
 
+  // `ArrowDown`/`ArrowUp` en plus de `ArrowRight`/`ArrowLeft` : la liste
+  // d'onglets est empilée verticalement (`aria-orientation="vertical"`
+  // ci-dessous), les flèches attendues par un lecteur d'écran sur un tablist
+  // vertical sont Haut/Bas, pas Gauche/Droite.
   function surTouche(e: KeyboardEvent<HTMLButtonElement>, index: number) {
-    if (e.key === 'ArrowRight') {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault()
       allerA(index + 1)
-    } else if (e.key === 'ArrowLeft') {
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault()
       allerA(index - 1)
     }
@@ -86,7 +90,13 @@ export function Activites({
         </div>
 
         <div className="grid items-start gap-[clamp(20px,3vw,44px)] lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]">
-          <div role="tablist" aria-label={titre} data-rv="" className="flex flex-col gap-2.5">
+          <div
+            role="tablist"
+            aria-label={titre}
+            aria-orientation="vertical"
+            data-rv=""
+            className="flex flex-col gap-2.5"
+          >
             {activites.map((a, i) => {
               const estActif = i === actif
               return (
@@ -103,11 +113,19 @@ export function Activites({
                   tabIndex={estActif ? 0 : -1}
                   onClick={() => setActif(i)}
                   onKeyDown={(e) => surTouche(e, i)}
-                  className="rounded text-left text-sm font-medium transition-colors duration-[0.4s] hover:[border-color:var(--ocre)]"
+                  // La couleur de bordure ne peut PAS venir de `style` (raccourci
+                  // `border`) : un `color` posé en attribut inline l'emporte sur
+                  // toute règle de feuille de style, y compris `:hover` — le
+                  // survol de la maquette (279-281) serait mort à l'arrivée.
+                  className={
+                    estActif
+                      ? 'rounded border border-transparent text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[cubic-bezier(.16,1,.3,1)]'
+                      : 'rounded border border-[var(--line)] text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[cubic-bezier(.16,1,.3,1)] hover:border-[var(--ocre)]'
+                  }
                   style={
                     estActif
-                      ? { padding: '18px 22px', background: 'var(--deep)', color: 'var(--onDeep)', border: '1px solid transparent' }
-                      : { padding: '18px 22px', background: 'var(--bg)', color: 'var(--ink)', border: '1px solid var(--line)' }
+                      ? { padding: '18px 22px', background: 'var(--deep)', color: 'var(--onDeep)' }
+                      : { padding: '18px 22px', background: 'var(--bg)', color: 'var(--ink)' }
                   }
                 >
                   {champ(a.titre_fr, a.titre_en, locale)}
@@ -122,6 +140,10 @@ export function Activites({
               id={`${id}-panel-${actif}`}
               role="tabpanel"
               aria-labelledby={`${id}-tab-${actif}`}
+              // Sans ce `tabIndex`, une activité sans image ni CTA ne
+              // contiendrait aucun élément focusable : le panneau deviendrait
+              // inatteignable au clavier une fois l'onglet activé.
+              tabIndex={0}
               className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[clamp(16px,2vw,28px)]"
             >
               {courante.image && (

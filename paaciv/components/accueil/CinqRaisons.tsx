@@ -127,11 +127,16 @@ export async function CinqRaisons({ points, textes }: { points: PointCle[]; text
         </div>
 
         <div className="mt-[clamp(40px,5vw,70px)] flex justify-center">
+          {/* `borderColor`/`color` en attribut `style` gagneraient toujours
+              sur le `:hover` de la feuille de style (un `color` inline
+              l'emporte sur toute règle CSS, pseudo-classe comprise) : fond ET
+              texte basculent donc tous deux en classes Tailwind, pas en
+              `style`, sans quoi le survol de la maquette (349) — accent sur
+              fond, encre sur accent — resterait accent sur accent, illisible. */}
           <Link
             href="/evenements"
             data-rv=""
-            className="rounded-[2px] border px-[42px] py-[18px] text-[11px] font-semibold uppercase leading-none tracking-[0.24em] transition-colors duration-[0.45s] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)]"
-            style={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}
+            className="rounded-[2px] border border-[var(--accent)] px-[42px] py-[18px] text-[11px] font-semibold uppercase leading-none tracking-[0.24em] text-[var(--accent)] transition-colors duration-[0.45s] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)]"
           >
             {t('voirProgramme')}
           </Link>

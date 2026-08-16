@@ -33,6 +33,7 @@ export function ApercuCarte({
 
   useEffect(() => {
     if (!conteneur.current) return
+    let annule = false
     const map = new Map({
       container: conteneur.current,
       style: STYLE_CARTE,
@@ -46,30 +47,50 @@ export function ApercuCarte({
       keyboard: false,
     })
 
+    // Même garde que `CarteClient.tsx` (commit 663e88c) : quitter `/fr` avant
+    // la fin du chargement — ou le double montage de StrictMode en dev —
+    // appelle `map.remove()`, qui annule les requêtes encore en vol. L'erreur
+    // en résulte est émise par le `Style`, détaché de la carte avant
+    // l'annulation : seul un écouteur posé directement dessus peut l'absorber
+    // (voir le commentaire détaillé dans CarteClient.tsx).
+    map.style.on('error', () => {})
+
     const couleurParType = types.flatMap((ty) => [ty.id, ty.couleur ?? COULEUR_DEFAUT])
 
     map.on('load', async () => {
-      const reponse = await fetch('/api/carte/points')
-      const geojson = await reponse.json()
-      map.addSource('points', { type: 'geojson', data: geojson })
-      map.addLayer({
-        id: 'points',
-        type: 'circle',
-        source: 'points',
-        paint: {
-          'circle-radius': 5,
-          'circle-color':
-            couleurParType.length > 0
-              ? (['match', ['get', 'type_id'], ...couleurParType, COULEUR_DEFAUT] as never)
-              : COULEUR_DEFAUT,
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': 'rgba(255,255,255,.8)',
-        },
-      })
-      setPret(true)
+      try {
+        const reponse = await fetch('/api/carte/points')
+        if (!reponse.ok) return
+        const geojson = await reponse.json()
+        // Le composant peut avoir démonté pendant l'attente du réseau : sans
+        // ce garde, `addSource`/`addLayer` lèveraient sur une carte détruite.
+        if (annule) return
+        map.addSource('points', { type: 'geojson', data: geojson })
+        map.addLayer({
+          id: 'points',
+          type: 'circle',
+          source: 'points',
+          paint: {
+            'circle-radius': 5,
+            'circle-color':
+              couleurParType.length > 0
+                ? (['match', ['get', 'type_id'], ...couleurParType, COULEUR_DEFAUT] as never)
+                : COULEUR_DEFAUT,
+            'circle-stroke-width': 1.5,
+            'circle-stroke-color': 'rgba(255,255,255,.8)',
+          },
+        })
+        setPret(true)
+      } catch {
+        // Réseau indisponible ou réponse non JSON : la carte reste vide
+        // plutôt que de lever un rejet de promesse non géré.
+      }
     })
 
-    return () => map.remove()
+    return () => {
+      annule = true
+      map.remove()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; `types` capturé par closure, il ne change pas après le rendu serveur.
   }, [])
 

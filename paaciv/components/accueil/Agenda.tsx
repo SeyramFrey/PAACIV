@@ -10,7 +10,7 @@ import type { EvenementListItem } from '@/lib/data/evenements'
 // l'affichage d'un jour pour tout visiteur situé à l'ouest du méridien de
 // Greenwich. `formatToParts`, et non `.format()`, pour composer nous-mêmes
 // le séparateur « . » — `.format()` rendrait « 12/09 » en français.
-function formaterDate(dateISO: string, locale: string): string {
+export function formaterDate(dateISO: string, locale: string): string {
   const parts = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
@@ -63,7 +63,9 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
             {t('aucunEvenement')}
           </p>
         ) : (
-          <div className="grid items-stretch gap-[clamp(20px,2.6vw,40px)] lg:grid-cols-2">
+          <div
+            className={`grid items-stretch gap-[clamp(20px,2.6vw,40px)] ${suite.length > 0 ? 'lg:grid-cols-2' : ''}`}
+          >
             {vedette && (
               <Link
                 href={`/evenements/${vedette.slug}`}
@@ -94,34 +96,44 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
               </Link>
             )}
 
-            <div className="flex flex-col gap-0.5">
-              {suite.map((e, i) => (
-                <Link
-                  key={e.id}
-                  href={`/evenements/${e.slug}`}
-                  data-rv=""
-                  data-d={DELAIS[i]}
-                  className="flex items-center justify-between gap-5 border-b px-6 py-[26px] transition-[padding] duration-300 hover:pl-8"
-                  style={{ borderColor: 'color-mix(in oklab, var(--accent) 20%, transparent)', color: 'var(--onDeep)' }}
-                >
-                  <span>
-                    <span className="block font-serif text-xl leading-[1.3]">
-                      {champ(e.titre_fr, e.titre_en, locale)}
+            {suite.length > 0 && (
+              <div className="flex flex-col gap-0.5">
+                {suite.map((e, i) => (
+                  <Link
+                    key={e.id}
+                    href={`/evenements/${e.slug}`}
+                    data-rv=""
+                    data-d={DELAIS[i]}
+                    // Fond de survol ET durée en classes, pas en `style` : même
+                    // raison que le bouton de CinqRaisons.tsx (un `color`/
+                    // `background` inline gagnerait toujours sur `:hover`).
+                    // Maquette (368) : `transition:background .4s,padding .4s`.
+                    className="flex items-center justify-between gap-5 border-b px-6 py-[26px] transition-[background-color,padding] duration-[0.4s] hover:bg-[color-mix(in_oklab,var(--accent)_8%,transparent)] hover:pl-8"
+                    style={{ borderColor: 'color-mix(in oklab, var(--accent) 20%, transparent)', color: 'var(--onDeep)' }}
+                  >
+                    <span>
+                      <span className="block font-serif text-xl leading-[1.3]">
+                        {champ(e.titre_fr, e.titre_en, locale)}
+                      </span>
+                      {e.lieu && (
+                        <span className="mt-1.5 block text-[13px] font-light leading-none opacity-70">{e.lieu}</span>
+                      )}
                     </span>
-                    {e.lieu && <span className="mt-1.5 block text-[13px] font-light opacity-70">{e.lieu}</span>}
-                  </span>
-                  <span className="flex flex-none items-center gap-[18px]">
-                    <span className="text-xs font-medium tracking-[0.16em]">{formaterDate(e.date_debut, locale)}</span>
-                    <span
-                      className="text-[11px] font-medium uppercase leading-none tracking-[0.18em]"
-                      style={{ color: 'var(--accent)' }}
-                    >
-                      {t('voir')}
+                    <span className="flex flex-none items-center gap-[18px]">
+                      <span className="text-xs font-medium leading-none tracking-[0.16em]">
+                        {formaterDate(e.date_debut, locale)}
+                      </span>
+                      <span
+                        className="text-[11px] font-medium uppercase leading-none tracking-[0.18em]"
+                        style={{ color: 'var(--accent)' }}
+                      >
+                        {t('voir')}
+                      </span>
                     </span>
-                  </span>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
