@@ -9,15 +9,6 @@ import type { VedetteHero } from '@/lib/data/accueil'
 
 const INTERVALLE = 6500
 
-// jsdom (nos tests) n'implémente pas `matchMedia` : sans cette garde, le
-// premier rendu du composant planterait dans les tests plutôt que de
-// simplement se comporter comme si le mouvement n'était pas réduit.
-function prefereMouvementReduit(): boolean {
-  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false
-}
-
 export function Hero({
   vedettes,
   titre,
@@ -39,7 +30,7 @@ export function Hero({
   // de quelques centaines de millisecondes.
   useEffect(() => {
     if (vedettes.length < 2) return
-    if (prefereMouvementReduit()) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const id = window.setInterval(() => setActif((i) => (i + 1) % vedettes.length), INTERVALLE)
     return () => window.clearInterval(id)
   }, [actif, vedettes.length])
@@ -51,7 +42,7 @@ export function Hero({
     const s = section.current
     const l = lampe.current
     if (!s || !l) return
-    if (prefereMouvementReduit()) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     function auMouvement(e: MouseEvent) {
       const r = s!.getBoundingClientRect()
       const x = ((e.clientX - r.left) / r.width) * 100
@@ -78,6 +69,24 @@ export function Hero({
         .join(' — ')
     : ''
 
+  // Fondu de la légende : le texte lui-même reste dérivé directement de
+  // `actif` (rendu synchrone, sans délai — le test de clic sur une vignette
+  // asserte le nouveau texte immédiatement après l'événement). Seule
+  // l'opacité est animée séparément, via une transition CSS pilotée par cet
+  // état local, pour retrouver le fondu de la maquette sans reproduire son
+  // `setTimeout` de remplacement différé.
+  const [legendeVisible, setLegendeVisible] = useState(true)
+  const premierRendu = useRef(true)
+  useEffect(() => {
+    if (premierRendu.current) {
+      premierRendu.current = false
+      return
+    }
+    setLegendeVisible(false)
+    const id = requestAnimationFrame(() => setLegendeVisible(true))
+    return () => cancelAnimationFrame(id)
+  }, [actif])
+
   return (
     <section
       id="top"
@@ -90,13 +99,13 @@ export function Hero({
           <img
             key={v.slug}
             src={v.image}
-            alt={champ(v.titre_fr, v.titre_en, locale)}
+            alt=""
             className="absolute inset-0 h-full w-full object-cover"
             style={{
               filter: 'var(--imgf)',
               opacity: i === actif ? 1 : 0,
               transform: i === actif ? 'scale(1.04)' : 'scale(1)',
-              transition: 'opacity 1.2s ease, transform 8s ease',
+              transition: 'opacity 1.2s ease, transform 1.6s ease',
             }}
           />
         ))}
@@ -105,22 +114,33 @@ export function Hero({
       <div aria-hidden="true" className="absolute inset-0 z-[1]" style={{ background: 'var(--veil)' }} />
       <div ref={lampe} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2]" />
 
-      <div className="relative z-[5] grid gap-10 px-5 pb-7 pt-[clamp(120px,16vh,180px)] sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:px-14">
+      <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(120px,16vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="max-w-[900px]">
+          <p
+            data-rv=""
+            data-d="200"
+            className="mb-[22px] text-[11px] font-medium uppercase tracking-[0.3em]"
+            style={{ color: 'var(--accent)' }}
+          >
+            {t('accroche')}
+          </p>
           <h1
             data-clip=""
+            data-d="350"
             className="m-0 font-serif text-[clamp(46px,8.4vw,142px)] leading-[0.92] tracking-[-0.02em] text-balance"
             style={{ color: 'var(--onDeep)' }}
           >
             {titre}
           </h1>
           <p
+            data-rv=""
+            data-d="700"
             className="mt-6 max-w-[560px] text-[17px] font-light leading-[1.75]"
             style={{ color: 'color-mix(in oklab, var(--onDeep) 82%, transparent)' }}
           >
             {intro}
           </p>
-          <div className="mt-9 flex flex-wrap gap-3.5">
+          <div data-rv="" data-d="850" className="mt-9 flex flex-wrap gap-3.5">
             <Link
               href="/archives"
               className="inline-flex items-center gap-3 rounded-full px-[30px] py-[17px] text-xs font-semibold uppercase tracking-[0.16em] transition"
@@ -139,7 +159,7 @@ export function Hero({
             </button>
           </div>
           {villes.length > 0 && (
-            <div className="mt-11 flex flex-wrap gap-2.5">
+            <div data-rv="" data-d="1000" className="mt-11 flex flex-wrap gap-2.5">
               {villes.map((ville) => (
                 <span
                   key={ville}
@@ -154,7 +174,7 @@ export function Hero({
         </div>
 
         {vedettes.length > 0 && (
-          <div className="flex flex-col items-end gap-4">
+          <div data-rv="" data-d="1100" className="flex flex-col items-end gap-4">
             <div className="flex items-center gap-3.5" style={{ color: 'var(--onDeep)' }}>
               <span className="text-[10px] uppercase tracking-[0.24em] opacity-80">{t('vues')}</span>
               <span className="h-px w-[52px]" style={{ background: 'color-mix(in oklab, var(--onDeep) 50%, transparent)' }} />
@@ -178,10 +198,9 @@ export function Hero({
               ))}
             </div>
             <p
-              key={courante?.slug}
               data-testid="hero-legende"
               className="mt-1 max-w-[300px] text-right text-xs"
-              style={{ color: 'var(--onDeep)', opacity: 0.72, animation: 'drop .4s cubic-bezier(.16,1,.3,1) both' }}
+              style={{ color: 'var(--onDeep)', opacity: legendeVisible ? 0.72 : 0, transition: 'opacity .4s ease' }}
             >
               {legende}
             </p>
@@ -197,6 +216,7 @@ export function Hero({
         <span className="text-[9px] uppercase tracking-[0.26em] opacity-70">{t('defiler')}</span>
         <span
           aria-hidden="true"
+          data-floaty=""
           className="h-[34px] w-px"
           style={{ background: 'linear-gradient(180deg, var(--accent), transparent)', animation: 'floaty 2.4s ease-in-out infinite' }}
         />

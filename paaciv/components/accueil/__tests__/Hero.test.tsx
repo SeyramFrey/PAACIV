@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NextIntlClientProvider } from 'next-intl'
@@ -9,6 +9,25 @@ import type { VedetteHero } from '@/lib/data/accueil'
 vi.mock('@/components/soutenir/ContexteSoutien', () => ({
   useSoutien: () => ({ ouvrir: vi.fn() }),
 }))
+
+// jsdom n'implémente pas `matchMedia` (Hero.tsx l'appelle, comme
+// Revelations.tsx, sans garde) : même double pilotable que
+// components/ui/__tests__/Revelations.test.tsx.
+function setMatchMedia(reducedMotion: boolean) {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: reducedMotion,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }))
+}
+
+beforeEach(() => {
+  setMatchMedia(false)
+})
 
 const VEDETTES: VedetteHero[] = [
   { slug: 'kong', titre_fr: 'Grande mosquée de Kong', titre_en: null, ville: 'Kong', date_texte: 'XVIIIᵉ siècle', image: 'https://x/1.jpg' },
@@ -41,9 +60,17 @@ describe('Hero', () => {
     expect(screen.getByTestId('hero-legende')).toHaveTextContent('Mairie de Grand-Bassam')
   })
 
-  it('reste affichable sans aucune vedette', () => {
-    monter([])
+  it('reste affichable sans aucune vedette, fond sombre plein écran conservé', () => {
+    const { container } = monter([])
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
     expect(screen.queryAllByRole('button', { name: /voir/i })).toHaveLength(0)
+
+    // La dette héritée de la Task 9 repose sur ce fond sombre plein écran :
+    // sans vedette, ni la hauteur ni le fond ne doivent bouger, sous peine
+    // de rendre l'en-tête transparent illisible.
+    const section = container.querySelector('#top')
+    expect(section).not.toBeNull()
+    expect(section).toHaveClass('min-h-[100svh]')
+    expect(section).toHaveStyle({ background: 'var(--deep)' })
   })
 })

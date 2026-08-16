@@ -16,11 +16,11 @@ export async function CarteFilm() {
   const description = champ(dernier.description_fr, dernier.description_en, locale)
 
   return (
-    <div className="relative z-[8] -mt-[88px] px-5 sm:px-8 lg:px-14">
+    <div className="relative z-[8] -mt-[88px] flex justify-end px-[clamp(20px,4vw,54px)]">
       <Link
         href={`/reportages/${dernier.slug}`}
         data-rv=""
-        className="flex w-[min(430px,100%)] items-center gap-4 rounded border p-3.5 transition hover:-translate-y-1"
+        className="flex w-[min(430px,100%)] items-center gap-4 rounded-[6px] border p-3.5 transition hover:-translate-y-1"
         style={{
           background: 'var(--bg2)',
           borderColor: 'var(--line)',
@@ -28,11 +28,14 @@ export async function CarteFilm() {
           boxShadow: '0 30px 60px -30px oklch(0.1 0.02 48 / 0.6)',
         }}
       >
-        <div className="relative h-[88px] w-[132px] flex-none overflow-hidden rounded">
+        <div className="relative h-[88px] w-[132px] flex-none overflow-hidden rounded-[6px]">
           {vignette ? (
+            // Décorative : le titre est déjà porté en texte visible juste à
+            // côté, dans le même lien — un `alt` non vide le dupliquerait
+            // dans le nom accessible du lien.
             <img
               src={vignette}
-              alt={titre}
+              alt=""
               className="h-full w-full object-cover"
               style={{ filter: 'var(--imgf)' }}
             />
@@ -41,7 +44,10 @@ export async function CarteFilm() {
             // un aplat plutôt qu'un `<img src={null}>` invalide.
             <div className="h-full w-full" style={{ background: 'var(--bg3)' }} aria-hidden="true" />
           )}
+          {/* Pastille de lecture décorative : masquée du nom accessible du
+              lien, comme la vignette ci-dessus. */}
           <span
+            aria-hidden="true"
             className="absolute inset-0 grid place-items-center"
             style={{ background: 'oklch(0.15 0.012 45 / .32)' }}
           >
@@ -51,7 +57,7 @@ export async function CarteFilm() {
             >
               ▶
               <span
-                aria-hidden="true"
+                data-floaty=""
                 className="absolute inset-0 rounded-full border"
                 style={{ borderColor: 'var(--accent)', animation: 'pulse 2.6s infinite' }}
               />
