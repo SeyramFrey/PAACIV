@@ -154,6 +154,65 @@
     "publie": "Published",
     "aucun": "No events yet."
   },
+  "adminContenu": {
+    "titre": "Site content",
+    "cle": "Key", "valeurFr": "Value (FR)", "valeurEn": "Value (EN)",
+    "enregistrer": "Save", "enregistre": "Saved.",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "aCompleter": "This value is still a TO COMPLETE placeholder.",
+    "groupes": {
+      "hero": "Hero", "association": "The association", "travail": "Our work",
+      "pourquoi": "Why follow us", "activites": "Our activities", "carte": "The territory",
+      "raisons": "Reasons to look closer", "agenda": "Calendar", "parallaxe": "Parallax",
+      "archive": "Photographic archive", "temoignages": "Testimonials", "journal": "Journal",
+      "newsletter": "Newsletter", "footer": "Footer", "soutien": "Support"
+    }
+  },
+  "adminPointsCles": {
+    "titre": "Key points", "nouveau": "New key point", "editer": "Edit",
+    "supprimer": "Delete", "confirmer": "Permanently delete this key point?",
+    "bloc": "Block", "pourquoi": "Why follow us", "raisons": "Five reasons",
+    "tous": "All",
+    "colonneTitre": "Title", "ordre": "Order", "statut": "Status",
+    "brouillon": "Draft", "publie": "Published", "aucun": "No key point yet.",
+    "texte": "Text", "ongletFr": "Français", "ongletEn": "English",
+    "enregistrer": "Save", "erreurTitreRequis": "The title (FR) is required.",
+    "erreurEnregistrement": "Saving failed. Please try again."
+  },
+  "adminActivites": {
+    "titre": "Activities", "nouveau": "New activity", "editer": "Edit",
+    "supprimer": "Delete", "confirmer": "Permanently delete this activity?",
+    "colonneTitre": "Title", "cadence": "Cadence", "description": "Description",
+    "ctaLibelle": "Button label", "ctaHref": "Button destination",
+    "image": "Image", "ordre": "Order", "statut": "Status",
+    "brouillon": "Draft", "publie": "Published", "aucune": "No activity yet.",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Save",
+    "erreurTitreRequis": "The title (FR) is required.",
+    "erreurEnregistrement": "Saving failed. Please try again."
+  },
+  "adminTemoignages": {
+    "titre": "Testimonials", "nouveau": "New testimonial", "editer": "Edit",
+    "supprimer": "Delete", "confirmer": "Permanently delete this testimonial?",
+    "nom": "Name", "role": "Role", "citation": "Quote", "note": "Rating out of 5",
+    "ordre": "Order", "statut": "Status", "brouillon": "Draft", "publie": "Published",
+    "aucun": "No testimonial yet. The block stays hidden on the homepage until there is one.",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Save",
+    "erreurNomRequis": "The name is required.", "erreurCitationRequise": "The quote (FR) is required.",
+    "erreurEnregistrement": "Saving failed. Please try again."
+  },
+  "adminAbonnes": {
+    "titre": "Subscribers", "email": "Email address", "langue": "Language",
+    "date": "Subscribed on", "aucun": "No subscriber yet.", "exporter": "Export as CSV",
+    "total": "{n} subscriber(s)"
+  },
+  "adminDemandes": {
+    "titre": "Requests", "type": "Type", "adhesion": "Membership", "don": "Donation",
+    "archive": "Archive", "tous": "All", "nom": "Name", "email": "Email",
+    "telephone": "Phone", "montant": "Amount", "message": "Message",
+    "date": "Received on", "statut": "Status", "nouvelle": "New",
+    "traitee": "Processed", "marquerTraitee": "Mark as processed",
+    "aucune": "No request yet."
+  },
   "archives": {
     "titre": "Archive",
     "intro": "Explore the architectural heritage documented by PAACIV.",

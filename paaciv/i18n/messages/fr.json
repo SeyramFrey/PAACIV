@@ -154,6 +154,65 @@
     "publie": "Publié",
     "aucun": "Aucun événement."
   },
+  "adminContenu": {
+    "titre": "Contenu du site",
+    "cle": "Clé", "valeurFr": "Valeur (FR)", "valeurEn": "Valeur (EN)",
+    "enregistrer": "Enregistrer", "enregistre": "Enregistré.",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "aCompleter": "Cette valeur est encore un marqueur À COMPLÉTER.",
+    "groupes": {
+      "hero": "Hero", "association": "L'association", "travail": "Notre travail",
+      "pourquoi": "Pourquoi nous suivre", "activites": "Nos activités", "carte": "Le territoire",
+      "raisons": "Raisons de regarder", "agenda": "Agenda", "parallaxe": "Parallaxe",
+      "archive": "Archive photographique", "temoignages": "Témoignages", "journal": "Journal",
+      "newsletter": "Newsletter", "footer": "Pied de page", "soutien": "Soutien"
+    }
+  },
+  "adminPointsCles": {
+    "titre": "Points clés", "nouveau": "Nouveau point clé", "editer": "Éditer",
+    "supprimer": "Supprimer", "confirmer": "Supprimer définitivement ce point clé ?",
+    "bloc": "Bloc", "pourquoi": "Pourquoi nous suivre", "raisons": "Cinq raisons",
+    "tous": "Tous",
+    "colonneTitre": "Titre", "ordre": "Ordre", "statut": "Statut",
+    "brouillon": "Brouillon", "publie": "Publié", "aucun": "Aucun point clé.",
+    "texte": "Texte", "ongletFr": "Français", "ongletEn": "English",
+    "enregistrer": "Enregistrer", "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "adminActivites": {
+    "titre": "Activités", "nouveau": "Nouvelle activité", "editer": "Éditer",
+    "supprimer": "Supprimer", "confirmer": "Supprimer définitivement cette activité ?",
+    "colonneTitre": "Titre", "cadence": "Cadence", "description": "Description",
+    "ctaLibelle": "Libellé du bouton", "ctaHref": "Destination du bouton",
+    "image": "Image", "ordre": "Ordre", "statut": "Statut",
+    "brouillon": "Brouillon", "publie": "Publié", "aucune": "Aucune activité.",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer",
+    "erreurTitreRequis": "Le titre (FR) est requis.",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "adminTemoignages": {
+    "titre": "Témoignages", "nouveau": "Nouveau témoignage", "editer": "Éditer",
+    "supprimer": "Supprimer", "confirmer": "Supprimer définitivement ce témoignage ?",
+    "nom": "Nom", "role": "Rôle", "citation": "Citation", "note": "Note sur 5",
+    "ordre": "Ordre", "statut": "Statut", "brouillon": "Brouillon", "publie": "Publié",
+    "aucun": "Aucun témoignage. Le bloc reste masqué sur l'accueil tant qu'il n'y en a pas.",
+    "ongletFr": "Français", "ongletEn": "English", "enregistrer": "Enregistrer",
+    "erreurNomRequis": "Le nom est requis.", "erreurCitationRequise": "La citation (FR) est requise.",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer."
+  },
+  "adminAbonnes": {
+    "titre": "Abonnés", "email": "Adresse e-mail", "langue": "Langue",
+    "date": "Inscrit le", "aucun": "Aucun abonné.", "exporter": "Exporter en CSV",
+    "total": "{n} abonné(s)"
+  },
+  "adminDemandes": {
+    "titre": "Demandes", "type": "Type", "adhesion": "Adhésion", "don": "Don",
+    "archive": "Archive", "tous": "Toutes", "nom": "Nom", "email": "E-mail",
+    "telephone": "Téléphone", "montant": "Montant", "message": "Message",
+    "date": "Reçue le", "statut": "Statut", "nouvelle": "Nouvelle",
+    "traitee": "Traitée", "marquerTraitee": "Marquer comme traitée",
+    "aucune": "Aucune demande."
+  },
   "archives": {
     "titre": "Nos archives",
     "intro": "Explorez le patrimoine architectural documenté par PAACIV.",
