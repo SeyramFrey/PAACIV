@@ -75,7 +75,8 @@
     "suivre": "Suivre",
     "langue": "Langue",
     "droits": "Tous droits réservés.",
-    "credits": "Photographies : PAACIV et contributeurs."
+    "credits": "Photographies : PAACIV et contributeurs.",
+    "creditsPrefixe": "Photographies :"
   },
   "login": {
     "titre": "Espace administrateur",
@@ -170,6 +171,19 @@
       "archive": "Archive photographique", "temoignages": "Témoignages", "journal": "Journal",
       "newsletter": "Newsletter", "footer": "Pied de page", "soutien": "Soutien"
     }
+  },
+  "adminMedias": {
+    "titre": "Photographies du site",
+    "intro": "Les douze photographies de la page d'accueil. L'enjeu principal n'est pas de les remplacer, mais de les créditer : elles proviennent de Wikimedia et sont pour l'instant publiées sans nom d'auteur ni licence. Renseignez le crédit et la licence de chacune, ou téléversez les photographies de l'association.",
+    "remplacer": "Remplacer la photographie",
+    "remplacerAide": "Laisser vide pour conserver l'image actuelle.",
+    "altFr": "Description (FR)", "altEn": "Description (EN)",
+    "altAide": "Laisser vide si l'image est purement décorative : un lecteur d'écran l'ignorera, ce qui est le bon comportement quand le texte voisin dit déjà la même chose.",
+    "credit": "Crédit", "licence": "Licence", "licenceUrl": "Lien vers la licence",
+    "aCompleter": "Cette valeur est encore un marqueur À COMPLÉTER.",
+    "enregistrer": "Enregistrer", "enregistre": "Enregistré.",
+    "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
+    "aucun": "Aucune photographie enregistrée."
   },
   "adminPointsCles": {
     "titre": "Points clés", "nouveau": "Nouveau point clé", "editer": "Éditer",

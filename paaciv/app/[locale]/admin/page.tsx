@@ -10,6 +10,7 @@ export default async function AdminDashboard() {
   const tReportages = await getTranslations('adminReportages')
   const tEvenements = await getTranslations('adminEvenements')
   const tContenu = await getTranslations('adminContenu')
+  const tMedias = await getTranslations('adminMedias')
   const tPointsCles = await getTranslations('adminPointsCles')
   const tActivites = await getTranslations('adminActivites')
   const tTemoignages = await getTranslations('adminTemoignages')
@@ -41,6 +42,9 @@ export default async function AdminDashboard() {
         </Link>
         <Link href="/admin/contenu" className="text-ocre underline">
           {tContenu('titre')}
+        </Link>
+        <Link href="/admin/medias" className="text-ocre underline">
+          {tMedias('titre')}
         </Link>
         <Link href="/admin/points-cles" className="text-ocre underline">
           {tPointsCles('titre')}

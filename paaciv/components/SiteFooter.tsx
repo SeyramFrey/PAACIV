@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from 'next-intl/server'
+import { chargerMedias, attributions } from '@/lib/data/medias'
 import { Link } from '@/i18n/navigation'
 import { chargerTextes, texte, renseigne } from '@/lib/data/contenu-site'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -20,6 +21,12 @@ const RESEAUX = [
 export async function SiteFooter() {
   const t = await getTranslations('nav')
   const tf = await getTranslations('footer')
+  // Attributions réelles des photographies du site. Tant qu'aucune n'est
+  // renseignée, on retombe sur la ligne générique — annoncer « Photographies :
+  // » suivi de rien serait pire que la formule d'attente. `chargerMedias` est
+  // mémoïsé par requête : le pied de page ne coûte pas un aller-retour de plus
+  // sur la page d'accueil, qui lit déjà la table.
+  const attribs = attributions(await chargerMedias())
   const locale = await getLocale()
   const textes = await chargerTextes()
 
@@ -110,7 +117,32 @@ export async function SiteFooter() {
         style={{ borderColor: 'color-mix(in oklab, var(--onDeep) 20%, transparent)' }}
       >
         <span>© {new Date().getFullYear()} PAACIV — {tf('droits')}</span>
-        <span>{tf('credits')}</span>
+        {attribs.length > 0 ? (
+          <span>
+            {tf('creditsPrefixe')}{' '}
+            {attribs.map((a, i) => (
+              <span key={a.credit}>
+                {i > 0 && ' · '}
+                {a.credit}
+                {a.licence && (
+                  <>
+                    {' ('}
+                    {a.licence_url ? (
+                      <a href={a.licence_url} rel="license noopener" target="_blank" className="underline">
+                        {a.licence}
+                      </a>
+                    ) : (
+                      a.licence
+                    )}
+                    {')'}
+                  </>
+                )}
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span>{tf('credits')}</span>
+        )}
       </div>
     </footer>
   )

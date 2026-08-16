@@ -1,16 +1,19 @@
 import { getLocale } from 'next-intl/server'
 import { texte, renseigne, libelleOuNull, type Textes } from '@/lib/data/contenu-site'
 import { Compteurs } from '@/components/accueil/Compteurs'
-import { CartesSoutien } from '@/components/accueil/CartesSoutien'
+import { CartesSoutien, SECOURS_CARTES } from '@/components/accueil/CartesSoutien'
+import { visuel, visuelOuNull, type Medias } from '@/lib/data/medias'
 import { comptesParEtat } from '@/lib/data/accueil'
 import type { Chiffres } from '@/lib/data/accueil'
 
 export async function Association({
   textes,
+  medias,
   chiffres,
   montant,
 }: {
   textes: Textes
+  medias: Medias
   chiffres: Chiffres
   montant: string
 }) {
@@ -96,6 +99,14 @@ export async function Association({
             demoli: lib('soutien_demoli_titre'),
             adhesion: lib('soutien_adhesion_titre'),
             don: lib('soutien_don_titre'),
+          }}
+          images={{
+            enDanger: visuel(medias, 'soutien_en_danger_image', locale, SECOURS_CARTES.enDanger),
+            adhesion: visuel(medias, 'soutien_adhesion_image', locale, SECOURS_CARTES.adhesion),
+            don: visuel(medias, 'soutien_don_image', locale, SECOURS_CARTES.don),
+            // Aucun secours : la carte reste sur son aplat tant que
+            // l'association n'a pas fourni de photographie.
+            demoli: visuelOuNull(medias, 'soutien_demoli_image', locale),
           }}
         />
       </div>

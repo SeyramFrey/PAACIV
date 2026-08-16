@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { texte, libelleOuNull, type Textes } from '@/lib/data/contenu-site'
+import { visuel, type Medias } from '@/lib/data/medias'
 import { champ } from '@/lib/i18n-champ'
 import type { PointCle } from '@/lib/data/accueil'
 
@@ -42,7 +43,15 @@ const PHOTOS = [
 // absente de la maquette (même garde qu'à la Task 10, PourquoiNousSuivre.tsx).
 const DELAIS: (string | undefined)[] = [undefined, '80', '160', '240', '320']
 
-export async function CinqRaisons({ points, textes }: { points: PointCle[]; textes: Textes }) {
+export async function CinqRaisons({
+  points,
+  textes,
+  medias,
+}: {
+  points: PointCle[]
+  textes: Textes
+  medias: Medias
+}) {
   // Aucune raison publiée : le bloc entier disparaît plutôt que d'afficher
   // un titre suivi d'une liste vide.
   if (points.length === 0) return null
@@ -88,22 +97,29 @@ export async function CinqRaisons({ points, textes }: { points: PointCle[]; text
 
         <div className="grid items-center gap-[clamp(28px,4vw,60px)] lg:grid-cols-2">
           <div className="relative h-[clamp(360px,40vw,540px)]">
-            {PHOTOS.map((p) => (
-              <div
-                key={p.src}
-                data-par={p.par}
-                className="absolute aspect-square overflow-hidden rotate-45 border"
-                style={{ ...p.style, borderColor: 'color-mix(in oklab, var(--accent) 35%, transparent)' }}
-              >
-                <img
-                  src={p.src}
-                  alt=""
-                  loading="lazy"
-                  className="-m-[25%] h-[150%] w-[150%] -rotate-45 object-cover"
-                  style={{ filter: 'var(--imgf)' }}
-                />
-              </div>
-            ))}
+            {PHOTOS.map((p, i) => {
+              // `p.src` n'est plus la source mais le SECOURS : la base recouvre
+              // le visuel codé, et le composant garde de quoi s'afficher si la
+              // ligne est supprimée. Clé sur l'emplacement et non sur l'URL —
+              // deux emplacements peuvent désormais pointer le même fichier.
+              const v = visuel(medias, `raisons_${i + 1}_image`, locale, p.src)
+              return (
+                <div
+                  key={i}
+                  data-par={p.par}
+                  className="absolute aspect-square overflow-hidden rotate-45 border"
+                  style={{ ...p.style, borderColor: 'color-mix(in oklab, var(--accent) 35%, transparent)' }}
+                >
+                  <img
+                    src={v.src}
+                    alt={v.alt}
+                    loading="lazy"
+                    className="-m-[25%] h-[150%] w-[150%] -rotate-45 object-cover"
+                    style={{ filter: 'var(--imgf)' }}
+                  />
+                </div>
+              )
+            })}
           </div>
 
           <ol

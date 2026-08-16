@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server'
 import { chargerTextes, texte, libelleOuNull } from '@/lib/data/contenu-site'
+import { chargerMedias, visuel } from '@/lib/data/medias'
 import {
   chiffresCles, listeActivites, listePointsCles, listeTemoignages, listeTypes,
   vedettesHero, vignettesArchive, villesArchive,
@@ -17,10 +18,10 @@ import { Activites } from '@/components/accueil/Activites'
 import { ApercuCarte } from '@/components/accueil/ApercuCarte'
 import { CinqRaisons } from '@/components/accueil/CinqRaisons'
 import { Agenda } from '@/components/accueil/Agenda'
-import { AppelArchives } from '@/components/accueil/AppelArchives'
+import { AppelArchives, SECOURS_PARALLAXE } from '@/components/accueil/AppelArchives'
 import { GrilleArchive } from '@/components/accueil/GrilleArchive'
 import { Temoignages } from '@/components/accueil/Temoignages'
-import { Journal } from '@/components/accueil/Journal'
+import { Journal, SECOURS_JOURNAL } from '@/components/accueil/Journal'
 import { Newsletter } from '@/components/accueil/Newsletter'
 
 // La page lit Supabase et n'a pas de segment dynamique : sans ce flag, Next
@@ -35,10 +36,11 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
   // Un seul palier d'attente : ces lectures sont indépendantes, les
   // enchaîner en série multiplierait le temps de rendu par dix.
   const [
-    textes, vedettes, villes, chiffres, pourquoi, raisons,
+    textes, medias, vedettes, villes, chiffres, pourquoi, raisons,
     activites, types, evenements, vignettes, temoignages, articles,
   ] = await Promise.all([
     chargerTextes(),
+    chargerMedias(),
     vedettesHero(5),
     villesArchive(),
     chiffresCles(),
@@ -68,8 +70,13 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
       />
       <CarteFilm textes={textes} />
       <BandeauVilles villes={villes} />
-      <Association textes={textes} chiffres={chiffres} montant={tx('soutien_adhesion_montant')} />
-      <NotreTravail textes={textes} />
+      <Association
+        textes={textes}
+        medias={medias}
+        chiffres={chiffres}
+        montant={tx('soutien_adhesion_montant')}
+      />
+      <NotreTravail textes={textes} medias={medias} />
       <PourquoiNousSuivre points={pourquoi} titre={tx('pourquoi_titre')} />
       <Activites
         activites={activites}
@@ -84,9 +91,13 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         titre={tx('carte_titre')}
         texte={tx('carte_texte')}
       />
-      <CinqRaisons points={raisons} textes={textes} />
+      <CinqRaisons points={raisons} textes={textes} medias={medias} />
       <Agenda evenements={aVenir.slice(0, 4)} textes={textes} />
-      <AppelArchives texte={tx('parallaxe_texte')} cta={lib('parallaxe_cta')} />
+      <AppelArchives
+        texte={tx('parallaxe_texte')}
+        cta={lib('parallaxe_cta')}
+        image={visuel(medias, 'parallaxe_image', locale, SECOURS_PARALLAXE)}
+      />
       <GrilleArchive
         vignettes={vignettes}
         types={types}
@@ -103,6 +114,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         articles={articles.slice(0, 3)}
         surtitre={tx('journal_surtitre')}
         titre={tx('journal_titre')}
+        image={visuel(medias, 'journal_image', locale, SECOURS_JOURNAL)}
       />
       <Newsletter titre={tx('newsletter_titre')} texte={tx('newsletter_texte')} />
     </main>

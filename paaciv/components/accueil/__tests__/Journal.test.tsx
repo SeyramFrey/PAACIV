@@ -4,6 +4,9 @@ import { NextIntlClientProvider } from 'next-intl'
 import messages from '@/i18n/messages/fr.json'
 import { Journal } from '@/components/accueil/Journal'
 
+// Fond de section, distinct de l'image d'article testée ci-dessous.
+const FOND = 'https://exemple/fond-journal.jpg'
+
 function article(image: string | null) {
   return {
     id: 'a1',
@@ -21,7 +24,12 @@ function article(image: string | null) {
 function rendre(image: string | null) {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <Journal articles={[article(image)]} surtitre="Journal" titre="Ce que nous publions" />
+      <Journal
+        articles={[article(image)]}
+        surtitre="Journal"
+        titre="Ce que nous publions"
+        image={{ src: FOND, alt: '' }}
+      />
     </NextIntlClientProvider>,
   )
 }
@@ -30,7 +38,7 @@ describe('Journal', () => {
   it('ne rend rien sans article publié', () => {
     const { container } = render(
       <NextIntlClientProvider locale="fr" messages={messages}>
-        <Journal articles={[]} surtitre="Journal" titre="Ce que nous publions" />
+        <Journal articles={[]} surtitre="Journal" titre="Ce que nous publions" image={{ src: FOND, alt: '' }} />
       </NextIntlClientProvider>,
     )
     expect(container).toBeEmptyDOMElement()

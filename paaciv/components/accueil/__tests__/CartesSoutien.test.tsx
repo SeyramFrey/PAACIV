@@ -25,6 +25,13 @@ const BASE: ComponentProps<typeof CartesSoutien> = {
   // sur le libellé du code, qui est la situation nominale tant que
   // l'association n'a rien réécrit depuis l'admin.
   titres: { enDanger: null, demoli: null, adhesion: null, don: null },
+  images: {
+    enDanger: { src: 'https://exemple/en-danger.jpg', alt: '' },
+    adhesion: { src: 'https://exemple/adhesion.jpg', alt: '' },
+    don: { src: 'https://exemple/don.jpg', alt: '' },
+    // Cas réel : aucune photographie n'est donnée à la carte « démoli ».
+    demoli: null,
+  },
 }
 
 function rendre(props: Partial<ComponentProps<typeof CartesSoutien>> = {}) {

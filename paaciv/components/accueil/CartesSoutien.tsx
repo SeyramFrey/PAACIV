@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 import type { EtatConservation } from '@/lib/etats-conservation'
+import type { Visuel } from '@/lib/data/medias'
 
 const CLASSE_CARTE =
   'group relative flex h-[clamp(340px,34vw,440px)] flex-col justify-end overflow-hidden rounded-[6px] border-0 bg-transparent p-[34px] text-left'
@@ -24,12 +25,10 @@ function Carte({
   // entière, requête comprise.
   href?: Href
   onClick?: () => void
-  // Optionnelle. Les trois images existantes sont des liens directs vers
-  // Wikimedia, sans attribution ni licence — dette déjà consignée, et qu'on
-  // n'aggrave pas d'une quatrième pour la carte « démoli ». Sans image, la
-  // carte tombe sur un aplat sombre, qui porte le dégradé et le texte aussi
-  // bien que la photo.
-  image?: string
+  // `null`/absente : la carte tombe sur un aplat sombre, qui porte le dégradé
+  // et le texte aussi bien que la photo. C'est le cas de « Patrimoine démoli »,
+  // à laquelle on n'a pas donné de treizième image Wikimedia non attribuée.
+  image?: Visuel | null
   titre: string
   // `null` : rien à afficher (valeur absente ou encore marquée « À
   // COMPLÉTER ») — le paragraphe entier disparaît plutôt que de montrer un
@@ -38,15 +37,17 @@ function Carte({
   libelle: string
   delai?: string
 }) {
-  // Décoratives : le titre de la carte est déjà porté en texte visible juste
-  // au-dessus, dans le même bloc cliquable — un `alt` non vide le
+  // Décoratives par défaut : le titre de la carte est déjà porté en texte
+  // visible juste au-dessus, dans le même bloc cliquable — un `alt` non vide le
   // dupliquerait dans le nom accessible du lien/bouton (cf. CarteFilm.tsx).
+  // Les trois lignes seedées laissent donc `alt` à `null`, ce que `visuel()`
+  // rend par `''`.
   const contenu = (
     <>
       {image ? (
         <img
-          src={image}
-          alt=""
+          src={image.src}
+          alt={image.alt}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
           style={{ filter: 'var(--imgf)' }}
@@ -99,6 +100,18 @@ function Carte({
   )
 }
 
+// Visuels de SECOURS des trois cartes historiques, gardés auprès du balisage
+// qui en dépend : la base les recouvre (`medias_site`), mais supprimer une
+// ligne depuis l'admin ne doit pas vider la carte. Résolus par
+// `Association.tsx`, qui seul peut lire la table.
+export const SECOURS_CARTES = {
+  enDanger:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900",
+  adhesion:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/WikiConvFr23%20en%20Cote%20d'Ivoire%20visite%20B%C3%A2timents%20sites%20historiques%20de%20Grand-Bassam%2002.jpg?width=900",
+  don: 'https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900',
+} as const
+
 export function CartesSoutien({
   montant,
   enDangerTexte,
@@ -108,6 +121,7 @@ export function CartesSoutien({
   nbEnDanger,
   nbDemoli,
   titres,
+  images,
 }: {
   // `null` : rien à afficher — déjà filtré côté serveur par `Association.tsx`
   // (une valeur absente ou encore « À COMPLÉTER » ne franchit jamais la
@@ -128,6 +142,11 @@ export function CartesSoutien({
   // retombe sur le libellé du code : une carte sans titre serait une image
   // muette dont on ne saurait pas où elle mène.
   titres: Record<'enDanger' | 'demoli' | 'adhesion' | 'don', string | null>
+  // Visuels résolus côté serveur. `demoli` est `null` par défaut : aucune
+  // photographie ne lui est donnée faute d'en avoir une de libre, mais
+  // l'emplacement existe — le jour où l'association en téléverse une, la carte
+  // l'affiche sans qu'une ligne de code ne bouge.
+  images: Record<'enDanger' | 'adhesion' | 'don', Visuel> & { demoli: Visuel | null }
 }) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
@@ -156,8 +175,7 @@ export function CartesSoutien({
     nbEnDanger > 0 && {
       cle: 'en_danger',
       href: { pathname: '/archives', query: { etat: 'en_danger' } } as const,
-      image:
-        "https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900",
+      image: images.enDanger,
       titre: titres.enDanger ?? t('enDanger'),
       texte: enDangerTexte,
       libelle: t('voir'),
@@ -165,8 +183,9 @@ export function CartesSoutien({
     nbDemoli > 0 && {
       cle: 'demoli',
       href: { pathname: '/archives', query: { etat: 'demoli' } } as const,
-      // Sans photographie : voir le commentaire sur `image` dans `Carte`.
-      image: undefined,
+      // Sans photographie tant que la base n'en fournit pas : voir le
+      // commentaire sur `image` dans `Carte`.
+      image: images.demoli,
       titre: titres.demoli ?? t('demoli'),
       texte: demoliTexte,
       libelle: t('voir'),
@@ -174,8 +193,7 @@ export function CartesSoutien({
     {
       cle: 'adhesion',
       onClick: () => ouvrir('adhesion'),
-      image:
-        "https://commons.wikimedia.org/wiki/Special:FilePath/WikiConvFr23%20en%20Cote%20d'Ivoire%20visite%20B%C3%A2timents%20sites%20historiques%20de%20Grand-Bassam%2002.jpg?width=900",
+      image: images.adhesion,
       titre: titres.adhesion ?? t('adherer'),
       texte: texteAdhesion,
       libelle: t('rejoindre'),
@@ -183,8 +201,7 @@ export function CartesSoutien({
     {
       cle: 'don',
       onClick: () => ouvrir('don'),
-      image:
-        'https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900',
+      image: images.don,
       titre: titres.don ?? t('don'),
       texte: donTexte,
       libelle: t('donner'),

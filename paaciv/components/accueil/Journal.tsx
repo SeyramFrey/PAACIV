@@ -1,6 +1,7 @@
 'use client'
 
 import { useLayoutEffect, useRef, useState } from 'react'
+import type { Visuel } from '@/lib/data/medias'
 import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
@@ -15,14 +16,24 @@ function dateLocalisee(iso: string, locale: string): string {
 }
 
 // Transposition des lignes 526-570 de la référence de design.
+// Visuel de SECOURS, gardé auprès du balisage qui en dépend : la base le
+// recouvre (`medias_site`), mais supprimer la ligne depuis l'admin ne doit
+// pas laisser ce bloc sans fond. Résolu côté serveur par `page.tsx`, qui
+// seul peut lire la table.
+export const SECOURS_JOURNAL =
+  'https://commons.wikimedia.org/wiki/Special:FilePath/Cathedrale%20St%20Paul%20Abidjan%201.jpg?width=1800'
+
 export function Journal({
   articles,
   surtitre,
   titre,
+  image,
 }: {
   articles: ArticleListItem[]
   surtitre: string
   titre: string
+  // Visuel de fond, résolu côté serveur : ce composant est client.
+  image: Visuel
 }) {
   const locale = useLocale()
   const t = useTranslations('accueil')
@@ -57,8 +68,8 @@ export function Journal({
     >
       <img
         data-par="0.08"
-        src="https://commons.wikimedia.org/wiki/Special:FilePath/Cathedrale%20St%20Paul%20Abidjan%201.jpg?width=1800"
-        alt=""
+        src={image.src}
+        alt={image.alt}
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover"
         style={{ filter: 'var(--imgf)' }}

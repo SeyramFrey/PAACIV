@@ -1,8 +1,17 @@
 import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { texte, type Textes } from '@/lib/data/contenu-site'
+import { visuel, type Medias } from '@/lib/data/medias'
 
-export async function NotreTravail({ textes }: { textes: Textes }) {
+// Visuels de SECOURS : la base les recouvre (`medias_site`), le code garde de
+// quoi s'afficher si la ligne est supprimée depuis l'admin — ce bloc est bâti
+// autour de ses deux images, il s'effondrerait sans elles.
+const SECOURS_1 =
+  "https://commons.wikimedia.org/wiki/Special:FilePath/Maison%20du%20Resident%20(c'etait%20le%20logement%20du%20directeur%20de%20l'ecole%20regionale%20a%20l'epoque%20coloniale).jpg?width=1100"
+const SECOURS_2 =
+  "https://commons.wikimedia.org/wiki/Special:FilePath/Int%C3%A9rieur%20Mosqu%C3%A9e%20Dieng%20%C3%A0%20Grand-Bassam.jpg?width=1100"
+
+export async function NotreTravail({ textes, medias }: { textes: Textes; medias: Medias }) {
   const locale = await getLocale()
   const t = await getTranslations('accueil')
 
@@ -11,6 +20,10 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
   const intro = texte(textes, 'travail_texte', locale)
   const releveTitre = texte(textes, 'travail_releve_titre', locale)
   const releveTexte = texte(textes, 'travail_releve_texte', locale)
+  // La base recouvre le visuel codé ; l'`alt` vient d'elle aussi, et devient
+  // enfin bilingue — il était écrit en français quelle que soit la langue.
+  const image1 = visuel(medias, 'travail_1_image', locale, SECOURS_1)
+  const image2 = visuel(medias, 'travail_2_image', locale, SECOURS_2)
   const recitTitre = texte(textes, 'travail_recit_titre', locale)
   const recitTexte = texte(textes, 'travail_recit_texte', locale)
 
@@ -19,8 +32,8 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
       <div className="mx-auto grid max-w-[1440px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-center gap-[clamp(24px,3vw,48px)]">
         <div data-clip="" data-par="0.06" className="h-[clamp(320px,36vw,520px)] overflow-hidden rounded-[6px]">
           <img
-            src="https://commons.wikimedia.org/wiki/Special:FilePath/Maison%20du%20Resident%20(c'etait%20le%20logement%20du%20directeur%20de%20l'ecole%20regionale%20a%20l'epoque%20coloniale).jpg?width=1100"
-            alt="Maison du Résident, Grand-Bassam"
+            src={image1.src}
+            alt={image1.alt}
             loading="lazy"
             className="h-full w-full object-cover"
             style={{ filter: 'var(--imgf)' }}
@@ -82,8 +95,8 @@ export async function NotreTravail({ textes }: { textes: Textes }) {
 
         <div data-clip="" data-d="120" data-par="-0.05" className="h-[clamp(320px,36vw,520px)] overflow-hidden rounded-[6px]">
           <img
-            src="https://commons.wikimedia.org/wiki/Special:FilePath/Int%C3%A9rieur%20Mosqu%C3%A9e%20Dieng%20%C3%A0%20Grand-Bassam.jpg?width=1100"
-            alt="Intérieur de la mosquée Dieng"
+            src={image2.src}
+            alt={image2.alt}
             loading="lazy"
             className="h-full w-full object-cover"
             style={{ filter: 'var(--imgf)' }}

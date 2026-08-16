@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import type { Visuel } from '@/lib/data/medias'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 
 // Transposition des lignes 389-398 de la référence de design.
@@ -16,13 +17,24 @@ import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 //    `var(--veil)`. Deux blocs voisins n'ont pas forcément le même filet
 //    (piège relevé à la Task 11) ; on reprend donc la valeur littérale de la
 //    maquette plutôt que le token.
+// Visuel de SECOURS, gardé auprès du balisage qui en dépend : la base le
+// recouvre (`medias_site`), mais supprimer la ligne depuis l'admin ne doit
+// pas laisser ce bloc sans fond. Résolu côté serveur par `page.tsx`, qui
+// seul peut lire la table.
+export const SECOURS_PARALLAXE =
+  'https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20notre%20Dame%20de%20la%20Paix%20de%20Yamoussoukro%2020.jpg?width=1800'
+
 export function AppelArchives({
   texte,
   cta,
+  image,
 }: {
   texte: string
   // `null` : rien à substituer en base — on retombe sur le libellé du code.
   cta: string | null
+  // Visuel résolu côté serveur (`visuel()` a besoin de la table). Le composant
+  // est client : il ne peut pas lire Supabase lui-même.
+  image: Visuel
 }) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
@@ -31,8 +43,8 @@ export function AppelArchives({
     <section className="relative grid h-[clamp(360px,42vw,540px)] place-items-center overflow-hidden text-center">
       <img
         data-par="0.14"
-        src="https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20notre%20Dame%20de%20la%20Paix%20de%20Yamoussoukro%2020.jpg?width=1800"
-        alt="Basilique Notre-Dame de la Paix, Yamoussoukro"
+        src={image.src}
+        alt={image.alt}
         loading="lazy"
         className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
         style={{ filter: 'var(--imgf)' }}

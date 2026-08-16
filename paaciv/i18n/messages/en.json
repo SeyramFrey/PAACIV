@@ -75,7 +75,8 @@
     "suivre": "Follow",
     "langue": "Language",
     "droits": "All rights reserved.",
-    "credits": "Photographs: PAACIV and contributors."
+    "credits": "Photographs: PAACIV and contributors.",
+    "creditsPrefixe": "Photographs:"
   },
   "login": {
     "titre": "Administrator area",
@@ -170,6 +171,19 @@
       "archive": "Photographic archive", "temoignages": "Testimonials", "journal": "Journal",
       "newsletter": "Newsletter", "footer": "Footer", "soutien": "Support"
     }
+  },
+  "adminMedias": {
+    "titre": "Site photographs",
+    "intro": "The twelve photographs on the homepage. The point here is not so much to replace them as to credit them: they come from Wikimedia and are currently published with no author name and no licence. Fill in each credit and licence, or upload the association's own photographs.",
+    "remplacer": "Replace photograph",
+    "remplacerAide": "Leave empty to keep the current image.",
+    "altFr": "Description (FR)", "altEn": "Description (EN)",
+    "altAide": "Leave empty if the image is purely decorative: a screen reader will skip it, which is the right behaviour when the neighbouring text already says the same thing.",
+    "credit": "Credit", "licence": "Licence", "licenceUrl": "Licence link",
+    "aCompleter": "This value is still a TO COMPLETE placeholder.",
+    "enregistrer": "Save", "enregistre": "Saved.",
+    "erreurEnregistrement": "Saving failed. Please try again.",
+    "aucun": "No photographs recorded."
   },
   "adminPointsCles": {
     "titre": "Key points", "nouveau": "New key point", "editer": "Edit",
