@@ -100,14 +100,26 @@ export default async function FichePatrimoine({ params }: Props) {
             <MiniCarte lat={p.lat} lng={p.lng} titre={titre} />
           )}
           {p.architectes.length > 0 && (
-            <section>
+            <section data-testid="architectes-fiche">
               <h2 className="mb-2 font-serif text-lg text-ocre">{t('architectes')}</h2>
               <ul className="space-y-1 text-sm">
                 {p.architectes.map((a) => (
                   <li key={a.slug}>
-                    <Link href={`/architectes/${a.slug}`} className="text-ocre underline">
+                    <Link
+                      href={`/architectes/${a.slug}`}
+                      className={`text-ocre underline${a.principal ? ' font-semibold' : ''}`}
+                    >
                       {a.nom}
                     </Link>
+                    {/* L'architecte principal est marqué explicitement, et il
+                        est déjà remonté en tête par `mapLiaisonsArchitectes` :
+                        le rang seul ne se lit pas, deux noms l'un sous l'autre
+                        n'annoncent pas lequel a conçu l'édifice. */}
+                    {a.principal ? (
+                      <span className="ml-1 rounded-full border border-current px-2 py-0.5 text-[10px] uppercase tracking-wide text-ocre">
+                        {t('architectePrincipal')}
+                      </span>
+                    ) : null}
                     {a.role ? <span className="text-doux"> ({a.role})</span> : null}
                   </li>
                 ))}

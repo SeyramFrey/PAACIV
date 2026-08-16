@@ -234,6 +234,7 @@
     "reinitialiser": "Reset"
   },
   "fiche": {
+    "architectePrincipal": "Lead architect",
     "programme": "Programme",
     "epoque": "Era",
     "style": "Style",
@@ -264,6 +265,7 @@
     "tous": "All"
   },
   "formPatrimoine": {
+    "principal": "Lead",
     "titre_fr": "Title (FR)", "titre_en": "Title (EN)", "resume": "Summary", "description": "Description",
     "type": "Type", "programme": "Programme", "district": "District", "epoque": "Era",
     "style": "Style", "dateTexte": "Dating (text)", "anneeDebut": "Start year", "anneeFin": "End year",

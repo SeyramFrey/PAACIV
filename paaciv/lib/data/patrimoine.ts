@@ -77,7 +77,7 @@ export type PatrimoineDetail = {
   district: Ref | null
   epoque: Ref | null
   images: ImageRow[]
-  architectes: { slug: string; nom: string; role: string | null }[]
+  architectes: { slug: string; nom: string; role: string | null; principal: boolean }[]
 }
 
 export type PointPublie = {
@@ -126,6 +126,7 @@ export async function listePatrimoine(
 
 export type LiaisonArchitecte = {
   role: string | null
+  principal: boolean | null
   architectes: { slug: string; nom: string; statut: string } | null
 }
 
@@ -136,11 +137,19 @@ export type LiaisonArchitecte = {
 // (la RLS filtre déjà la ligne de liaison elle-même, en défense en profondeur).
 export function mapLiaisonsArchitectes(
   liaisons: LiaisonArchitecte[] | null | undefined,
-): { slug: string; nom: string; role: string | null }[] {
+): { slug: string; nom: string; role: string | null; principal: boolean }[] {
   return (liaisons ?? [])
     .filter((l) => l.architectes && l.architectes.statut === 'publie')
-    .map((l) => ({ slug: l.architectes!.slug, nom: l.architectes!.nom, role: l.role }))
-    .sort((a, b) => a.nom.localeCompare(b.nom))
+    .map((l) => ({
+      slug: l.architectes!.slug,
+      nom: l.architectes!.nom,
+      role: l.role,
+      principal: l.principal === true,
+    }))
+    // L'architecte principal passe EN TÊTE, le reste garde l'ordre
+    // alphabétique. Sans ce tri, désigner un principal n'aurait aucun effet
+    // visible côté public — le champ existerait sans rien changer.
+    .sort((a, b) => Number(b.principal) - Number(a.principal) || a.nom.localeCompare(b.nom))
 }
 
 export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDetail | null> {
@@ -148,7 +157,7 @@ export async function getPatrimoineParSlug(slug: string): Promise<PatrimoineDeta
   const { data, error } = await sb
     .from('patrimoine')
     .select(
-      '*, type:types(*), programme:programmes(*), district:districts(*), epoque:epoques(*), images(*), patrimoine_architecte(role, architectes(slug, nom, statut))',
+      '*, type:types(*), programme:programmes(*), district:districts(*), epoque:epoques(*), images(*), patrimoine_architecte(role, principal, architectes(slug, nom, statut))',
     )
     .eq('slug', slug)
     .eq('statut', 'publie')

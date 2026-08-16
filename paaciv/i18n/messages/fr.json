@@ -234,6 +234,7 @@
     "reinitialiser": "Réinitialiser"
   },
   "fiche": {
+    "architectePrincipal": "Architecte principal",
     "programme": "Programme",
     "epoque": "Époque",
     "style": "Style",
@@ -264,6 +265,7 @@
     "tous": "Tous"
   },
   "formPatrimoine": {
+    "principal": "Principal",
     "titre_fr": "Titre (FR)", "titre_en": "Titre (EN)", "resume": "Résumé", "description": "Description",
     "type": "Type", "programme": "Programme", "district": "District", "epoque": "Époque",
     "style": "Style", "dateTexte": "Datation (texte)", "anneeDebut": "Année début", "anneeFin": "Année fin",

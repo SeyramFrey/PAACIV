@@ -18,7 +18,7 @@ export default async function EditerPatrimoine({
     sb.from('districts').select('*').order('ordre'),
     sb.from('epoques').select('*').order('ordre'),
     sb.from('architectes').select('id, nom').order('nom'),
-    sb.from('patrimoine_architecte').select('architecte_id, role').eq('patrimoine_id', id),
+    sb.from('patrimoine_architecte').select('architecte_id, role, principal').eq('patrimoine_id', id),
   ])
   if (!p) notFound()
 

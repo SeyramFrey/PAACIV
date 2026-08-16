@@ -88,3 +88,41 @@ test.afterAll(async () => {
   await db.from('patrimoine').delete().like('slug', 'test-villa-moderne%')
   await db.from('patrimoine').delete().like('slug', 'test-latitude-aberrante%')
 })
+
+// Le formulaire patrimoine n'expose AUCUN champ `slug` — contrairement à celui
+// des architectes. `enregistrerPatrimoine` lisait donc toujours `null` et
+// recalculait le slug depuis le titre à chaque enregistrement : ouvrir une
+// fiche et cliquer sur « Enregistrer » suffisait à changer son URL publique,
+// sans rien annoncer. C'est l'origine de la dérive de slugs déjà constatée sur
+// cette base (`basilique-yamoussoukro` -> `basilique-notre-dame-de-la-paix`),
+// et son coût réel n'est pas un test rouge mais un 404 sur tout lien externe.
+test('enregistrer une fiche existante ne change pas son slug', async ({ page }) => {
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { error: erreurConnexion } = await db.auth.signInWithPassword({
+    email: process.env.TEST_ADMIN_EMAIL!,
+    password: process.env.TEST_ADMIN_PASSWORD!,
+  })
+  expect(erreurConnexion).toBeNull()
+
+  // Une fiche dont le slug NE DÉRIVE PAS du titre : c'est le seul cas où le
+  // défaut se voit. Sur une fiche où `slugify(titre) === slug`, recalculer le
+  // slug redonne la même valeur et le test passerait à tort.
+  const { data: fiches } = await db
+    .from('patrimoine')
+    .select('id, slug, titre_fr')
+    .eq('slug', 'basilique-yamoussoukro')
+    .limit(1)
+  const fiche = fiches?.[0]
+  expect(fiche, 'la fiche témoin basilique-yamoussoukro').toBeTruthy()
+
+  await page.goto(`/fr/admin/patrimoine/${fiche!.id}`)
+  await page.getByRole('main').getByRole('button', { name: 'Enregistrer' }).click()
+  await expect(page.getByTestId('banniere-enregistre')).toBeVisible()
+
+  const { data: apres } = await db.from('patrimoine').select('slug').eq('id', fiche!.id).single()
+  expect(apres!.slug, 'le slug doit survivre à un enregistrement').toBe(fiche!.slug)
+
+  // Et la page publique répond toujours à l'ancienne adresse.
+  const rep = await page.goto(`/fr/patrimoine/${fiche!.slug}`)
+  expect(rep!.status()).toBe(200)
+})

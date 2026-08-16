@@ -33,7 +33,19 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
   const titre_fr = (formData.get('titre_fr') ?? '').toString().trim()
   if (!titre_fr) throw new Error('Titre FR requis')
 
-  const slug = texteOuNull(formData.get('slug')) ?? slugify(titre_fr)
+  // Le slug n'est calculé qu'à la CRÉATION. Le formulaire patrimoine n'expose
+  // aucun champ `slug` (contrairement à celui des architectes), si bien que
+  // `formData.get('slug')` était toujours nul et que le slug se retrouvait
+  // RECALCULÉ depuis le titre à chaque enregistrement : ouvrir une fiche et
+  // cliquer sur « Enregistrer » suffisait à changer son URL publique, sans
+  // rien annoncer et sans redirection. C'est l'origine de la dérive de slugs
+  // qui a déjà coûté une session de débogage
+  // (`basilique-yamoussoukro` -> `basilique-notre-dame-de-la-paix`,
+  // `la-pyramide-abidjan` -> `la-pyramide`), et le prix réel est plus lourd
+  // qu'un test rouge : tout lien externe vers la fiche tombe en 404.
+  // En édition, un slug n'est donc écrit que s'il est explicitement soumis.
+  const slugSoumis = texteOuNull(formData.get('slug'))
+  const slug = slugSoumis ?? (id ? null : slugify(titre_fr))
 
   // Défense en profondeur devant la contrainte `patrimoine_lat_bornes` /
   // `patrimoine_lng_bornes` (0019) : le message de violation de contrainte
@@ -45,7 +57,10 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
   if (!lng.ok) return { ok: false, erreur: 'longitudeHorsBornes' }
 
   const valeurs = {
-    slug,
+    // Clé OMISE quand `slug` est nul, jamais posée à `null` : la colonne est
+    // `not null`, un UPDATE avec `slug: null` échouerait au lieu de laisser
+    // la valeur en place.
+    ...(slug === null ? {} : { slug }),
     titre_fr,
     titre_en: texteOuNull(formData.get('titre_en')),
     resume_fr: texteOuNull(formData.get('resume_fr')),
@@ -98,9 +113,21 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
     .eq('patrimoine_id', resultId)
   if (erreurSuppression) throw erreurSuppression
   if (architecteIds.length > 0) {
+    // Le principal est lu UNE fois et confronté aux cases cochées : un
+    // `architecte_principal` désignant un architecte non lié (formulaire
+    // trafiqué, ou soumission concurrente) est ignoré plutôt qu'écrit, ce que
+    // l'index unique partiel ne pourrait pas rattraper — il ne contraint que
+    // l'unicité, pas l'appartenance.
+    const principalDemande = (formData.get('architecte_principal') ?? '').toString()
+    const principal = architecteIds.includes(principalDemande) ? principalDemande : null
     const lignes = architecteIds.map((architecte_id) => {
       const role = (formData.get(`role_${architecte_id}`) ?? '').toString().trim()
-      return { patrimoine_id: resultId, architecte_id, role: role === '' ? null : role }
+      return {
+        patrimoine_id: resultId,
+        architecte_id,
+        role: role === '' ? null : role,
+        principal: architecte_id === principal,
+      }
     })
     const { error: erreurInsertion } = await sb.from('patrimoine_architecte').insert(lignes)
     if (erreurInsertion) throw erreurInsertion
