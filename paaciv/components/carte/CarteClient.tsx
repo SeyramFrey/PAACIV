@@ -29,7 +29,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   const routerRef = useRef(router)
   const localeRef = useRef(locale)
   const [satellite, setSatellite] = useState(false)
-  const [filtres, setFiltres] = useState({ type: '', programme: '', district: '', epoque: '', q: '' })
+  const [filtres, setFiltres] = useState({ type: '', programme: '', district: '', epoque: '', etat: '', q: '' })
   const [nombre, setNombre] = useState(0)
   const [mapPret, setMapPret] = useState(false)
 
@@ -230,7 +230,8 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     if (!map || !mapPret) return
     if (premierRefetch.current) {
       premierRefetch.current = false
-      const vide = !filtres.type && !filtres.programme && !filtres.district && !filtres.epoque && !filtres.q
+      const vide =
+        !filtres.type && !filtres.programme && !filtres.district && !filtres.epoque && !filtres.etat && !filtres.q
       if (vide) return // le handler load a déjà chargé le jeu non filtré
     }
     let annule = false
@@ -288,7 +289,13 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       >
         <FiltresCarte
           options={options}
-          valeurs={{ type: filtres.type, programme: filtres.programme, district: filtres.district, epoque: filtres.epoque }}
+          valeurs={{
+            type: filtres.type,
+            programme: filtres.programme,
+            district: filtres.district,
+            epoque: filtres.epoque,
+            etat: filtres.etat,
+          }}
           onChange={onChangeFiltre}
           locale={locale}
         />

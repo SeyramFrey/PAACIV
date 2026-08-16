@@ -7,6 +7,7 @@ const anon = createClient(
 )
 
 const SLUG_BORNES = 'test-db-coordonnees-bornes'
+const SLUG_ETAT = 'test-db-etat-conservation'
 
 // Client authentifié : l'insertion est bloquée par RLS pour un anonyme, ce qui
 // masquerait le refus de la contrainte CHECK derrière une erreur de politique.
@@ -60,12 +61,47 @@ test('la base accepte une coordonnée dans les bornes', async () => {
   expect(error).toBeNull()
 })
 
+// Contrainte 0023, dernier rempart derrière `etatOuNull` côté serveur. Elle est
+// ce qui distingue une vraie catégorie d'un simple libellé : sans elle,
+// « en danger », « En danger » et « menacé » coexisteraient et aucun filtre ne
+// pourrait s'y fier. 23514 = check_violation.
+test('la base refuse un état de conservation hors vocabulaire', async () => {
+  const db = await clientAdmin()
+  const { error } = await db
+    .from('patrimoine')
+    .insert({ slug: `${SLUG_ETAT}-ko`, titre_fr: 'État ko', etat_conservation: 'en danger' })
+  expect(error?.code).toBe('23514')
+})
+
+test('la base accepte les quatre états du vocabulaire', async () => {
+  const db = await clientAdmin()
+  for (const etat of ['intact', 'en_restauration', 'en_danger', 'demoli']) {
+    const { error } = await db
+      .from('patrimoine')
+      .insert({ slug: `${SLUG_ETAT}-${etat}`, titre_fr: `État ${etat}`, etat_conservation: etat })
+    expect(error, etat).toBeNull()
+  }
+})
+
+// `null` reste légitime : c'est « non renseigné », l'état des 8 fiches au jour
+// de la migration. Une contrainte qui l'interdirait rendrait toute création de
+// fiche impossible sans classer l'édifice d'emblée.
+test('la base accepte un état de conservation absent', async () => {
+  const db = await clientAdmin()
+  const { error } = await db
+    .from('patrimoine')
+    .insert({ slug: `${SLUG_ETAT}-null`, titre_fr: 'État absent', etat_conservation: null })
+  expect(error).toBeNull()
+})
+
 // Nettoyage : seule l'insertion valide crée réellement une ligne, mais on
 // supprime par préfixe pour rester idempotent si un rempart venait à tomber.
 test.afterAll(async () => {
   const db = await clientAdmin()
   const { error } = await db.from('patrimoine').delete().like('slug', `${SLUG_BORNES}%`)
   expect(error).toBeNull()
+  const { error: erreurEtat } = await db.from('patrimoine').delete().like('slug', `${SLUG_ETAT}%`)
+  expect(erreurEtat).toBeNull()
 })
 
 test('le public ne voit que les patrimoines publiés (brouillons cachés)', async () => {

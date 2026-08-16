@@ -1,12 +1,17 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imagePrincipale, type ImageMini } from '@/lib/media'
+import type { EtatConservation } from '@/lib/etats-conservation'
 
 export type FiltresPatrimoine = {
   type?: string
   programme?: string
   district?: string
   epoque?: string
+  // Vocabulaire fermé (`lib/etats-conservation.ts`), pas un UUID de table de
+  // référence comme les quatre filtres ci-dessus : la valeur voyage telle
+  // quelle dans les URL publiques.
+  etat?: EtatConservation
   q?: string
 }
 
@@ -67,6 +72,10 @@ export type PatrimoineDetail = {
   adresse_fr: string | null
   adresse_en: string | null
   statut_patrimonial: string | null
+  // Contrainte en base depuis 0023 ; `string` et non `EtatConservation` parce
+  // que la valeur vient de la BDD sans revalidation applicative — une ligne
+  // écrite avant la contrainte, ou par un chemin qui la contournerait, ne doit
+  // pas mentir au typage. Les lecteurs passent par `estEtatConservation`.
   etat_conservation: string | null
   video_url: string | null
   sources_fr: string | null
@@ -100,6 +109,9 @@ function appliquerFiltres<T extends { eq: (c: string, v: string) => T; or: (s: s
   if (f.programme) q = q.eq('programme_id', f.programme)
   if (f.district) q = q.eq('district_id', f.district)
   if (f.epoque) q = q.eq('epoque_id', f.epoque)
+  // Un seul point d'application, dont héritent d'un coup l'archive
+  // (`listePatrimoine`) et la carte (`pointsPublies`).
+  if (f.etat) q = q.eq('etat_conservation', f.etat)
   if (f.q) {
     const motif = f.q.replace(/[%,]/g, ' ')
     q = q.or(`titre_fr.ilike.%${motif}%,titre_en.ilike.%${motif}%,ville.ilike.%${motif}%`)

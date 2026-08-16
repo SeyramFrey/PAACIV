@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { pointsPublies } from '@/lib/data/patrimoine'
+import { etatOuNull } from '@/lib/etats-conservation'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,6 +11,10 @@ export async function GET(req: NextRequest) {
     programme: sp.get('programme') ?? undefined,
     district: sp.get('district') ?? undefined,
     epoque: sp.get('epoque') ?? undefined,
+    // `?? undefined` et non `?? null` : une valeur hors vocabulaire est
+    // ignorée (archive complète) plutôt que filtrée sur une catégorie
+    // inexistante, qui rendrait une carte vide sans rien expliquer.
+    etat: etatOuNull(sp.get('etat')) ?? undefined,
     q: sp.get('q') ?? undefined,
   })
 

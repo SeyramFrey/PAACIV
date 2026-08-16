@@ -2,6 +2,7 @@ import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imagePrincipale, imageUrl, type ImageMini } from '@/lib/media'
 import type { Ref } from '@/lib/data/patrimoine'
+import { estEtatConservation, type EtatConservation } from '@/lib/etats-conservation'
 
 export type PointCle = {
   id: string
@@ -194,6 +195,35 @@ export async function listeTypes(): Promise<Ref[]> {
   if (error) throw error
   return (data ?? []) as Ref[]
 }
+
+// Nombre de fiches PUBLIÉES par état de conservation. Sert aux cartes
+// « Patrimoine en danger » et « Patrimoine démoli » de la page d'accueil, qui
+// ne s'affichent que si leur liste n'est pas vide — une carte menant vers
+// « Aucun résultat » promettrait un contenu qui n'existe pas, même faute que
+// le marqueur « À COMPLÉTER » évite déjà côté textes.
+//
+// Un seul aller-retour, tallié en mémoire, plutôt qu'un `count` par catégorie :
+// PostgREST ne sait pas grouper, et le corpus tient de toute façon dans une
+// page. Les états absents valent 0 (`?? 0` à la lecture), et une valeur hors
+// vocabulaire — ligne antérieure à la contrainte 0023 — est simplement ignorée.
+export const comptesParEtat = cache(async function comptesParEtat(): Promise<
+  Partial<Record<EtatConservation, number>>
+> {
+  const sb = createReadClient()
+  const { data, error } = await sb
+    .from('patrimoine')
+    .select('etat_conservation')
+    .eq('statut', 'publie')
+    .not('etat_conservation', 'is', null)
+  if (error) throw error
+  const out: Partial<Record<EtatConservation, number>> = {}
+  for (const r of (data ?? []) as { etat_conservation: string }[]) {
+    if (estEtatConservation(r.etat_conservation)) {
+      out[r.etat_conservation] = (out[r.etat_conservation] ?? 0) + 1
+    }
+  }
+  return out
+})
 
 // Compteurs du bloc « L'association ». Mémoïsé : le bloc les affiche et le
 // bloc carte réutilise le nombre de fiches.

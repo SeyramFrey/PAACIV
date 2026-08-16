@@ -10,6 +10,7 @@ import { FacadeVideo } from '@/components/editorial/FacadeVideo'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
+import { estEtatConservation } from '@/lib/etats-conservation'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
@@ -37,6 +38,7 @@ export default async function FichePatrimoine({ params }: Props) {
   setRequestLocale(locale)
   const t = await getTranslations('fiche')
   const tVideo = await getTranslations('video')
+  const tEtats = await getTranslations('etats')
   const p = await getPatrimoineParSlug(slug)
   if (!p) notFound()
   const { articles, reportages } = await contenusLies(p.id)
@@ -54,6 +56,14 @@ export default async function FichePatrimoine({ params }: Props) {
     p.date_texte ||
     [p.annee_debut, p.annee_fin].filter(Boolean).join(' – ') ||
     null
+
+  // La colonne stocke un slug (`en_danger`), le libellé bilingue vit en i18n.
+  // Une valeur hors vocabulaire — ligne écrite avant la contrainte 0023 —
+  // n'affiche rien plutôt que d'exposer le slug brut au visiteur, et `ligne()`
+  // fait alors disparaître la définition entière.
+  const etatLisible = estEtatConservation(p.etat_conservation)
+    ? tEtats(p.etat_conservation)
+    : null
 
   return (
     <main className="flex-1 pt-20 py-10">
@@ -90,7 +100,7 @@ export default async function FichePatrimoine({ params }: Props) {
             {ligne(t('epoque'), p.epoque && champ(p.epoque.nom_fr, p.epoque.nom_en, locale))}
             {ligne(t('style'), champ(p.style_fr, p.style_en, locale) || null)}
             {ligne(t('statutPatrimonial'), p.statut_patrimonial)}
-            {ligne(t('etat'), p.etat_conservation)}
+            {ligne(t('etat'), etatLisible)}
             {ligne(
               t('localisation'),
               [champ(p.adresse_fr, p.adresse_en, locale), p.ville].filter(Boolean).join(', ') || null,

@@ -2,6 +2,7 @@ import { getLocale } from 'next-intl/server'
 import { texte, renseigne, type Textes } from '@/lib/data/contenu-site'
 import { Compteurs } from '@/components/accueil/Compteurs'
 import { CartesSoutien } from '@/components/accueil/CartesSoutien'
+import { comptesParEtat } from '@/lib/data/accueil'
 import type { Chiffres } from '@/lib/data/accueil'
 
 export async function Association({
@@ -14,10 +15,14 @@ export async function Association({
   montant: string
 }) {
   const locale = await getLocale()
+  // Décidé côté SERVEUR, comme les gardes `renseigne()` ci-dessous : les deux
+  // cartes d'état ne franchissent la frontière que si leur liste existe.
+  const comptes = await comptesParEtat()
   const surtitre = texte(textes, 'association_surtitre', locale)
   const titre = texte(textes, 'association_titre', locale)
   const intro = texte(textes, 'association_texte', locale)
-  const chantiersTexte = texte(textes, 'soutien_chantiers_texte', locale)
+  const enDangerTexte = texte(textes, 'soutien_en_danger_texte', locale)
+  const demoliTexte = texte(textes, 'soutien_demoli_texte', locale)
   const adhesionAvantages = texte(textes, 'soutien_adhesion_avantages', locale)
   const donTexte = texte(textes, 'soutien_don_usage', locale)
 
@@ -27,7 +32,8 @@ export async function Association({
   // « À COMPLÉTER — … » finit dans le source de chaque page. `null` ne
   // franchit jamais la frontière.
   const montantSur = renseigne(montant) ? montant : null
-  const chantiersTexteSur = renseigne(chantiersTexte) ? chantiersTexte : null
+  const enDangerTexteSur = renseigne(enDangerTexte) ? enDangerTexte : null
+  const demoliTexteSur = renseigne(demoliTexte) ? demoliTexte : null
   const adhesionAvantagesSur = renseigne(adhesionAvantages) ? adhesionAvantages : null
   const donTexteSur = renseigne(donTexte) ? donTexte : null
 
@@ -68,9 +74,12 @@ export async function Association({
 
         <CartesSoutien
           montant={montantSur}
-          chantiersTexte={chantiersTexteSur}
+          enDangerTexte={enDangerTexteSur}
+          demoliTexte={demoliTexteSur}
           adhesionAvantages={adhesionAvantagesSur}
           donTexte={donTexteSur}
+          nbEnDanger={comptes.en_danger ?? 0}
+          nbDemoli={comptes.demoli ?? 0}
         />
       </div>
     </section>

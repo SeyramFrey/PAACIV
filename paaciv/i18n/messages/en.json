@@ -38,7 +38,8 @@
     "lire": "Read",
     "voir": "View",
     "tous": "All",
-    "chantiers": "Worksites",
+    "enDanger": "Heritage at risk",
+    "demoli": "Lost heritage",
     "adherer": "Join",
     "don": "Donate",
     "rejoindre": "Join us",
@@ -228,6 +229,7 @@
     "programme": "Programme",
     "district": "District",
     "epoque": "Era",
+    "etat": "Condition",
     "tous": "All",
     "resultats": "{n} result(s)",
     "aucun": "No results.",
@@ -262,7 +264,14 @@
     "programme": "Programme",
     "district": "District",
     "epoque": "Period",
+    "etat": "Condition",
     "tous": "All"
+  },
+  "etats": {
+    "intact": "Intact",
+    "en_restauration": "Under restoration",
+    "en_danger": "At risk",
+    "demoli": "Demolished"
   },
   "formPatrimoine": {
     "principal": "Lead",

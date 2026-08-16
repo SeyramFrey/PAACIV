@@ -38,7 +38,8 @@
     "lire": "Lire",
     "voir": "Voir",
     "tous": "Tout",
-    "chantiers": "Chantiers",
+    "enDanger": "Patrimoine en danger",
+    "demoli": "Patrimoine démoli",
     "adherer": "Adhérer",
     "don": "Faire un don",
     "rejoindre": "Rejoindre",
@@ -228,6 +229,7 @@
     "programme": "Programme",
     "district": "District",
     "epoque": "Époque",
+    "etat": "État",
     "tous": "Tous",
     "resultats": "{n} résultat(s)",
     "aucun": "Aucun résultat.",
@@ -262,7 +264,14 @@
     "programme": "Programme",
     "district": "District",
     "epoque": "Époque",
+    "etat": "État",
     "tous": "Tous"
+  },
+  "etats": {
+    "intact": "Intact",
+    "en_restauration": "En restauration",
+    "en_danger": "En danger",
+    "demoli": "Démoli"
   },
   "formPatrimoine": {
     "principal": "Principal",

@@ -5,11 +5,13 @@ import { useRouter, usePathname } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import type { Ref } from '@/lib/data/patrimoine'
+import { ETATS_CONSERVATION } from '@/lib/etats-conservation'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
 
 export function FiltresArchives({ options, locale }: { options: Options; locale: string }) {
   const t = useTranslations('archives')
+  const tEtat = useTranslations('etats')
   const router = useRouter()
   const pathname = usePathname()
   const sp = useSearchParams()
@@ -61,6 +63,24 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
           </select>
         </label>
       ))}
+      {/* L'état de conservation ne vient pas d'une table de référence : ses
+          valeurs sont un vocabulaire fermé, dont les libellés vivent en i18n.
+          D'où ce `<select>` à part, hors de la boucle sur les `Ref[]`. */}
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('etat')}</span>
+        <select
+          value={sp.get('etat') ?? ''}
+          onChange={(e) => maj('etat', e.target.value)}
+          className="rounded-xl border border-filet bg-fond text-encre-t px-3 py-2"
+        >
+          <option value="">{t('tous')}</option>
+          {ETATS_CONSERVATION.map((e) => (
+            <option key={e} value={e}>
+              {tEtat(e)}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   )
 }

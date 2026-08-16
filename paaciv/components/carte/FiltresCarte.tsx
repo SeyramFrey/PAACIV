@@ -3,8 +3,9 @@
 import { useTranslations } from 'next-intl'
 import type { Ref } from '@/lib/data/patrimoine'
 import type { ReferencesFiltres } from '@/lib/data/references'
+import { ETATS_CONSERVATION } from '@/lib/etats-conservation'
 
-type Valeurs = { type: string; programme: string; district: string; epoque: string }
+type Valeurs = { type: string; programme: string; district: string; epoque: string; etat: string }
 
 export function FiltresCarte({
   options,
@@ -18,6 +19,7 @@ export function FiltresCarte({
   locale: string
 }) {
   const t = useTranslations('carte')
+  const tEtat = useTranslations('etats')
   const nom = (r: Ref) => (locale === 'en' ? r.nom_en || r.nom_fr : r.nom_fr)
 
   const selects: [keyof Valeurs, Ref[]][] = [
@@ -65,6 +67,26 @@ export function FiltresCarte({
           </select>
         </label>
       ))}
+      {/* Hors de la boucle sur les `Ref[]` : l'état est un vocabulaire fermé,
+          pas une table de référence — mêmes jetons de thème pour la surface et
+          le texte, sans quoi les options redeviendraient illisibles en mode
+          sombre (cf. le commentaire sur `champStyle` ci-dessus). */}
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('etat')}</span>
+        <select
+          value={valeurs.etat}
+          onChange={(e) => onChange('etat', e.target.value)}
+          className="rounded-xl border px-3 py-2"
+          style={champStyle}
+        >
+          <option value="">{t('tous')}</option>
+          {ETATS_CONSERVATION.map((e) => (
+            <option key={e} value={e}>
+              {tEtat(e)}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   )
 }

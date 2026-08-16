@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/slug'
 import { texteOuNull, intOuNull, richeOuNull, validerCoordonnee, BORNE_LAT, BORNE_LNG } from '@/lib/admin/champs'
+import { etatOuNull } from '@/lib/etats-conservation'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
@@ -82,7 +83,12 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
     adresse_fr: texteOuNull(formData.get('adresse_fr')),
     adresse_en: texteOuNull(formData.get('adresse_en')),
     statut_patrimonial: texteOuNull(formData.get('statut_patrimonial')),
-    etat_conservation: texteOuNull(formData.get('etat_conservation')),
+    // Liste blanche et non `texteOuNull` : la colonne est contrainte depuis
+    // 0023, et une valeur hors vocabulaire remonterait sinon jusqu'à Postgres
+    // pour revenir en violation de contrainte brute — illisible pour
+    // l'éditeur/rice. Le `<select>` du formulaire ne peut déjà rien envoyer
+    // d'autre ; cette garde tient pour les chemins qui ne passent pas par lui.
+    etat_conservation: etatOuNull(formData.get('etat_conservation')),
     video_url: texteOuNull(formData.get('video_url')),
     sources_fr: texteOuNull(formData.get('sources_fr')),
     sources_en: texteOuNull(formData.get('sources_en')),

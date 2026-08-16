@@ -9,6 +9,7 @@ import { EditeurRiche } from '@/components/admin/EditeurRiche'
 import { LiaisonArchitectes } from '@/components/admin/LiaisonArchitectes'
 import { enregistrerPatrimoine } from '@/app/[locale]/admin/patrimoine/actions'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
+import { ETATS_CONSERVATION, estEtatConservation } from '@/lib/etats-conservation'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
 type ArchitecteOpt = { id: string; nom: string }
@@ -28,6 +29,7 @@ export function FormulairePatrimoine({
   liaisons: LiaisonInit[]
 }) {
   const t = useTranslations('formPatrimoine')
+  const tEtat = useTranslations('etats')
   const router = useRouter()
   const [onglet, setOnglet] = useState<'fr' | 'en'>('fr')
   const [lat, setLat] = useState<number | ''>(initial?.lat ?? '')
@@ -90,6 +92,33 @@ export function FormulairePatrimoine({
     </label>
   )
 
+  // L'état de conservation n'est plus du texte libre (contrainte en base
+  // depuis 0023). `defaultValue` retombe sur '' — « non renseigné » — si la
+  // fiche porte encore une valeur héritée hors vocabulaire : mieux vaut un
+  // champ visiblement vide, que l'éditeur/rice reclassera, qu'une option
+  // fantôme sélectionnée que le `<select>` n'afficherait de toute façon pas.
+  const selectEtat = () => {
+    const val = initial?.etat_conservation
+    return (
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('etat')}</span>
+        <select
+          name="etat_conservation"
+          aria-label={t('etat')}
+          defaultValue={estEtatConservation(val) ? val : ''}
+          className="rounded-xl border border-filet bg-fond px-3 py-2"
+        >
+          <option value="">{t('choisir')}</option>
+          {ETATS_CONSERVATION.map((e) => (
+            <option key={e} value={e}>
+              {tEtat(e)}
+            </option>
+          ))}
+        </select>
+      </label>
+    )
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       {initial?.id && <input type="hidden" name="id" defaultValue={initial.id} />}
@@ -144,7 +173,7 @@ export function FormulairePatrimoine({
 
       <div className="grid gap-4 sm:grid-cols-3">
         {champ('statut_patrimonial', t('statutPatrimonial'), 'text', t('statutPatrimonialAria'))}
-        {champ('etat_conservation', t('etat'))}
+        {selectEtat()}
         {champ('video_url', t('video'))}
       </div>
 

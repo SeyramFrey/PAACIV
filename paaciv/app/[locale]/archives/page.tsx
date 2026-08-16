@@ -4,6 +4,7 @@ import { CartePatrimoine } from '@/components/patrimoine/CartePatrimoine'
 import { FiltresArchives } from '@/components/patrimoine/FiltresArchives'
 import { listePatrimoine } from '@/lib/data/patrimoine'
 import { chargerReferences } from '@/lib/data/references'
+import { etatOuNull } from '@/lib/etats-conservation'
 
 export default async function ArchivesPage({
   params,
@@ -23,6 +24,10 @@ export default async function ArchivesPage({
       programme: f.programme,
       district: f.district,
       epoque: f.epoque,
+      // Un `?etat=` fantaisiste est ignoré plutôt que de filtrer sur une
+      // catégorie inexistante — l'archive reste complète au lieu de paraître
+      // vide (cf. `etatOuNull`).
+      etat: etatOuNull(f.etat) ?? undefined,
       q: f.q,
     }),
     chargerReferences(),
