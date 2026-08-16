@@ -47,6 +47,11 @@
     "chiffreVilles": "Communes",
     "chiffreArchitectes": "Architectes",
     "chiffreArticles": "Publications",
+    "enSavoirPlus": "En savoir plus",
+    "chantiersTexte": "Les chantiers de restauration suivis par l'association, relevés à l'appui.",
+    "adhererTexteAvecMontant": "{montant} par an. Accès aux relevés, aux visites et aux publications.",
+    "adhererTexteSansMontant": "Accès aux relevés, aux visites et aux publications.",
+    "donTexte": "Chaque don finance des relevés, du matériel et l'entretien courant.",
     "sInscrire": "S'inscrire",
     "votreEmail": "Votre adresse e-mail",
     "merciNewsletter": "Merci, vous êtes inscrit."
