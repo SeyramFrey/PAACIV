@@ -54,4 +54,21 @@ describe('GrilleArchive', () => {
     const lien = screen.getByRole('link', { name: /8 fiches/ })
     expect(lien).toHaveAttribute('href', '/fr/archives')
   })
+
+  it('une vignette recréée après un aller-retour de filtre reste immédiatement visible', async () => {
+    monter()
+    await userEvent.click(screen.getByRole('button', { name: 'Religieux' }))
+    // « Mairie de Bassam » est démontée ici (filtrée hors de `visibles`)…
+    await userEvent.click(screen.getByRole('button', { name: 'Tout' }))
+    // … et remontée ici, en un noeud tout neuf que `Revelations` (qui ne
+    // scanne le DOM qu'une fois par changement de route, et ne re-scanne
+    // jamais après un simple changement d'état côté client) n'observera
+    // jamais. Si ce noeud portait encore `data-rv` sans la classe `.rv-in`
+    // que seul `Revelations` ajoute, `globals.css` le laisserait à
+    // `opacity:0` pour toujours : la vignette « Mairie de Bassam » resterait
+    // invisible en permanence après ce simple aller-retour de filtre.
+    const lien = screen.getByRole('link', { name: /Mairie de Bassam/ })
+    expect(lien).not.toHaveAttribute('data-rv')
+    expect(lien.querySelector('[data-rv]')).toBeNull()
+  })
 })

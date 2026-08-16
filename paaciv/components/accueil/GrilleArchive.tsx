@@ -69,6 +69,7 @@ export function GrilleArchive({
                   ? 'rounded-full border border-[var(--terra)] bg-[var(--terra)] px-[22px] py-3 text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-[oklch(0.98_0.01_84)] transition-colors duration-[0.4s]'
                   : 'rounded-full border border-[var(--line)] bg-transparent px-[22px] py-3 text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-[var(--ink)] transition-colors duration-[0.4s] hover:border-[var(--terra)]'
               }
+              aria-pressed={filtre === null}
             >
               {t('tous')}
             </button>
@@ -82,6 +83,7 @@ export function GrilleArchive({
                     ? 'rounded-full border border-[var(--terra)] bg-[var(--terra)] px-[22px] py-3 text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-[oklch(0.98_0.01_84)] transition-colors duration-[0.4s]'
                     : 'rounded-full border border-[var(--line)] bg-transparent px-[22px] py-3 text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-[var(--ink)] transition-colors duration-[0.4s] hover:border-[var(--terra)]'
                 }
+                aria-pressed={filtre === ty.id}
               >
                 {champ(ty.nom_fr, ty.nom_en, locale)}
               </button>
@@ -114,12 +116,26 @@ export function GrilleArchive({
             style={{ background: 'var(--terra)', animation: 'floaty 4.4s 1.2s ease-in-out infinite' }}
           />
 
-          <div className="grid grid-cols-1 items-start gap-[clamp(10px,1.4vw,20px)] sm:grid-cols-2 lg:grid-cols-4">
-            {visibles.map((v, i) => (
-              <Link key={v.slug} href={`/patrimoine/${v.slug}`} data-rv="" data-d={String((i % 8) * 60)}>
+          {/* `data-rv` sur le CONTENEUR, monté en permanence, et non plus sur
+              chaque `<Link>` : celles-ci sont démontées/remontées à chaque
+              filtrage (`visibles` recalculé), et `Revelations` ne scanne le
+              DOM qu'une fois par changement de route puis fait `unobserve`
+              sur ce qu'il a révélé — un noeud recréé après un aller-retour de
+              filtre ne serait plus jamais observé et resterait `opacity:0`
+              pour toujours (`globals.css:86-93`). Le prix : les vignettes ne
+              cascadent plus individuellement à l'entrée dans le viewport,
+              seul le bloc entier se révèle — c'est le compromis correct,
+              une animation perdue valant mieux qu'un contenu invisible. */}
+          <div
+            data-rv=""
+            data-d="180"
+            className="grid grid-cols-1 items-start gap-[clamp(10px,1.4vw,20px)] sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {visibles.map((v) => (
+              <Link key={v.slug} href={`/patrimoine/${v.slug}`}>
                 <figure className="m-0">
                   <div
-                    className="aspect-[4/3] overflow-hidden rounded-[4px] transition-[transform,filter] duration-[0.6s] ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-2"
+                    className="aspect-[4/3] overflow-hidden rounded-[4px] transition-[translate,filter] duration-[0.6s] ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-2"
                   >
                     <img
                       src={v.image}

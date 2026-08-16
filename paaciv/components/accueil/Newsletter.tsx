@@ -1,28 +1,40 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { inscrireNewsletter, type ResultatNewsletter } from '@/app/[locale]/actions/newsletter'
-
-async function soumettre(
-  _etat: ResultatNewsletter | null,
-  formData: FormData,
-): Promise<ResultatNewsletter> {
-  return inscrireNewsletter(formData)
-}
+import { inscrireNewsletter } from '@/app/[locale]/actions/newsletter'
 
 // Transposition des lignes 572-581 de la référence de design.
 //
 // `inscrireNewsletter` écrit réellement dans `newsletter_abonnes` (table de
 // production) : ce composant ne fait qu'appeler l'action déjà livrée et
 // testée (Task 7), il ne réimplémente rien côté serveur.
+//
+// `onSubmit` + `preventDefault` + `useTransition`, PAS `<form action={fn}>` :
+// React 19 appelle `requestFormReset` inconditionnellement après un `action`
+// de formulaire, y compris sur une réponse d'échec — le champ, non contrôlé,
+// se viderait juste avant que le message d'erreur ne s'affiche. C'est le
+// défaut trouvé et corrigé pour `FormulaireSoutien` en Task 8
+// (`components/soutenir/FormulaireSoutien.tsx:58-69`) ; même correctif ici.
 export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
   const locale = useLocale()
   const t = useTranslations('accueil')
   const ts = useTranslations('soutien')
-  const [etat, action, enCours] = useActionState<ResultatNewsletter | null, FormData>(soumettre, null)
+  const [erreur, setErreur] = useState<string | null>(null)
+  const [envoye, setEnvoye] = useState(false)
+  const [enCours, demarrer] = useTransition()
 
-  const cleErreur = etat && !etat.ok ? (etat.erreur === 'emailInvalide' ? 'erreurEmailInvalide' : 'erreurEchec') : null
+  function soumettre(formData: FormData) {
+    setErreur(null)
+    demarrer(async () => {
+      const r = await inscrireNewsletter(formData)
+      if (r.ok) {
+        setEnvoye(true)
+        return
+      }
+      setErreur(ts(r.erreur === 'emailInvalide' ? 'erreurEmailInvalide' : 'erreurEchec'))
+    })
+  }
 
   return (
     <section id="adherer" className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center" style={{ background: 'var(--bg3)' }}>
@@ -34,26 +46,33 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
           {texte}
         </p>
 
-        {etat?.ok ? (
+        {envoye ? (
           <p role="status" className="mt-[30px] text-sm" style={{ color: 'var(--ink)' }}>
             {t('merciNewsletter')}
           </p>
         ) : (
           <form
-            action={action}
+            onSubmit={(e) => {
+              e.preventDefault()
+              soumettre(new FormData(e.currentTarget))
+            }}
             data-rv=""
             data-d="140"
             className="mt-[30px] flex flex-wrap justify-center gap-2.5"
           >
             <label className="min-w-[240px] flex-1">
               <span className="sr-only">{t('votreEmail')}</span>
+              {/* Bordure de repos en CLASSE, pas en `style` : un `borderColor`
+                  inline gagnerait toujours sur `focus:border-[var(--accent)]`,
+                  ci-dessous, tuant l'indicateur de focus clavier (WCAG 2.4.7) —
+                  exactement le piège déjà évité sur les flèches des
+                  carrousels. */}
               <input
                 name="email"
                 type="email"
                 required
                 placeholder={t('votreEmail')}
-                className="w-full rounded-full border px-[22px] py-4 text-sm leading-none outline-none"
-                style={{ borderColor: 'var(--line)', background: 'var(--bg)', color: 'var(--ink)' }}
+                className="w-full rounded-full border border-[var(--line)] bg-[var(--bg)] px-[22px] py-4 text-sm leading-none text-[var(--ink)] outline-none focus:border-[var(--accent)]"
               />
             </label>
             <input type="hidden" name="langue" value={locale} />
@@ -64,9 +83,9 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
             >
               {t('sInscrire')}
             </button>
-            {cleErreur && (
+            {erreur && (
               <p role="alert" className="w-full text-sm" style={{ color: 'var(--terra)' }}>
-                {ts(cleErreur)}
+                {erreur}
               </p>
             )}
           </form>

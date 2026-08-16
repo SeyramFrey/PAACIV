@@ -132,7 +132,12 @@ export function Temoignages({
                   <p className="mt-5 text-sm font-light leading-[1.75]" style={{ color: 'var(--soft)' }}>
                     « {citation} »
                   </p>
-                  <p aria-label={t('noteSur', { note: tm.note })} className="mt-4">
+                  {/* `aria-label` sur un `<p>` est ignoré : ARIA interdit le
+                      nommage sur le rôle implicite `paragraph`. Le texte
+                      accessible passe donc par un `<span>` `sr-only` distinct
+                      des étoiles `aria-hidden`, pas par un attribut mort. */}
+                  <p className="mt-4">
+                    <span className="sr-only">{t('noteSur', { note: tm.note })}</span>
                     <span aria-hidden="true" className="tracking-[0.2em]" style={{ color: 'var(--accent)' }}>
                       {etoiles}
                     </span>

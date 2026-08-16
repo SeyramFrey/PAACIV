@@ -19,12 +19,17 @@ function monter() {
 beforeEach(() => inscrire.mockReset())
 
 describe('Newsletter', () => {
-  it('affiche la confirmation après un succès', async () => {
+  it('affiche la confirmation après un succès, avec la bonne adresse transmise', async () => {
     inscrire.mockResolvedValue({ ok: true })
     monter()
     await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b.ci')
     await userEvent.click(screen.getByRole('button', { name: /s'inscrire/i }))
     expect(await screen.findByRole('status')).toHaveTextContent(/merci/i)
+    // Verrou du câblage : un `name="email"` erroné (faute de frappe, champ
+    // renommé) laisserait ce test vert quand même si on ne vérifiait que le
+    // message affiché — l'action recevrait un FormData sans la valeur saisie
+    // et casserait la production en silence.
+    expect(inscrire.mock.calls[0][0].get('email')).toBe('a@b.ci')
   })
 
   it('affiche l’erreur renvoyée par l’action', async () => {
@@ -34,12 +39,13 @@ describe('Newsletter', () => {
     // required` (structure imposée par le Step 7). Sous jsdom comme dans un
     // vrai navigateur, 'x' échoue la validation HTML5 native et bloque la
     // soumission avant même que l'action ne soit appelée — vérifié
-    // empiriquement (`onSubmit` jamais déclenché). C'est exactement le
-    // conflit déjà résolu pour FormulaireSoutien (Task 8, ruling consigné
-    // dans progress.md) : on garde la validation native intacte plutôt que
-    // de la désactiver via `noValidate`, et on choisit une saisie qui passe
-    // le navigateur mais échoue `RE_EMAIL` côté serveur — 'a@b' est déjà la
-    // valeur retenue là-bas.
+    // empiriquement (`onSubmit` jamais déclenché). 'a@b' passe cette
+    // validation native (présence d'un `@` avec des segments non vides).
+    // Note : contrairement à `FormulaireSoutien` (Task 8), où 'a@b' exerçait
+    // le vrai `RE_EMAIL` côté serveur, l'action est ici MOCKÉE — `RE_EMAIL`
+    // n'est jamais atteint, seule la validation HTML5 native du navigateur
+    // (celle de jsdom) est en jeu. 'a@b' n'est retenu que pour cette raison,
+    // pas pour reproduire un chemin serveur.
     await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b')
     await userEvent.click(screen.getByRole('button', { name: /s'inscrire/i }))
     expect(await screen.findByRole('alert')).toBeInTheDocument()

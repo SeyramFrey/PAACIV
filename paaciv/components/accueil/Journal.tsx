@@ -86,13 +86,22 @@ export function Journal({
               className="flex"
               style={{ transform: `translateX(-${decalage}px)`, transition: 'transform .8s cubic-bezier(.16,1,.3,1)' }}
             >
-              {articles.map((a) => {
+              {articles.map((a, i) => {
                 const categorie = a.categorie ? champ(a.categorie.nom_fr, a.categorie.nom_en, locale) : ''
                 const date = dateLocalisee(a.date_publication, locale)
                 const chapo = champ(a.chapo_fr, a.chapo_en, locale)
                 return (
                   <article
                     key={a.id}
+                    // Diapositives hors écran retirées de l'ordre de
+                    // tabulation ET de l'arbre d'accessibilité : sans `inert`,
+                    // le lien « Lire » d'un article masqué reste focusable,
+                    // et lui donner le focus force le navigateur à faire
+                    // défiler le conteneur `overflow-hidden` qui l'englobe —
+                    // un défilement que rien ne remet à zéro, désalignant le
+                    // rail durablement. Même principe que le
+                    // `tabIndex={estActif ? 0 : -1}` d'`Activites.tsx`.
+                    inert={i !== index}
                     className="grid flex-none basis-full items-stretch"
                     style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
                   >
@@ -124,9 +133,15 @@ export function Journal({
                           {chapo}
                         </p>
                       )}
+                      {/* Pas de `transition-colors` ici : la maquette (ligne
+                          544) ne déclare AUCUNE transition sur ce lien,
+                          contrairement aux CTA voisins qui en déclarent une —
+                          un choix de la maquette, pas un oubli. En ajouter
+                          une serait du mouvement inventé (leçon de la
+                          Task 13). */}
                       <Link
                         href={`/articles/${a.slug}`}
-                        className="mt-6 self-start rounded-full border border-[var(--ink)] px-[26px] py-[13px] text-[10px] font-semibold uppercase leading-none tracking-[0.2em] text-[var(--ink)] transition-colors duration-[0.4s] hover:bg-[var(--ink)] hover:text-[var(--bg)]"
+                        className="mt-6 self-start rounded-full border border-[var(--ink)] px-[26px] py-[13px] text-[10px] font-semibold uppercase leading-none tracking-[0.2em] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)]"
                       >
                         {t('lire')}
                       </Link>

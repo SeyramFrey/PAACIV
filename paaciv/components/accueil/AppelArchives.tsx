@@ -60,13 +60,18 @@ export function AppelArchives({ texte }: { texte: string }) {
             CinqRaisons.tsx et les lignes d'Agenda.tsx. Maquette (396) :
             `transition:transform .4s,background .4s` — la teinte `var(--gold)`
             de la maquette au survol devient `var(--accent)` (contrainte
-            globale « Aucun jaune »), déjà appliquée ailleurs dans ce diff. */}
+            globale « Aucun jaune »), déjà appliquée ailleurs dans ce diff.
+            `translate`, pas `transform`, dans la liste de `transition-[...]` :
+            Tailwind v4 écrit `-translate-y-[…]` dans la propriété CSS
+            `translate`, pas `transform` — lister `transform` ici laissait le
+            survol sauter sans transition (correctif Task 13, ordonné à la
+            Task 12 mais resté inopérant faute de cette ligne). */}
         <button
           type="button"
           onClick={() => ouvrir('archive')}
           data-rv=""
           data-d="120"
-          className="mt-8 inline-block rounded-full bg-[var(--terra)] px-[34px] py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[oklch(0.98_0.01_84)] transition-[transform,background-color,color] duration-[0.4s] hover:-translate-y-[3px] hover:bg-[var(--accent)] hover:text-[oklch(0.16_0.02_48)]"
+          className="mt-8 inline-block rounded-full bg-[var(--terra)] px-[34px] py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[oklch(0.98_0.01_84)] transition-[translate,background-color,color] duration-[0.4s] hover:-translate-y-[3px] hover:bg-[var(--accent)] hover:text-[oklch(0.16_0.02_48)]"
         >
           {t('confierArchive')}
         </button>
