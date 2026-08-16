@@ -49,5 +49,12 @@ describe('Newsletter', () => {
     await userEvent.type(screen.getByLabelText(/adresse e-mail/i), 'a@b')
     await userEvent.click(screen.getByRole('button', { name: /s'inscrire/i }))
     expect(await screen.findByRole('alert')).toBeInTheDocument()
+    // La saisie doit survivre à une erreur : avec `<form action={fn}>`,
+    // React 19 appelle `requestFormReset` inconditionnellement, y compris
+    // sur un échec, et viderait ce champ non contrôlé avant même que
+    // l'alerte ne s'affiche — c'est le défaut corrigé au round 1, verrouillé
+    // ici comme `FormulaireSoutien.test.tsx:40-42` verrouille le même
+    // correctif depuis la Task 8.
+    expect(screen.getByLabelText(/adresse e-mail/i)).toHaveValue('a@b')
   })
 })
