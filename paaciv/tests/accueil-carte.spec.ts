@@ -18,15 +18,42 @@ import { test, expect } from '@playwright/test'
 // montera jamais », puisqu'elle supposait le montage déjà fait.
 test('le conteneur de carte de l’accueil est carré, montée seulement au défilement', async ({ page }) => {
   await page.goto('/fr')
+
+  // L'ASSERTION D'ABSENCE, sans laquelle le reste du test ne prouve que
+  // « la carte finit par apparaître » — vrai avec ou sans montage paresseux.
+  // `goto` attend l'événement `load`, donc l'hydratation a eu lieu et un
+  // rendu inconditionnel de `<CarteApercu>` aurait déjà lancé le chargement
+  // du chunk. La seconde assertion, après un délai borné, distingue « pas
+  // encore monté » de « pas monté du tout » : c'est exactement la régression
+  // visée — un garde d'intersection replacé DANS le module MapLibre laisserait
+  // repartir les 785 Ko à chaque visite.
+  const carte = page.locator('.maplibregl-map')
+  await expect(carte).toHaveCount(0)
+  await page.waitForTimeout(1500)
+  await expect(carte).toHaveCount(0)
+
   const lienCarte = page.getByRole('link', { name: /ouvrir la carte/i })
   await lienCarte.scrollIntoViewIfNeeded()
 
-  const carte = page.locator('.maplibregl-map').first()
-  await expect(carte).toBeVisible({ timeout: 10000 })
-  const b = await carte.boundingBox()
+  const premiere = carte.first()
+  await expect(premiere).toBeVisible({ timeout: 10000 })
+  const b = await premiere.boundingBox()
   expect(b).not.toBeNull()
   // Tolérance d'un pixel : les arrondis sous-pixel du navigateur.
   expect(Math.abs(b!.width - b!.height)).toBeLessThanOrEqual(1)
+})
+
+// `ssr: false` ne porte plus que sur le module MapLibre lui-même. Il portait
+// auparavant sur toute la section, qui avait donc entièrement disparu du HTML
+// servi par la page la plus visitée du site — titre, texte et surtout le lien
+// interne vers `/carte`. Requête HTTP brute, sans navigateur : c'est bien le
+// rendu serveur qui est mesuré, pas le résultat de l'hydratation.
+test('la section carte est dans le HTML servi, sans exécution de JavaScript', async ({ request }) => {
+  const html = await (await request.get('/fr')).text()
+  expect(html).toContain('Ouvrir la carte')
+  expect(html).toContain('href="/fr/carte"')
+  // Contre-épreuve : le module MapLibre, lui, doit bien rester absent du HTML.
+  expect(html).not.toContain('maplibregl-map')
 })
 
 test('« Ouvrir la carte » mène à la carte plein écran', async ({ page }) => {

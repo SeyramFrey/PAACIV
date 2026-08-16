@@ -41,13 +41,16 @@ export default async function AdminContenu() {
           </h2>
           <div className="space-y-3">
             {lignes.map((l) => (
-              // Clé dérivée de la valeur serveur, pas seulement de `cle` :
-              // le composant est contrôlé (état local `useState`), donc sans
-              // ce remontage une revalidation qui change `valeur_fr`/
-              // `valeur_en` en base (autre onglet, autre admin) laisserait
-              // l'écran affiché désynchronisé de la nouvelle valeur serveur.
+              // Clé stable sur `cle` seule. Une clé dérivée de la VALEUR
+              // remontait le composant à chaque enregistrement réussi — la
+              // revalidation renvoie la valeur qui vient d'être écrite, donc
+              // la clé changeait et le témoin « Enregistré. » était porté par
+              // l'instance démontée : l'admin ne le voyait jamais.
+              // La resynchronisation avec une valeur changée ailleurs (autre
+              // onglet, autre admin) est désormais faite DANS le composant,
+              // sans remontage.
               <FormulaireContenuLigne
-                key={`${l.cle}:${l.valeur_fr}:${l.valeur_en}`}
+                key={l.cle}
                 cle={l.cle}
                 valeurFr={l.valeur_fr}
                 valeurEn={l.valeur_en}

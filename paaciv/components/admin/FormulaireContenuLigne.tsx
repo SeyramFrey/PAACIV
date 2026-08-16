@@ -33,6 +33,22 @@ export function FormulaireContenuLigne({
   const [texteFr, setTexteFr] = useState(valeurFr ?? '')
   const [texteEn, setTexteEn] = useState(valeurEn ?? '')
 
+  // Resynchronisation sur la valeur serveur, à la place de la clé de
+  // remontage que portait `admin/contenu/page.tsx`. Cette clé-là était
+  // dérivée de la valeur : après un enregistrement réussi, la revalidation
+  // renvoyait la valeur qui venait d'être écrite, la clé changeait, et
+  // `enregistre` disparaissait avec l'instance démontée — le témoin
+  // « Enregistré. » n'était donc jamais visible.
+  // Ajustement d'état pendant le rendu, le patron documenté par React pour
+  // « un état dérivé d'une prop qui change » : React relance le rendu
+  // immédiatement, sans repeindre l'écran intermédiaire ni monter d'effet.
+  const [valeursServeur, setValeursServeur] = useState({ fr: valeurFr, en: valeurEn })
+  if (valeurFr !== valeursServeur.fr || valeurEn !== valeursServeur.en) {
+    setValeursServeur({ fr: valeurFr, en: valeurEn })
+    setTexteFr(valeurFr ?? '')
+    setTexteEn(valeurEn ?? '')
+  }
+
   function soumettre(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setErreur(false)
@@ -71,7 +87,13 @@ export function FormulaireContenuLigne({
           rows={2}
           aria-label={`${t('valeurFr')} — ${cle}`}
           value={texteFr}
-          onChange={(e) => setTexteFr(e.target.value)}
+          // Le témoin s'efface dès que l'admin retouche le champ : sans le
+          // remontage d'autrefois, « Enregistré. » resterait affiché au-dessus
+          // d'une saisie non enregistrée.
+          onChange={(e) => {
+            setTexteFr(e.target.value)
+            setEnregistre(false)
+          }}
           autoComplete="off"
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />
@@ -85,7 +107,10 @@ export function FormulaireContenuLigne({
           rows={2}
           aria-label={`${t('valeurEn')} — ${cle}`}
           value={texteEn}
-          onChange={(e) => setTexteEn(e.target.value)}
+          onChange={(e) => {
+            setTexteEn(e.target.value)
+            setEnregistre(false)
+          }}
           autoComplete="off"
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />

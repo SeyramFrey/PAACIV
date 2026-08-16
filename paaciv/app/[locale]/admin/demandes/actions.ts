@@ -34,6 +34,16 @@ export async function marquerDemandeTraitee(id: string): Promise<ResultatDemande
 // réussie.
 export async function supprimerDemande(id: string): Promise<ResultatDemandeAdmin> {
   const sb = await createServerClient()
+  // Même garde explicite que `exporterAbonnesCsv` — et à plus forte raison
+  // ici : la policy `demandes` est `to authenticated using (true)`, la base
+  // n'a aucune notion d'administrateur, et cette action est invocable
+  // directement (POST hors UI) sans passer par la redirection de
+  // `admin/layout.tsx`. Une suppression est irréversible, contrairement à un
+  // export ou au passage en « traitée ».
+  const {
+    data: { user },
+  } = await sb.auth.getUser()
+  if (!user) return { ok: false, erreur: 'echec' }
   const { data, error } = await sb.from('demandes').delete().eq('id', id).select('id')
   if (error) {
     console.error('demandes delete', id, error)

@@ -1,18 +1,22 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
-import { Map } from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { STYLE_CARTE, COULEUR_DEFAUT } from '@/lib/carte-style'
 import type { Ref } from '@/lib/data/patrimoine'
 
-// Cadrage sur la Côte d'Ivoire. Fixe plutôt que calculé sur les points : un
-// `fitBounds` sur trois fiches d'Abidjan zoomerait sur un quartier et le bloc
-// perdrait sa lecture « territoire ».
-const CENTRE: [number, number] = [-5.55, 7.54]
-const ZOOM = 5.4
+// `'use client'` ne retire RIEN du HTML servi : ce composant est rendu par le
+// serveur comme les autres, seul son code est aussi envoyé au navigateur.
+// C'est `ssr: false` qui retire du HTML, et il ne porte donc que sur
+// `CarteApercu` — le surtitre, le `<h2>`, le paragraphe et surtout le lien
+// interne vers `/carte` restent dans le HTML de la page la plus visitée du
+// site. (Auparavant `ssr: false` portait sur toute la section : elle en avait
+// entièrement disparu.)
+const CarteApercu = dynamic(
+  () => import('@/components/accueil/CarteApercu').then((mod) => mod.CarteApercu),
+  { ssr: false },
+)
 
 export function ApercuCarte({
   types,
@@ -32,13 +36,17 @@ export function ApercuCarte({
   const [pret, setPret] = useState(false)
   const [visible, setVisible] = useState(false)
 
-  // La carte est décorative sur la page la plus visitée du site : sans ce
-  // garde, elle s'initialise (contexte WebGL, requête réseau, chunk
-  // MapLibre-GL de 785 Ko déjà retiré du bundle initial par
-  // `ApercuCarteLoader.tsx`) que le visiteur y arrive ou non. `rootMargin:
-  // '200px'` laisse une marge d'anticipation : la carte est prête un peu
-  // avant que le conteneur n'entre réellement dans le viewport, pas
-  // seulement au pixel exact.
+  // La carte est décorative sur la page la plus visitée du site. Le garde
+  // vit ICI, et non dans `CarteApercu`, parce qu'un garde placé dans le
+  // module à charger suppose ce module déjà chargé : `next/dynamic` est un
+  // `React.lazy`, dont le chargeur part au PREMIER RENDU de l'élément. Rendre
+  // `<CarteApercu />` sans condition faisait donc partir les 785 Ko à chaque
+  // visite, simplement après l'hydratation au lieu d'être dans le bundle
+  // initial. En le montant seulement quand `visible` passe à vrai, le chunk
+  // n'est demandé qu'à l'approche de la section.
+  // `rootMargin: '200px'` laisse une marge d'anticipation : la carte est
+  // prête un peu avant que le conteneur n'entre réellement dans le viewport,
+  // pas seulement au pixel exact.
   useEffect(() => {
     if (!conteneur.current) return
     const observateur = new IntersectionObserver(
@@ -53,88 +61,6 @@ export function ApercuCarte({
     observateur.observe(conteneur.current)
     return () => observateur.disconnect()
   }, [])
-
-  useEffect(() => {
-    if (!visible || !conteneur.current) return
-    let annule = false
-    const map = new Map({
-      container: conteneur.current,
-      style: STYLE_CARTE,
-      center: CENTRE,
-      zoom: ZOOM,
-      attributionControl: { compact: true },
-      // La carte est décorative : sans ce réglage, un défilement de page qui
-      // passe sur le carré zoomerait la carte au lieu de continuer la page.
-      scrollZoom: false,
-      dragRotate: false,
-      keyboard: false,
-    })
-
-    // Même garde que `CarteClient.tsx` (commit 663e88c) : quitter `/fr` avant
-    // la fin du chargement — ou le double montage de StrictMode en dev —
-    // appelle `map.remove()`, qui annule les requêtes encore en vol. L'erreur
-    // en résulte est émise par le `Style`, détaché de la carte avant
-    // l'annulation : seul un écouteur posé directement dessus peut l'absorber
-    // (voir le commentaire détaillé dans CarteClient.tsx).
-    map.style.on('error', () => {})
-
-    const couleurParType = types.flatMap((ty) => [ty.id, ty.couleur ?? COULEUR_DEFAUT])
-
-    map.on('load', async () => {
-      // Le `try` ne couvre plus que la requête réseau (comme `CarteClient`) :
-      // il englobait auparavant aussi `addSource`/`addLayer`, si bien qu'une
-      // géométrie malformée aurait été avalée avec le même silence qu'un
-      // réseau indisponible, sans trace pour la distinguer.
-      let geojson: unknown
-      try {
-        const reponse = await fetch('/api/carte/points')
-        if (!reponse.ok) {
-          console.error('carte/points', reponse.status, reponse.statusText)
-          return
-        }
-        geojson = await reponse.json()
-      } catch (erreurReseau) {
-        // Réseau indisponible ou réponse non JSON : la carte reste vide
-        // plutôt que de lever un rejet de promesse non géré.
-        console.error('carte/points réseau', erreurReseau)
-        return
-      }
-
-      // Le composant peut avoir démonté pendant l'attente du réseau : sans
-      // ce garde, `addSource`/`addLayer` lèveraient sur une carte détruite.
-      if (annule) return
-
-      try {
-        // Même conversion que `CarteClient.tsx` pour la même API : la
-        // réponse JSON est typée `unknown` par prudence (E2, revue finale),
-        // pas `any` implicite comme avant.
-        map.addSource('points', { type: 'geojson', data: geojson as unknown as GeoJSON.FeatureCollection })
-        map.addLayer({
-          id: 'points',
-          type: 'circle',
-          source: 'points',
-          paint: {
-            'circle-radius': 5,
-            'circle-color':
-              couleurParType.length > 0
-                ? (['match', ['get', 'type_id'], ...couleurParType, COULEUR_DEFAUT] as never)
-                : COULEUR_DEFAUT,
-            'circle-stroke-width': 1.5,
-            'circle-stroke-color': 'rgba(255,255,255,.8)',
-          },
-        })
-        setPret(true)
-      } catch (erreurGeometrie) {
-        console.error('carte/points géométrie', erreurGeometrie)
-      }
-    })
-
-    return () => {
-      annule = true
-      map.remove()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique à l'intersection ; `types` capturé par closure, il ne change pas après le rendu serveur.
-  }, [visible])
 
   return (
     <section
@@ -155,10 +81,14 @@ export function ApercuCarte({
       >
         {/* Carré strict, demandé explicitement. `aspect-square` + hauteur
             pilotée par la largeur : MapLibre a besoin d'un conteneur mesuré.
+            Ce div est aussi la cible de l'observateur et il réserve la place
+            avant le montage de la carte, donc la page ne saute pas.
             Pas d'`aria-label` ici : un `<div>` sans rôle explicite l'ignore
             selon la spécification ARIA, et il ferait de toute façon doublon
             avec le `aria-live` du paragraphe voisin ci-dessous. */}
-        <div ref={conteneur} className="aspect-square w-full" />
+        <div ref={conteneur} className="aspect-square w-full">
+          {visible ? <CarteApercu types={types} onPret={() => setPret(true)} /> : null}
+        </div>
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3">

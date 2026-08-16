@@ -48,6 +48,14 @@ export async function exporterAbonnesCsv(): Promise<ResultatExportAbonnes> {
 // suppression réussie sans ce contrôle.
 export async function supprimerAbonne(id: string): Promise<ResultatAbonneAdmin> {
   const sb = await createServerClient()
+  // Même garde explicite que `exporterAbonnesCsv` ci-dessus — et à plus forte
+  // raison ici : lire une adresse et l'effacer ne se rattrapent pas de la même
+  // façon. La policy `newsletter_abonnes` ne distingue pas l'administrateur du
+  // simple compte `authenticated`, et l'action est invocable hors UI.
+  const {
+    data: { user },
+  } = await sb.auth.getUser()
+  if (!user) return { ok: false, erreur: 'echec' }
   const { data, error } = await sb.from('newsletter_abonnes').delete().eq('id', id).select('id')
   if (error) {
     console.error('newsletter_abonnes delete', id, error)

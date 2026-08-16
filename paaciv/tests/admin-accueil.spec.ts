@@ -71,6 +71,15 @@ test('un texte modifié en admin est immédiatement lisible publiquement', async
     // encore en vol au moment où l'appel suivant s'exécuterait sans cette
     // attente — piège relevé en revue sur ce test précisément.
     await expect(bloc.getByRole('status')).toBeVisible()
+    // Le témoin doit SURVIVRE à la revalidation que déclenche l'action. La
+    // clé de remontage dérivée de la valeur (retirée par le correctif C1)
+    // remontait le formulaire dès que la valeur enregistrée revenait du
+    // serveur : « Enregistré. » était alors porté par l'instance démontée.
+    // La première assertion ci-dessus ne suffit donc pas — elle passait déjà
+    // sur un témoin qui n'apparaissait que fugitivement. Cette seconde
+    // assertion, après un délai borné, est celle qui mord.
+    await page.waitForTimeout(1500)
+    await expect(bloc.getByRole('status')).toBeVisible()
 
     // Persistance : une navigation fraîche vers l'écran admin (nouveau rendu
     // serveur, pas de cache client) doit refléter la valeur enregistrée.
