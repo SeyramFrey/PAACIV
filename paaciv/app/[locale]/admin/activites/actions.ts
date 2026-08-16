@@ -4,7 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { texteOuNull, intOuNull } from '@/lib/admin/champs'
 
-export type ResultatActivite = { ok: true; id: string } | { ok: false; erreur: 'titreRequis' }
+// `echec` couvre le cas d'un UPDATE bloqué par RLS (voir plus bas) en plus
+// des échecs d'upload inattendus.
+export type ResultatActivite = { ok: true; id: string } | { ok: false; erreur: 'titreRequis' | 'echec' }
 
 export async function enregistrerActivite(formData: FormData): Promise<ResultatActivite> {
   const sb = await createServerClient()
@@ -28,12 +30,25 @@ export async function enregistrerActivite(formData: FormData): Promise<ResultatA
 
   let resultId: string
   if (id) {
-    const { error } = await sb.from('activites').update(valeurs).eq('id', id)
-    if (error) throw error
+    const { data, error } = await sb.from('activites').update(valeurs).eq('id', id).select('id')
+    if (error) {
+      console.error('activites update', id, error)
+      throw error
+    }
+    // Un UPDATE bloqué par RLS ne lève PAS d'erreur (clause USING filtrée à
+    // zéro ligne, requête réussie) : sans ce contrôle, une session expirée
+    // afficherait « enregistré » alors que rien n'a changé.
+    if (!data || data.length === 0) {
+      console.error('activites update : aucune ligne affectée (id introuvable ou session expirée)', id)
+      return { ok: false, erreur: 'echec' }
+    }
     resultId = id
   } else {
     const { data, error } = await sb.from('activites').insert(valeurs).select('id').single()
-    if (error) throw error
+    if (error) {
+      console.error('activites insert', error)
+      throw error
+    }
     resultId = data.id
   }
 
@@ -51,9 +66,15 @@ export async function enregistrerActivite(formData: FormData): Promise<ResultatA
         contentType: image.type || 'image/jpeg',
         upsert: false,
       })
-      if (upErr) throw upErr
+      if (upErr) {
+        console.error('activites image upload', resultId, upErr)
+        throw upErr
+      }
       const { error } = await sb.from('activites').update({ image: chemin }).eq('id', resultId)
-      if (error) throw error
+      if (error) {
+        console.error('activites update image', resultId, error)
+        throw error
+      }
     } catch (e) {
       // Chemin insertion uniquement : la ligne vient d'être créée par CE
       // formulaire et n'existait pas avant, donc rien à préserver. Sur le
@@ -72,7 +93,10 @@ export async function enregistrerActivite(formData: FormData): Promise<ResultatA
 export async function supprimerActivite(id: string): Promise<void> {
   const sb = await createServerClient()
   const { error } = await sb.from('activites').delete().eq('id', id)
-  if (error) throw error
+  if (error) {
+    console.error('activites delete', id, error)
+    throw error
+  }
   revalidatePath('/[locale]/admin/activites', 'page')
   revalidatePath('/[locale]', 'page')
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { exporterAbonnesCsv } from '@/app/[locale]/admin/abonnes/actions'
@@ -11,13 +11,19 @@ import { exporterAbonnesCsv } from '@/app/[locale]/admin/abonnes/actions'
 export function BoutonExporterAbonnes() {
   const t = useTranslations('adminAbonnes')
   const [enCours, demarrer] = useTransition()
+  const [erreur, setErreur] = useState(false)
 
   function exporter() {
+    setErreur(false)
     demarrer(async () => {
-      const csv = await exporterAbonnesCsv()
+      const resultat = await exporterAbonnesCsv()
+      if (!resultat.ok) {
+        setErreur(true)
+        return
+      }
       // BOM UTF-8 : Excel (destinataire probable côté association) sinon
       // mésinterprète l'encodage des accents.
-      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+      const blob = new Blob(['﻿' + resultat.csv], { type: 'text/csv;charset=utf-8;' })
       const url = URL.createObjectURL(blob)
       const lien = document.createElement('a')
       lien.href = url
@@ -28,8 +34,15 @@ export function BoutonExporterAbonnes() {
   }
 
   return (
-    <Button type="button" variant="ghost" onClick={exporter} disabled={enCours}>
-      {t('exporter')}
-    </Button>
+    <div className="flex flex-col items-end gap-1">
+      <Button type="button" variant="ghost" onClick={exporter} disabled={enCours}>
+        {t('exporter')}
+      </Button>
+      {erreur && (
+        <span role="alert" className="text-xs font-semibold text-terracotta">
+          {t('erreurExport')}
+        </span>
+      )}
+    </div>
   )
 }

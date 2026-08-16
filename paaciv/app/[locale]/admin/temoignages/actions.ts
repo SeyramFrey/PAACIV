@@ -4,9 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { texteOuNull, intOuNull } from '@/lib/admin/champs'
 
+// `echec` couvre le cas d'un UPDATE bloqué par RLS (voir plus bas).
 export type ResultatTemoignage =
   | { ok: true; id: string }
-  | { ok: false; erreur: 'nomRequis' | 'citationRequise' }
+  | { ok: false; erreur: 'nomRequis' | 'citationRequise' | 'echec' }
 
 export async function enregistrerTemoignage(formData: FormData): Promise<ResultatTemoignage> {
   const sb = await createServerClient()
@@ -35,12 +36,25 @@ export async function enregistrerTemoignage(formData: FormData): Promise<Resulta
 
   let resultId: string
   if (id) {
-    const { error } = await sb.from('temoignages').update(valeurs).eq('id', id)
-    if (error) throw error
+    const { data, error } = await sb.from('temoignages').update(valeurs).eq('id', id).select('id')
+    if (error) {
+      console.error('temoignages update', id, error)
+      throw error
+    }
+    // Un UPDATE bloqué par RLS ne lève PAS d'erreur (clause USING filtrée à
+    // zéro ligne, requête réussie) : sans ce contrôle, une session expirée
+    // afficherait « enregistré » alors que rien n'a changé.
+    if (!data || data.length === 0) {
+      console.error('temoignages update : aucune ligne affectée (id introuvable ou session expirée)', id)
+      return { ok: false, erreur: 'echec' }
+    }
     resultId = id
   } else {
     const { data, error } = await sb.from('temoignages').insert(valeurs).select('id').single()
-    if (error) throw error
+    if (error) {
+      console.error('temoignages insert', error)
+      throw error
+    }
     resultId = data.id
   }
 
@@ -56,7 +70,10 @@ export async function enregistrerTemoignage(formData: FormData): Promise<Resulta
 export async function supprimerTemoignage(id: string): Promise<void> {
   const sb = await createServerClient()
   const { error } = await sb.from('temoignages').delete().eq('id', id)
-  if (error) throw error
+  if (error) {
+    console.error('temoignages delete', id, error)
+    throw error
+  }
   revalidatePath('/[locale]/admin/temoignages', 'page')
   revalidatePath('/[locale]', 'page')
 }

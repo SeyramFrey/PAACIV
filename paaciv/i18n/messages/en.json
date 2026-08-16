@@ -203,7 +203,7 @@
   "adminAbonnes": {
     "titre": "Subscribers", "email": "Email address", "langue": "Language",
     "date": "Subscribed on", "aucun": "No subscriber yet.", "exporter": "Export as CSV",
-    "total": "{n} subscriber(s)"
+    "total": "{n} subscriber(s)", "erreurExport": "Export failed. Please try again."
   },
   "adminDemandes": {
     "titre": "Requests", "type": "Type", "adhesion": "Membership", "don": "Donation",

@@ -7,7 +7,8 @@ import { texteOuNull, intOuNull } from '@/lib/admin/champs'
 // Erreur attendue (titre manquant) en valeur de retour, jamais en exception :
 // même raisonnement que evenements/actions.ts — un `throw` serait redacté en
 // production et ne laisserait aucune indication utilisable à l'admin.
-export type ResultatPointCle = { ok: true; id: string } | { ok: false; erreur: 'titreRequis' }
+// `echec` couvre aussi le cas d'un UPDATE bloqué par RLS (voir plus bas).
+export type ResultatPointCle = { ok: true; id: string } | { ok: false; erreur: 'titreRequis' | 'echec' }
 
 export async function enregistrerPointCle(formData: FormData): Promise<ResultatPointCle> {
   const sb = await createServerClient()
@@ -32,12 +33,25 @@ export async function enregistrerPointCle(formData: FormData): Promise<ResultatP
 
   let resultId: string
   if (id) {
-    const { error } = await sb.from('points_cles').update(valeurs).eq('id', id)
-    if (error) throw error
+    const { data, error } = await sb.from('points_cles').update(valeurs).eq('id', id).select('id')
+    if (error) {
+      console.error('points_cles update', id, error)
+      throw error
+    }
+    // Un UPDATE bloqué par RLS ne lève PAS d'erreur (clause USING filtrée à
+    // zéro ligne, requête réussie) : sans ce contrôle, une session expirée
+    // afficherait « enregistré » alors que rien n'a changé.
+    if (!data || data.length === 0) {
+      console.error('points_cles update : aucune ligne affectée (id introuvable ou session expirée)', id)
+      return { ok: false, erreur: 'echec' }
+    }
     resultId = id
   } else {
     const { data, error } = await sb.from('points_cles').insert(valeurs).select('id').single()
-    if (error) throw error
+    if (error) {
+      console.error('points_cles insert', error)
+      throw error
+    }
     resultId = data.id
   }
 
@@ -52,7 +66,10 @@ export async function enregistrerPointCle(formData: FormData): Promise<ResultatP
 export async function supprimerPointCle(id: string): Promise<void> {
   const sb = await createServerClient()
   const { error } = await sb.from('points_cles').delete().eq('id', id)
-  if (error) throw error
+  if (error) {
+    console.error('points_cles delete', id, error)
+    throw error
+  }
   revalidatePath('/[locale]/admin/points-cles', 'page')
   revalidatePath('/[locale]', 'page')
 }

@@ -203,7 +203,7 @@
   "adminAbonnes": {
     "titre": "Abonnés", "email": "Adresse e-mail", "langue": "Langue",
     "date": "Inscrit le", "aucun": "Aucun abonné.", "exporter": "Exporter en CSV",
-    "total": "{n} abonné(s)"
+    "total": "{n} abonné(s)", "erreurExport": "L'export a échoué. Veuillez réessayer."
   },
   "adminDemandes": {
     "titre": "Demandes", "type": "Type", "adhesion": "Adhésion", "don": "Don",

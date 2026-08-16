@@ -38,7 +38,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
     try {
       const resultat = await enregistrerActivite(fd)
       if (!resultat.ok) {
-        setErreur(t('erreurTitreRequis'))
+        setErreur(t(resultat.erreur === 'titreRequis' ? 'erreurTitreRequis' : 'erreurEnregistrement'))
         return
       }
       router.push('/admin/activites')

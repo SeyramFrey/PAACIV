@@ -51,9 +51,14 @@ export function FormulaireContenuLigne({
 
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('valeurFr')}</span>
-        <input
+        {/* textarea, pas input : un <input type="text"> supprime les retours
+            à la ligne à la saisie. `soutien_paiement` (coordonnées bancaires,
+            Wave, Orange Money) et `soutien_adhesion_avantages` (liste) sont
+            rendues côté public avec `whitespace-pre-line` — elles ont
+            explicitement besoin de plusieurs lignes. */}
+        <textarea
           name="valeur_fr"
-          type="text"
+          rows={2}
           aria-label={`${t('valeurFr')} — ${cle}`}
           defaultValue={valeurFr ?? ''}
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
@@ -63,9 +68,9 @@ export function FormulaireContenuLigne({
 
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('valeurEn')}</span>
-        <input
+        <textarea
           name="valeur_en"
-          type="text"
+          rows={2}
           aria-label={`${t('valeurEn')} — ${cle}`}
           defaultValue={valeurEn ?? ''}
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"

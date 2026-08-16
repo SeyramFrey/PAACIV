@@ -33,7 +33,12 @@ export function FormulaireTemoignage({ initial }: { initial?: Partial<Temoignage
     try {
       const resultat = await enregistrerTemoignage(fd)
       if (!resultat.ok) {
-        setErreur(t(resultat.erreur === 'nomRequis' ? 'erreurNomRequis' : 'erreurCitationRequise'))
+        const cles = {
+          nomRequis: 'erreurNomRequis',
+          citationRequise: 'erreurCitationRequise',
+          echec: 'erreurEnregistrement',
+        } as const
+        setErreur(t(cles[resultat.erreur]))
         return
       }
       router.push('/admin/temoignages')

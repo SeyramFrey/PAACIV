@@ -32,7 +32,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
     try {
       const resultat = await enregistrerPointCle(fd)
       if (!resultat.ok) {
-        setErreur(t('erreurTitreRequis'))
+        setErreur(t(resultat.erreur === 'titreRequis' ? 'erreurTitreRequis' : 'erreurEnregistrement'))
         return
       }
       router.push('/admin/points-cles')
