@@ -203,7 +203,10 @@
   "adminAbonnes": {
     "titre": "Abonnés", "email": "Adresse e-mail", "langue": "Langue",
     "date": "Inscrit le", "aucun": "Aucun abonné.", "exporter": "Exporter en CSV",
-    "total": "{n} abonné(s)", "erreurExport": "L'export a échoué. Veuillez réessayer."
+    "total": "{n} abonné(s)", "erreurExport": "L'export a échoué. Veuillez réessayer.",
+    "erreurChargement": "Le chargement des abonnés a échoué. Veuillez réessayer.",
+    "erreurAction": "L'action a échoué. Veuillez réessayer.",
+    "supprimer": "Supprimer", "confirmer": "Supprimer définitivement cet abonné ?"
   },
   "adminDemandes": {
     "titre": "Demandes", "type": "Type", "adhesion": "Adhésion", "don": "Don",
@@ -211,7 +214,10 @@
     "telephone": "Téléphone", "montant": "Montant", "message": "Message",
     "date": "Reçue le", "statut": "Statut", "nouvelle": "Nouvelle",
     "traitee": "Traitée", "marquerTraitee": "Marquer comme traitée",
-    "aucune": "Aucune demande."
+    "aucune": "Aucune demande.",
+    "erreurChargement": "Le chargement des demandes a échoué. Veuillez réessayer.",
+    "erreurAction": "L'action a échoué. Veuillez réessayer.",
+    "supprimer": "Supprimer", "confirmer": "Supprimer définitivement cette demande ?"
   },
   "archives": {
     "titre": "Nos archives",

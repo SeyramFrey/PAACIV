@@ -79,6 +79,11 @@ body {
   transition: background-color .7s ease, color .7s ease;
 }
 img { display: block; }
+/* Tailwind 4 ne pose plus `cursor: pointer` sur les boutons en preflight
+   (contrairement à Tailwind 3) : la maquette le déclare vingt fois, le dépôt
+   zéro, ce qui laissait tous les boutons de l'accueil afficher une flèche
+   plutôt qu'une main. */
+button:not(:disabled) { cursor: pointer; }
 ::selection { background: var(--accent); color: oklch(0.15 0.012 45); }
 
 /* Révélations au scroll : l'état de départ est posé en CSS, la classe .rv-in

@@ -1,5 +1,5 @@
 import { getLocale } from 'next-intl/server'
-import { texte, type Textes } from '@/lib/data/contenu-site'
+import { texte, renseigne, type Textes } from '@/lib/data/contenu-site'
 import { Compteurs } from '@/components/accueil/Compteurs'
 import { CartesSoutien } from '@/components/accueil/CartesSoutien'
 import type { Chiffres } from '@/lib/data/accueil'
@@ -20,6 +20,16 @@ export async function Association({
   const chantiersTexte = texte(textes, 'soutien_chantiers_texte', locale)
   const adhesionAvantages = texte(textes, 'soutien_adhesion_avantages', locale)
   const donTexte = texte(textes, 'soutien_don_usage', locale)
+
+  // Garde côté SERVEUR, pas dans `CartesSoutien` (composant client) : une
+  // valeur brute passée à un composant client, même filtrée à l'affichage
+  // par `renseigne()` en aval, reste sérialisée telle quelle dans le HTML —
+  // « À COMPLÉTER — … » finit dans le source de chaque page. `null` ne
+  // franchit jamais la frontière.
+  const montantSur = renseigne(montant) ? montant : null
+  const chantiersTexteSur = renseigne(chantiersTexte) ? chantiersTexte : null
+  const adhesionAvantagesSur = renseigne(adhesionAvantages) ? adhesionAvantages : null
+  const donTexteSur = renseigne(donTexte) ? donTexte : null
 
   return (
     <section
@@ -57,10 +67,10 @@ export async function Association({
         </div>
 
         <CartesSoutien
-          montant={montant}
-          chantiersTexte={chantiersTexte}
-          adhesionAvantages={adhesionAvantages}
-          donTexte={donTexte}
+          montant={montantSur}
+          chantiersTexte={chantiersTexteSur}
+          adhesionAvantages={adhesionAvantagesSur}
+          donTexte={donTexteSur}
         />
       </div>
     </section>

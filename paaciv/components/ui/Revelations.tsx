@@ -149,7 +149,16 @@ export function Revelations() {
             const facteur = Number(el.getAttribute('data-par') ?? '0')
             const r = el.getBoundingClientRect()
             const centre = r.top + r.height / 2 - window.innerHeight / 2
-            el.style.transform = `translate3d(0, ${(-centre * facteur).toFixed(1)}px, 0)`
+            // `style.translate`, PAS `style.transform` : l'ordre de
+            // composition CSS est translate → rotate → scale → transform.
+            // `rotate-45` de Tailwind compile en propriété `rotate`
+            // indépendante (ex. les losanges de CinqRaisons) ; un
+            // `translate3d` écrit dans `transform` s'appliquerait alors DANS
+            // l'espace déjà tourné, faisant dériver la translation en
+            // diagonale au lieu de verticalement. `translate` est une
+            // propriété indépendante elle aussi : elle compose correctement
+            // avec `rotate` sans jamais l'écraser.
+            el.style.translate = `0 ${(-centre * facteur).toFixed(1)}px`
           })
         }
         enAttente = false

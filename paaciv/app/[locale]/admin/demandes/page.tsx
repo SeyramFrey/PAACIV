@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { marquerDemandeTraitee } from './actions'
+import { BoutonMarquerTraitee } from '@/components/admin/BoutonMarquerTraitee'
+import { FormSupprimerAction } from '@/components/admin/FormSupprimerAction'
+import { supprimerDemande } from './actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +36,11 @@ export default async function AdminDemandes({
     .select('id, type, nom, email, telephone, montant, message, statut, created_at')
     .order('created_at', { ascending: false })
   if (filtreType) requete = requete.eq('type', filtreType)
-  const { data } = await requete
+  const { data, error } = await requete
+  // Une lecture en échec (session expirée, base indisponible) ne doit jamais
+  // se confondre avec « aucune demande » — l'association conclurait à tort
+  // qu'elle n'a pas de donateur.
+  if (error) console.error('demandes select', error)
   const items = (data ?? []) as LigneDemande[]
 
   const onglets: { valeur: (typeof TYPES)[number] | undefined; label: string }[] = [
@@ -60,7 +66,11 @@ export default async function AdminDemandes({
         ))}
       </div>
 
-      {items.length === 0 ? (
+      {error ? (
+        <p role="alert" className="text-terracotta">
+          {t('erreurChargement')}
+        </p>
+      ) : items.length === 0 ? (
         <p className="text-encre/70">{t('aucune')}</p>
       ) : (
         <table className="w-full text-left text-sm">
@@ -96,14 +106,24 @@ export default async function AdminDemandes({
                     {d.statut === 'traitee' ? t('traitee') : t('nouvelle')}
                   </span>
                 </td>
-                <td className="py-2">
-                  {d.statut === 'nouvelle' && (
-                    <form action={marquerDemandeTraitee.bind(null, d.id)}>
-                      <button type="submit" className="text-brun underline">
-                        {t('marquerTraitee')}
-                      </button>
-                    </form>
-                  )}
+                <td className="flex flex-col items-start gap-2 py-2">
+                  {d.statut === 'nouvelle' && <BoutonMarquerTraitee id={d.id} />}
+                  {/* `.bind(null, d.id)`, pas un nouveau closure inline
+                      (`() => supprimerDemande(d.id)`) : ce composant est
+                      rendu par un Composant Serveur, et seule une référence
+                      Server Action directe — ou son résultat via `.bind()` —
+                      peut franchir la frontière serveur/client comme prop. Un
+                      closure arbitraire, même s'il appelle la même action à
+                      l'intérieur, provoque la même erreur d'exécution
+                      qu'un `<form action={...}>` mal formé (constaté). */}
+                  <FormSupprimerAction
+                    action={supprimerDemande.bind(null, d.id)}
+                    message={t('confirmer')}
+                    erreurLabel={t('erreurAction')}
+                    className="text-terracotta underline"
+                  >
+                    {t('supprimer')}
+                  </FormSupprimerAction>
                 </td>
               </tr>
             ))}

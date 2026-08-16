@@ -46,19 +46,24 @@ test('un texte modifié en admin est immédiatement lisible publiquement', async
     expect(erreurSetup, 'pose de la clé de test par l’admin').toBeNull()
 
     await page.goto('/fr/admin/contenu')
-    // Attend la fin de l'hydratation avant d'interagir : un `<textarea>`
-    // dont le contenu SSR est modifié par un acteur externe (Playwright,
-    // mais aussi un remplissage automatique de navigateur) entre la peinture
-    // initiale et l'hydratation React se retrouve avec un contenu dupliqué —
-    // React réconcilie le texte enfant attendu (issu du HTML serveur) sans
-    // remplacer la valeur déjà posée dans le DOM. `networkidle` est un proxy
-    // fiable ici (page admin simple, sans polling réseau) : constaté en
-    // pratique lors de la correction de ce test, où `fill()` immédiat après
-    // `goto()` produisait « <saisie><ancienne valeur> » concaténés sans
-    // séparateur — la preuve que l'écriture avait bien atteint le DOM avant
-    // que l'hydratation ne la « corrige » en l'additionnant.
-    await page.waitForLoadState('networkidle')
+    // Plus d'attente `networkidle` ici : c'était un contournement côté test
+    // d'un bug côté composant (`FormulaireContenuLigne` utilisait
+    // `defaultValue`, un `<textarea>` non contrôlé — Chrome/Firefox
+    // restaurent sa valeur au retour arrière AVANT l'hydratation React, d'où
+    // la duplication observée). Le composant est désormais contrôlé
+    // (`value`/`onChange`), donc React est la seule source de vérité dès le
+    // premier rendu et Playwright n'a plus besoin d'attendre le réseau avant
+    // d'interagir. Playwright déconseille explicitement `networkidle`.
     const bloc = page.locator('form', { has: page.locator(`input[name="cle"][value="${cle}"]`) })
+    // `.clear()` avant `.fill()` : constaté empiriquement pendant cette revue
+    // (instrumentation temporaire de `onChange`, retirée) que `.fill()` seul
+    // sur ce champ contrôlé pouvait insérer le nouveau texte SANS remplacer
+    // l'ancien plutôt que de le remplacer — l'événement `input` capturé par
+    // React portait déjà la valeur concaténée, donc ce n'était pas un défaut
+    // du composant (déjà hydraté et correctement contrôlé à ce moment) mais
+    // une interaction `.fill()` propre à ce test. `.clear()` est l'API
+    // Playwright dédiée à vider un champ de façon fiable avant saisie.
+    await bloc.getByLabel(/valeur \(fr\)/i).clear()
     await bloc.getByLabel(/valeur \(fr\)/i).fill(nouveau)
     await bloc.getByRole('button', { name: /enregistrer/i }).click()
     // Attend le témoin d'écriture réussie avant toute autre assertion : un
@@ -108,6 +113,33 @@ test('une demande déposée apparaît dans l’admin', async ({ page }) => {
   await expect(page.getByText(email)).toBeVisible()
 })
 
+test('une demande peut être supprimée depuis l’admin, sans rechargement manuel', async ({ page }) => {
+  const email = `e2e-suppr-demande-${Date.now()}@exemple.ci`
+  const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { error: erreurConnexion } = await admin.auth.signInWithPassword({
+    email: process.env.TEST_ADMIN_EMAIL!,
+    password: process.env.TEST_ADMIN_PASSWORD!,
+  })
+  expect(erreurConnexion).toBeNull()
+  const { error: erreurSetup } = await admin
+    .from('demandes')
+    .insert({ type: 'don', nom: 'Vérification suppression', email, statut: 'nouvelle' })
+  expect(erreurSetup).toBeNull()
+
+  // Accepte la boîte de confirmation native (`window.confirm` dans
+  // `BoutonSupprimer`) : sans ce gestionnaire, Playwright la rejette par
+  // défaut et le clic n'aurait aucun effet.
+  page.on('dialog', (d) => d.accept())
+  await page.goto('/fr/admin/demandes')
+  const ligne = page.locator('tr', { hasText: email })
+  await expect(ligne).toBeVisible()
+  await ligne.getByRole('button', { name: /supprimer/i }).click()
+  // Couvre le chemin complet de la suppression (A3) : confirmation native,
+  // action serveur, disparition de la ligne sans rechargement manuel de la
+  // page — sans jamais toucher directement la base depuis le test.
+  await expect(page.getByText(email)).not.toBeVisible()
+})
+
 test('un abonné inscrit apparaît dans l’admin', async ({ page }) => {
   const email = `e2e-abonne-${Date.now()}@exemple.ci`
 
@@ -120,4 +152,23 @@ test('un abonné inscrit apparaît dans l’admin', async ({ page }) => {
 
   await page.goto('/fr/admin/abonnes')
   await expect(page.getByText(email)).toBeVisible()
+})
+
+test('un abonné peut être supprimé depuis l’admin, sans rechargement manuel', async ({ page }) => {
+  const email = `e2e-suppr-abonne-${Date.now()}@exemple.ci`
+  const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { error: erreurConnexion } = await admin.auth.signInWithPassword({
+    email: process.env.TEST_ADMIN_EMAIL!,
+    password: process.env.TEST_ADMIN_PASSWORD!,
+  })
+  expect(erreurConnexion).toBeNull()
+  const { error: erreurSetup } = await admin.from('newsletter_abonnes').insert({ email, langue: 'fr' })
+  expect(erreurSetup).toBeNull()
+
+  page.on('dialog', (d) => d.accept())
+  await page.goto('/fr/admin/abonnes')
+  const ligne = page.locator('tr', { hasText: email })
+  await expect(ligne).toBeVisible()
+  await ligne.getByRole('button', { name: /supprimer/i }).click()
+  await expect(page.getByText(email)).not.toBeVisible()
 })

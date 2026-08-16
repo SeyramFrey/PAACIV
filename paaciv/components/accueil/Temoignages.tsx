@@ -43,8 +43,17 @@ export function Temoignages({
   // recalculé à la main à partir des `clamp()` de la maquette : la largeur
   // des cartes varie avec le viewport, offsetLeft la connaît déjà.
   useLayoutEffect(() => {
-    const carte = piste.current?.children[index] as HTMLElement | undefined
-    setDecalage(carte ? carte.offsetLeft : 0)
+    function recalculer() {
+      const carte = piste.current?.children[index] as HTMLElement | undefined
+      setDecalage(carte ? carte.offsetLeft : 0)
+    }
+    recalculer()
+    // Les dépendances ne portaient que `index` : une rotation de téléphone
+    // (ou tout redimensionnement) en cours de carrousel laissait la piste
+    // désalignée jusqu'au clic suivant, `offsetLeft` n'étant recalculé qu'à
+    // ce moment-là. `resize` recalcule sans attendre une interaction.
+    window.addEventListener('resize', recalculer)
+    return () => window.removeEventListener('resize', recalculer)
   }, [index, temoignages])
 
   if (temoignages.length === 0) return null

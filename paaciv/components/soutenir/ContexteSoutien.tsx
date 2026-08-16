@@ -23,7 +23,10 @@ export function FournisseurSoutien({
   paiement,
   children,
 }: {
-  paiement: string
+  // `null` : valeur absente ou encore « À COMPLÉTER », déjà filtrée côté
+  // serveur par `app/[locale]/layout.tsx` avant de franchir la frontière
+  // client.
+  paiement: string | null
   children: React.ReactNode
 }) {
   const t = useTranslations('soutien')

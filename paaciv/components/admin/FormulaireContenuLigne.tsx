@@ -22,6 +22,16 @@ export function FormulaireContenuLigne({
   const [enCours, demarrer] = useTransition()
   const [erreur, setErreur] = useState(false)
   const [enregistre, setEnregistre] = useState(false)
+  // Contrôlés, pas `defaultValue` : Chrome et Firefox restaurent la valeur
+  // d'un `<textarea>` non contrôlé au retour arrière, et cette restauration a
+  // lieu AVANT l'hydratation React — le contenu SSR et la valeur restaurée
+  // par le navigateur se retrouvent concaténés au lieu de l'un remplaçant
+  // l'autre (défaut documenté par `tests/admin-accueil.spec.ts`, qui exerce
+  // le même formulaire sur une navigation fraîche). Un champ contrôlé retire
+  // toute ambiguïté sur la source de vérité : React est seul maître de la
+  // valeur dès le premier rendu, il n'y a plus rien à « restaurer ».
+  const [texteFr, setTexteFr] = useState(valeurFr ?? '')
+  const [texteEn, setTexteEn] = useState(valeurEn ?? '')
 
   function soumettre(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -60,7 +70,9 @@ export function FormulaireContenuLigne({
           name="valeur_fr"
           rows={2}
           aria-label={`${t('valeurFr')} — ${cle}`}
-          defaultValue={valeurFr ?? ''}
+          value={texteFr}
+          onChange={(e) => setTexteFr(e.target.value)}
+          autoComplete="off"
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />
         {aCompleterFr && <span className="mt-1 text-xs font-semibold text-terracotta">{t('aCompleter')}</span>}
@@ -72,7 +84,9 @@ export function FormulaireContenuLigne({
           name="valeur_en"
           rows={2}
           aria-label={`${t('valeurEn')} — ${cle}`}
-          defaultValue={valeurEn ?? ''}
+          value={texteEn}
+          onChange={(e) => setTexteEn(e.target.value)}
+          autoComplete="off"
           className="rounded-xl border border-encre/20 bg-white px-3 py-2"
         />
         {aCompleterEn && <span className="mt-1 text-xs font-semibold text-terracotta">{t('aCompleter')}</span>}

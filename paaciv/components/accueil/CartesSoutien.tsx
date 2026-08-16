@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
-import { renseigne } from '@/lib/data/contenu-site'
 
 const CLASSE_CARTE =
   'group relative flex h-[clamp(340px,34vw,440px)] flex-col justify-end overflow-hidden rounded-[6px] border-0 bg-transparent p-[34px] text-left'
@@ -87,10 +86,14 @@ export function CartesSoutien({
   adhesionAvantages,
   donTexte,
 }: {
-  montant: string
-  chantiersTexte: string
-  adhesionAvantages: string
-  donTexte: string
+  // `null` : rien à afficher — déjà filtré côté serveur par `Association.tsx`
+  // (une valeur absente ou encore « À COMPLÉTER » ne franchit jamais la
+  // frontière serveur/client, pour ne jamais atteindre le HTML envoyé au
+  // navigateur).
+  montant: string | null
+  chantiersTexte: string | null
+  adhesionAvantages: string | null
+  donTexte: string | null
 }) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
@@ -101,8 +104,8 @@ export function CartesSoutien({
   // « {montant} par an. » affiché seul avec un montant à blanc, jamais
   // d'avantages promis pendant qu'aucun prix n'existe encore.
   const segmentsAdhesion = [
-    renseigne(montant) ? t('montantParAn', { montant }) : null,
-    renseigne(adhesionAvantages) ? adhesionAvantages : null,
+    montant ? t('montantParAn', { montant }) : null,
+    adhesionAvantages,
   ].filter((s): s is string => Boolean(s))
   const texteAdhesion = segmentsAdhesion.length > 0 ? segmentsAdhesion.join(' ') : null
 
@@ -112,7 +115,7 @@ export function CartesSoutien({
         href="/articles"
         image="https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900"
         titre={t('chantiers')}
-        texte={renseigne(chantiersTexte) ? chantiersTexte : null}
+        texte={chantiersTexte}
         libelle={t('voir')}
       />
       <Carte
@@ -127,7 +130,7 @@ export function CartesSoutien({
         onClick={() => ouvrir('don')}
         image="https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900"
         titre={t('don')}
-        texte={renseigne(donTexte) ? donTexte : null}
+        texte={donTexte}
         libelle={t('donner')}
         delai="180"
       />

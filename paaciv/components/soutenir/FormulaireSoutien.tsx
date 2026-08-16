@@ -16,7 +16,9 @@ export function FormulaireSoutien({
   onSucces,
 }: {
   type: TypeDemande
-  paiement: string
+  // `null` : déjà filtré côté serveur (`app/[locale]/layout.tsx`) avant de
+  // franchir la frontière client — jamais la chaîne brute « À COMPLÉTER ».
+  paiement: string | null
   onSucces?: () => void
 }) {
   const t = useTranslations('soutien')
@@ -26,7 +28,11 @@ export function FormulaireSoutien({
 
   if (envoye) {
     return (
-      <div className="space-y-4">
+      // `role="status"` : sans région live, un donateur non-voyant n'a aucun
+      // retour au moment de l'envoi — le formulaire (et son bouton) disparaît
+      // du DOM, le focus tombe au `body`. Même geste que
+      // `components/accueil/Newsletter.tsx`.
+      <div className="space-y-4" role="status">
         <p style={{ color: 'var(--ink)' }}>{t('merci')}</p>
         {/* Écran de confirmation agnostique au type (adhésion, don, archive :
             les trois passent par ce même composant) : sans cette garde,
@@ -34,9 +40,11 @@ export function FormulaireSoutien({
             marqueur brut « À COMPLÉTER — coordonnées bancaires… » tant que
             l'association n'a pas renseigné `soutien_paiement`. Le bloc
             entier disparaît plutôt que de laisser un titre « Pour
-            finaliser : » orphelin — même logique que `renseigne()` partout
-            ailleurs dans le projet (SiteFooter, CartesSoutien). */}
-        {renseigne(paiement) && (
+            finaliser : » orphelin. `paiement` arrive déjà filtré (`null` ou
+            une valeur exploitable) depuis `app/[locale]/layout.tsx` — le
+            second niveau de garde (`renseigne`) reste posé ici en défense en
+            profondeur, pour ce composant appelable indépendamment. */}
+        {paiement !== null && renseigne(paiement) && (
           <>
             <p className="text-sm" style={{ color: 'var(--soft)' }}>
               {t('paiement')}

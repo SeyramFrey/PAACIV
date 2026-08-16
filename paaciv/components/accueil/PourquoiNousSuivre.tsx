@@ -29,13 +29,23 @@ export async function PourquoiNousSuivre({ points, titre }: { points: PointCle[]
   return (
     <section className="px-[clamp(20px,5vw,80px)] pt-[clamp(40px,5vw,80px)] pb-[clamp(60px,7vw,110px)]">
       <div className="mx-auto max-w-[1440px]">
-        <h3
+        {/* `<h2>`, PAS `<h3>` : la maquette pose bien un `<h3>` ici (ligne
+            247) mais c'est un défaut de la référence, pas une intention à
+            reproduire — les quinze autres blocs de l'accueil (Association,
+            NotreTravail, Activites, ApercuCarte, CinqRaisons, Agenda,
+            Temoignages, Journal, Newsletter…) utilisent tous `<h2>` pour
+            leur titre de section. À la lecture par titres (navigation
+            lecteur d'écran), un `<h3>` isolé ici ferait paraître ce bloc
+            comme une sous-section de « Notre travail » qui le précède,
+            alors que c'est un bloc de même rang que les autres. Écart
+            assumé de la maquette. */}
+        <h2
           data-rv=""
           className="m-0 mb-10 font-serif text-[clamp(26px,2.8vw,40px)] leading-[1.1]"
           style={{ color: 'var(--ink)' }}
         >
           {titre}
-        </h3>
+        </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[clamp(20px,2.4vw,40px)]">
           {points.map((p, i) => (
             <div

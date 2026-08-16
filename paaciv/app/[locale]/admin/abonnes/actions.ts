@@ -1,13 +1,9 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { versCsv } from '@/lib/csv'
 
-// Client authentifié (cookies de session) : la policy « newsletter_abonnes
-// all admin » exige le rôle `authenticated`. Un appel anonyme de cette action
-// (POST direct, hors UI) ne renvoie donc aucune ligne — RLS filtre en
-// silence, sans qu'il soit nécessaire de dupliquer la garde ici.
-//
 // Forme { ok, csv } plutôt qu'une simple chaîne : une erreur base (`error`
 // non nul) et une liste vide produisaient toutes deux la même chaîne vide
 // avant ce correctif — l'association ouvrait un fichier ne contenant que le
@@ -15,8 +11,19 @@ import { versCsv } from '@/lib/csv'
 // export cassé.
 export type ResultatExportAbonnes = { ok: true; csv: string } | { ok: false; erreur: 'echec' }
 
+export type ResultatAbonneAdmin = { ok: true } | { ok: false; erreur: 'echec' }
+
 export async function exporterAbonnesCsv(): Promise<ResultatExportAbonnes> {
   const sb = await createServerClient()
+  // Garde explicite : la policy « newsletter_abonnes all admin » exige déjà
+  // le rôle `authenticated`, mais s'appuyer uniquement sur RLS laisse cette
+  // action fragile à une future modification de policy — elle est invocable
+  // directement (POST hors UI), en dehors de la redirection posée par
+  // `admin/layout.tsx`.
+  const {
+    data: { user },
+  } = await sb.auth.getUser()
+  if (!user) return { ok: false, erreur: 'echec' }
   const { data, error } = await sb
     .from('newsletter_abonnes')
     .select('email, langue, created_at')
@@ -33,4 +40,23 @@ export async function exporterAbonnesCsv(): Promise<ResultatExportAbonnes> {
     })),
   )
   return { ok: true, csv }
+}
+
+// Même garde « zéro ligne affectée » que `admin/demandes/actions.ts` : un
+// DELETE bloqué par RLS ne lève pas d'erreur (clause USING filtrée à zéro
+// ligne, requête réussie), donc une session expirée laisserait croire à une
+// suppression réussie sans ce contrôle.
+export async function supprimerAbonne(id: string): Promise<ResultatAbonneAdmin> {
+  const sb = await createServerClient()
+  const { data, error } = await sb.from('newsletter_abonnes').delete().eq('id', id).select('id')
+  if (error) {
+    console.error('newsletter_abonnes delete', id, error)
+    return { ok: false, erreur: 'echec' }
+  }
+  if (!data || data.length === 0) {
+    console.error('newsletter_abonnes delete : aucune ligne affectée (id introuvable ou session expirée)', id)
+    return { ok: false, erreur: 'echec' }
+  }
+  revalidatePath('/[locale]/admin/abonnes', 'page')
+  return { ok: true }
 }

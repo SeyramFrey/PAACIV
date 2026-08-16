@@ -21,6 +21,15 @@ describe('montantOuNull', () => {
     expect(montantOuNull('1500.50')).toBe(1500.5)
   })
 
+  it('accepte les séparateurs de milliers en espace, formes naturelles en FCFA', () => {
+    expect(montantOuNull('15 000')).toBe(15000)
+    expect(montantOuNull('1 500,50')).toBe(1500.5)
+    // Espace insécable (U+00A0) et espace fine insécable (U+202F) : ce que
+    // certains claviers/OS glissent réellement dans une saisie numérique.
+    expect(montantOuNull('15 000')).toBe(15000)
+    expect(montantOuNull('1 500,50')).toBe(1500.5)
+  })
+
   it('renvoie null pour vide ou absent — un don sans montant reste valide', () => {
     expect(montantOuNull(null)).toBeNull()
     expect(montantOuNull('')).toBeNull()

@@ -30,9 +30,32 @@ export function ApercuCarte({
   const t = useTranslations('accueil')
   const conteneur = useRef<HTMLDivElement>(null)
   const [pret, setPret] = useState(false)
+  const [visible, setVisible] = useState(false)
 
+  // La carte est décorative sur la page la plus visitée du site : sans ce
+  // garde, elle s'initialise (contexte WebGL, requête réseau, chunk
+  // MapLibre-GL de 785 Ko déjà retiré du bundle initial par
+  // `ApercuCarteLoader.tsx`) que le visiteur y arrive ou non. `rootMargin:
+  // '200px'` laisse une marge d'anticipation : la carte est prête un peu
+  // avant que le conteneur n'entre réellement dans le viewport, pas
+  // seulement au pixel exact.
   useEffect(() => {
     if (!conteneur.current) return
+    const observateur = new IntersectionObserver(
+      (entrees) => {
+        if (entrees[0]?.isIntersecting) {
+          setVisible(true)
+          observateur.disconnect()
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    observateur.observe(conteneur.current)
+    return () => observateur.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!visible || !conteneur.current) return
     let annule = false
     const map = new Map({
       container: conteneur.current,
@@ -58,14 +81,34 @@ export function ApercuCarte({
     const couleurParType = types.flatMap((ty) => [ty.id, ty.couleur ?? COULEUR_DEFAUT])
 
     map.on('load', async () => {
+      // Le `try` ne couvre plus que la requête réseau (comme `CarteClient`) :
+      // il englobait auparavant aussi `addSource`/`addLayer`, si bien qu'une
+      // géométrie malformée aurait été avalée avec le même silence qu'un
+      // réseau indisponible, sans trace pour la distinguer.
+      let geojson: unknown
       try {
         const reponse = await fetch('/api/carte/points')
-        if (!reponse.ok) return
-        const geojson = await reponse.json()
-        // Le composant peut avoir démonté pendant l'attente du réseau : sans
-        // ce garde, `addSource`/`addLayer` lèveraient sur une carte détruite.
-        if (annule) return
-        map.addSource('points', { type: 'geojson', data: geojson })
+        if (!reponse.ok) {
+          console.error('carte/points', reponse.status, reponse.statusText)
+          return
+        }
+        geojson = await reponse.json()
+      } catch (erreurReseau) {
+        // Réseau indisponible ou réponse non JSON : la carte reste vide
+        // plutôt que de lever un rejet de promesse non géré.
+        console.error('carte/points réseau', erreurReseau)
+        return
+      }
+
+      // Le composant peut avoir démonté pendant l'attente du réseau : sans
+      // ce garde, `addSource`/`addLayer` lèveraient sur une carte détruite.
+      if (annule) return
+
+      try {
+        // Même conversion que `CarteClient.tsx` pour la même API : la
+        // réponse JSON est typée `unknown` par prudence (E2, revue finale),
+        // pas `any` implicite comme avant.
+        map.addSource('points', { type: 'geojson', data: geojson as unknown as GeoJSON.FeatureCollection })
         map.addLayer({
           id: 'points',
           type: 'circle',
@@ -81,9 +124,8 @@ export function ApercuCarte({
           },
         })
         setPret(true)
-      } catch {
-        // Réseau indisponible ou réponse non JSON : la carte reste vide
-        // plutôt que de lever un rejet de promesse non géré.
+      } catch (erreurGeometrie) {
+        console.error('carte/points géométrie', erreurGeometrie)
       }
     })
 
@@ -91,12 +133,12 @@ export function ApercuCarte({
       annule = true
       map.remove()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; `types` capturé par closure, il ne change pas après le rendu serveur.
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique à l'intersection ; `types` capturé par closure, il ne change pas après le rendu serveur.
+  }, [visible])
 
   return (
     <section
-      className="px-5 py-20 sm:px-8 lg:px-14 lg:py-32"
+      className="px-[clamp(20px,5vw,80px)] py-20 lg:py-32"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       <div className="mx-auto max-w-3xl text-center">
@@ -112,8 +154,11 @@ export function ApercuCarte({
         style={{ borderColor: 'color-mix(in oklab, var(--onDeep) 22%, transparent)' }}
       >
         {/* Carré strict, demandé explicitement. `aspect-square` + hauteur
-            pilotée par la largeur : MapLibre a besoin d'un conteneur mesuré. */}
-        <div ref={conteneur} className="aspect-square w-full" aria-label={t('edifices', { n: nombre })} />
+            pilotée par la largeur : MapLibre a besoin d'un conteneur mesuré.
+            Pas d'`aria-label` ici : un `<div>` sans rôle explicite l'ignore
+            selon la spécification ARIA, et il ferait de toute façon doublon
+            avec le `aria-live` du paragraphe voisin ci-dessous. */}
+        <div ref={conteneur} className="aspect-square w-full" />
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3">

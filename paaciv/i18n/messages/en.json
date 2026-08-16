@@ -203,7 +203,10 @@
   "adminAbonnes": {
     "titre": "Subscribers", "email": "Email address", "langue": "Language",
     "date": "Subscribed on", "aucun": "No subscriber yet.", "exporter": "Export as CSV",
-    "total": "{n} subscriber(s)", "erreurExport": "Export failed. Please try again."
+    "total": "{n} subscriber(s)", "erreurExport": "Export failed. Please try again.",
+    "erreurChargement": "Loading subscribers failed. Please try again.",
+    "erreurAction": "The action failed. Please try again.",
+    "supprimer": "Delete", "confirmer": "Permanently delete this subscriber?"
   },
   "adminDemandes": {
     "titre": "Requests", "type": "Type", "adhesion": "Membership", "don": "Donation",
@@ -211,7 +214,10 @@
     "telephone": "Phone", "montant": "Amount", "message": "Message",
     "date": "Received on", "statut": "Status", "nouvelle": "New",
     "traitee": "Processed", "marquerTraitee": "Mark as processed",
-    "aucune": "No request yet."
+    "aucune": "No request yet.",
+    "erreurChargement": "Loading requests failed. Please try again.",
+    "erreurAction": "The action failed. Please try again.",
+    "supprimer": "Delete", "confirmer": "Permanently delete this request?"
   },
   "archives": {
     "titre": "Archive",

@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, '.'),
+      '@': path.resolve(import.meta.dirname, '.'),
       // Next 16 ne publie plus de champ "exports" pour ses sous-chemins :
       // la résolution ESM stricte de Vite/Vitest échoue sur `next/navigation`
       // (utilisé par next-intl) faute d'extension explicite. On force le
       // fichier réel pour que les composants utilisant `@/i18n/navigation`
       // (Link, etc.) soient testables.
-      'next/navigation': path.resolve(__dirname, 'node_modules/next/navigation.js'),
+      'next/navigation': path.resolve(import.meta.dirname, 'node_modules/next/navigation.js'),
     },
   },
   test: {

@@ -37,7 +37,12 @@ export async function deposerDemande(formData: FormData): Promise<ResultatDemand
     statut: 'nouvelle',
   })
   if (error) {
-    console.error('demandes insert', error)
+    // Code + message seulement, jamais l'objet `error` entier : sur une
+    // violation de contrainte, PostgREST renseigne `details` avec les
+    // valeurs de la ligne — nom, e-mail, téléphone et montant d'un donateur
+    // réel se retrouveraient en clair dans les journaux serveur pour un
+    // diagnostic qui n'a besoin que du code et du message.
+    console.error('demandes insert', error.code, error.message)
     return { ok: false, erreur: 'echec' }
   }
   return { ok: true }
