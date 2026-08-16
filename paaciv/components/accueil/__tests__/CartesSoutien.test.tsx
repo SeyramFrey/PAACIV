@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
@@ -10,7 +11,9 @@ vi.mock('@/components/soutenir/ContexteSoutien', () => ({
   useSoutien: () => ({ ouvrir: vi.fn() }),
 }))
 
-const BASE = {
+// Annoté sur les props réelles, sinon TypeScript infère `null` comme type
+// littéral et le cas « la base fournit un titre » ne compile pas.
+const BASE: ComponentProps<typeof CartesSoutien> = {
   montant: null,
   enDangerTexte: null,
   demoliTexte: null,
@@ -18,9 +21,13 @@ const BASE = {
   donTexte: null,
   nbEnDanger: 0,
   nbDemoli: 0,
+  // Par défaut rien à substituer : les cas ci-dessous vérifient donc le repli
+  // sur le libellé du code, qui est la situation nominale tant que
+  // l'association n'a rien réécrit depuis l'admin.
+  titres: { enDanger: null, demoli: null, adhesion: null, don: null },
 }
 
-function rendre(props: Partial<typeof BASE> = {}) {
+function rendre(props: Partial<ComponentProps<typeof CartesSoutien>> = {}) {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
       <CartesSoutien {...BASE} {...props} />
@@ -80,5 +87,26 @@ describe('CartesSoutien', () => {
   it('n’affiche aucun paragraphe quand le texte n’est pas renseigné', () => {
     rendre({ nbEnDanger: 1 })
     expect(screen.queryByText(/COMPLÉTER/)).toBeNull()
+  })
+
+  // Les douze libellés passés en base sont un REMPLACEMENT FACULTATIF : la
+  // base gagne quand elle dit quelque chose…
+  it('préfère le titre venu de la base au libellé du code', () => {
+    rendre({
+      nbEnDanger: 1,
+      titres: { enDanger: 'Édifices menacés', demoli: null, adhesion: null, don: null },
+    })
+    expect(screen.getByText('Édifices menacés')).toBeTruthy()
+    expect(screen.queryByText('Patrimoine en danger')).toBeNull()
+  })
+
+  // …et le code reste le plancher garanti quand elle se tait. Sans ce repli,
+  // vider une ligne depuis l'admin laisserait une carte au titre muet.
+  it('retombe sur le libellé du code quand la base ne dit rien', () => {
+    rendre({ nbEnDanger: 1, nbDemoli: 1 })
+    expect(screen.getByText('Patrimoine en danger')).toBeTruthy()
+    expect(screen.getByText('Patrimoine démoli')).toBeTruthy()
+    expect(screen.getByText('Adhérer')).toBeTruthy()
+    expect(screen.getByText('Faire un don')).toBeTruthy()
   })
 })

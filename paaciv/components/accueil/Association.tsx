@@ -1,5 +1,5 @@
 import { getLocale } from 'next-intl/server'
-import { texte, renseigne, type Textes } from '@/lib/data/contenu-site'
+import { texte, renseigne, libelleOuNull, type Textes } from '@/lib/data/contenu-site'
 import { Compteurs } from '@/components/accueil/Compteurs'
 import { CartesSoutien } from '@/components/accueil/CartesSoutien'
 import { comptesParEtat } from '@/lib/data/accueil'
@@ -18,6 +18,9 @@ export async function Association({
   // Décidé côté SERVEUR, comme les gardes `renseigne()` ci-dessous : les deux
   // cartes d'état ne franchissent la frontière que si leur liste existe.
   const comptes = await comptesParEtat()
+  // Libellés d'interface : remplacement facultatif venu de la base, `null` si
+  // rien n'est à substituer — chaque composant retombe alors sur sa traduction.
+  const lib = (cle: string) => libelleOuNull(textes, cle, locale)
   const surtitre = texte(textes, 'association_surtitre', locale)
   const titre = texte(textes, 'association_titre', locale)
   const intro = texte(textes, 'association_texte', locale)
@@ -68,7 +71,15 @@ export async function Association({
             {intro}
           </p>
           <div data-rv="" data-d="220" className="mt-[52px]">
-            <Compteurs chiffres={chiffres} />
+            <Compteurs
+              chiffres={chiffres}
+              libelles={{
+                fiches: lib('association_chiffre_fiches'),
+                villes: lib('association_chiffre_villes'),
+                architectes: lib('association_chiffre_architectes'),
+                articles: lib('association_chiffre_articles'),
+              }}
+            />
           </div>
         </div>
 
@@ -80,6 +91,12 @@ export async function Association({
           donTexte={donTexteSur}
           nbEnDanger={comptes.en_danger ?? 0}
           nbDemoli={comptes.demoli ?? 0}
+          titres={{
+            enDanger: lib('soutien_en_danger_titre'),
+            demoli: lib('soutien_demoli_titre'),
+            adhesion: lib('soutien_adhesion_titre'),
+            don: lib('soutien_don_titre'),
+          }}
         />
       </div>
     </section>

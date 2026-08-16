@@ -10,7 +10,7 @@ type LigneContenu = { cle: string; valeur_fr: string | null; valeur_en: string |
 // d'accueil (spec Task 15, step 6). Une clé qui ne correspond à aucun de ces
 // préfixes atterrit dans un groupe « autre » plutôt que de disparaître.
 const GROUPES: readonly string[] = [
-  'hero', 'association', 'travail', 'pourquoi', 'activites', 'carte', 'raisons',
+  'hero', 'film', 'association', 'travail', 'pourquoi', 'activites', 'carte', 'raisons',
   'agenda', 'parallaxe', 'archive', 'temoignages', 'journal', 'newsletter',
   'footer', 'soutien',
 ]

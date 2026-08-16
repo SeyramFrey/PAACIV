@@ -163,7 +163,8 @@
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
     "aCompleter": "Cette valeur est encore un marqueur À COMPLÉTER.",
     "groupes": {
-      "hero": "Hero", "association": "L'association", "travail": "Notre travail",
+      "hero": "Hero",
+      "film": "Film", "association": "L'association", "travail": "Notre travail",
       "pourquoi": "Pourquoi nous suivre", "activites": "Nos activités", "carte": "Le territoire",
       "raisons": "Raisons de regarder", "agenda": "Agenda", "parallaxe": "Parallaxe",
       "archive": "Archive photographique", "temoignages": "Témoignages", "journal": "Journal",

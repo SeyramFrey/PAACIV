@@ -2,10 +2,13 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { listeReportages, miniatureReportage } from '@/lib/data/reportages'
 import { champ } from '@/lib/i18n-champ'
+import { libelleOuNull, type Textes } from '@/lib/data/contenu-site'
 
-export async function CarteFilm() {
+export async function CarteFilm({ textes }: { textes: Textes }) {
   const t = await getTranslations('accueil')
   const locale = await getLocale()
+  // Remplacement facultatif : le libellé du code reste le plancher garanti.
+  const libelleFilm = libelleOuNull(textes, 'film_libelle', locale) ?? t('film')
   const [dernier] = await listeReportages()
   // Aucun reportage publié : la carte disparaît plutôt que d'afficher un
   // cadre vide qui déséquilibrerait le raccord hero / bandeau.
@@ -67,7 +70,7 @@ export async function CarteFilm() {
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-[0.22em]" style={{ color: 'var(--soft)' }}>
-            {t('film')}
+            {libelleFilm}
           </p>
           <p className="font-serif text-xl" style={{ color: 'var(--ink)' }}>
             {titre}

@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { texte, type Textes } from '@/lib/data/contenu-site'
+import { texte, libelleOuNull, type Textes } from '@/lib/data/contenu-site'
 import { champ } from '@/lib/i18n-champ'
 import type { PointCle } from '@/lib/data/accueil'
 
@@ -51,6 +51,8 @@ export async function CinqRaisons({ points, textes }: { points: PointCle[]; text
   const t = await getTranslations('accueil')
   const surtitre = texte(textes, 'raisons_surtitre', locale)
   const titre = texte(textes, 'raisons_titre', locale)
+  // Remplacement facultatif : le libellé du code reste le plancher garanti.
+  const cta = libelleOuNull(textes, 'raisons_cta', locale) ?? t('voirProgramme')
 
   return (
     <section
@@ -139,7 +141,7 @@ export async function CinqRaisons({ points, textes }: { points: PointCle[]; text
             data-rv=""
             className="rounded-[2px] border border-[var(--accent)] px-[42px] py-[18px] text-[11px] font-semibold uppercase leading-none tracking-[0.24em] text-[var(--accent)] transition-colors duration-[0.45s] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)]"
           >
-            {t('voirProgramme')}
+            {cta}
           </Link>
         </div>
       </div>

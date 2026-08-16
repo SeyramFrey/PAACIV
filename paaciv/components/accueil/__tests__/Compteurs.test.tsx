@@ -7,7 +7,10 @@ import { Compteurs } from '@/components/accueil/Compteurs'
 function monter() {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <Compteurs chiffres={{ fiches: 8, villes: 5, architectes: 7, articles: 6 }} />
+      <Compteurs
+        chiffres={{ fiches: 8, villes: 5, architectes: 7, articles: 6 }}
+        libelles={{ fiches: null, villes: null, architectes: null, articles: null }}
+      />
     </NextIntlClientProvider>,
   )
 }

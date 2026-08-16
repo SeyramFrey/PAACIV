@@ -33,3 +33,20 @@ export function texte(textes: Textes, cle: string, locale: string): string {
 export function renseigne(valeur: string): boolean {
   return valeur.length > 0 && !valeur.startsWith('À COMPLÉTER')
 }
+
+/**
+ * Libellé d'interface éditable depuis l'admin, ou `null` s'il n'y a rien à
+ * substituer — l'appelant retombe alors sur sa traduction i18n.
+ *
+ * Différence de nature avec `texte()`, et raison d'être de cette fonction : un
+ * paragraphe absent laisse un trou acceptable dans la page, alors qu'un
+ * LIBELLÉ absent laisse un bouton muet. La base est donc un remplacement
+ * facultatif posé AU-DESSUS du libellé du code, jamais son remplaçant : si la
+ * ligne est vidée, supprimée, ou encore marquée « À COMPLÉTER », l'interface
+ * reste intacte et bilingue. C'est aussi ce qui permet d'ajouter une clé au
+ * seed sans jamais synchroniser un déploiement avec une migration.
+ */
+export function libelleOuNull(textes: Textes, cle: string, locale: string): string | null {
+  const v = texte(textes, cle, locale)
+  return renseigne(v) ? v : null
+}

@@ -13,10 +13,15 @@ export function Hero({
   vedettes,
   titre,
   intro,
+  accroche,
 }: {
   vedettes: VedetteHero[]
   titre: string
   intro: string
+  // `null` : rien à substituer en base — on retombe sur le libellé du code.
+  // Un paragraphe absent laisse un trou acceptable ; un libellé absent
+  // laisserait un texte muet, d'où ce plancher garanti.
+  accroche: string | null
 }) {
   const t = useTranslations('accueil')
   const locale = useLocale()
@@ -154,7 +159,7 @@ export function Hero({
             className="mb-[22px] text-[11px] font-medium uppercase tracking-[0.3em]"
             style={{ color: 'var(--accent)', animation: 'drop 1s .2s both cubic-bezier(.16,1,.3,1)' }}
           >
-            {t('accroche')}
+            {accroche ?? t('accroche')}
           </p>
           {/* `min(8.4vw, 10.5vh)` : la taille de la maquette est purement
               horizontale, or ce titre occupe un hero haut de `100svh`. Sur un

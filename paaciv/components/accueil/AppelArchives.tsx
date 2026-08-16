@@ -16,7 +16,14 @@ import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 //    `var(--veil)`. Deux blocs voisins n'ont pas forcément le même filet
 //    (piège relevé à la Task 11) ; on reprend donc la valeur littérale de la
 //    maquette plutôt que le token.
-export function AppelArchives({ texte }: { texte: string }) {
+export function AppelArchives({
+  texte,
+  cta,
+}: {
+  texte: string
+  // `null` : rien à substituer en base — on retombe sur le libellé du code.
+  cta: string | null
+}) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
 
@@ -74,7 +81,7 @@ export function AppelArchives({ texte }: { texte: string }) {
           data-d="120"
           className="mt-8 inline-block rounded-full bg-[var(--terra)] px-[34px] py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[oklch(0.98_0.01_84)] transition-[translate,background-color,color] duration-[0.4s] hover:-translate-y-[3px] hover:bg-[var(--accent)] hover:text-[oklch(0.16_0.02_48)]"
         >
-          {t('confierArchive')}
+          {cta ?? t('confierArchive')}
         </button>
       </div>
     </section>

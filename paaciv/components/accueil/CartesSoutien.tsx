@@ -107,6 +107,7 @@ export function CartesSoutien({
   donTexte,
   nbEnDanger,
   nbDemoli,
+  titres,
 }: {
   // `null` : rien à afficher — déjà filtré côté serveur par `Association.tsx`
   // (une valeur absente ou encore « À COMPLÉTER » ne franchit jamais la
@@ -123,6 +124,10 @@ export function CartesSoutien({
   // deux réapparaissent d'elles-mêmes dès qu'une fiche est classée en admin.
   nbEnDanger: number
   nbDemoli: number
+  // Titres des quatre cartes, éditables depuis l'admin. Chaque entrée à `null`
+  // retombe sur le libellé du code : une carte sans titre serait une image
+  // muette dont on ne saurait pas où elle mène.
+  titres: Record<'enDanger' | 'demoli' | 'adhesion' | 'don', string | null>
 }) {
   const t = useTranslations('accueil')
   const { ouvrir } = useSoutien()
@@ -153,7 +158,7 @@ export function CartesSoutien({
       href: { pathname: '/archives', query: { etat: 'en_danger' } } as const,
       image:
         "https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900",
-      titre: t('enDanger'),
+      titre: titres.enDanger ?? t('enDanger'),
       texte: enDangerTexte,
       libelle: t('voir'),
     },
@@ -162,7 +167,7 @@ export function CartesSoutien({
       href: { pathname: '/archives', query: { etat: 'demoli' } } as const,
       // Sans photographie : voir le commentaire sur `image` dans `Carte`.
       image: undefined,
-      titre: t('demoli'),
+      titre: titres.demoli ?? t('demoli'),
       texte: demoliTexte,
       libelle: t('voir'),
     },
@@ -171,7 +176,7 @@ export function CartesSoutien({
       onClick: () => ouvrir('adhesion'),
       image:
         "https://commons.wikimedia.org/wiki/Special:FilePath/WikiConvFr23%20en%20Cote%20d'Ivoire%20visite%20B%C3%A2timents%20sites%20historiques%20de%20Grand-Bassam%2002.jpg?width=900",
-      titre: t('adherer'),
+      titre: titres.adhesion ?? t('adherer'),
       texte: texteAdhesion,
       libelle: t('rejoindre'),
     },
@@ -180,7 +185,7 @@ export function CartesSoutien({
       onClick: () => ouvrir('don'),
       image:
         'https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900',
-      titre: t('don'),
+      titre: titres.don ?? t('don'),
       texte: donTexte,
       libelle: t('donner'),
     },

@@ -4,13 +4,22 @@ import type { Chiffres } from '@/lib/data/accueil'
 // Server Component : la valeur part à 0 dans le HTML et c'est Revelations
 // (Task 2) qui l'anime jusqu'à `data-count` à l'entrée dans le viewport.
 // Aucun JavaScript n'est expédié pour ce bloc.
-export function Compteurs({ chiffres }: { chiffres: Chiffres }) {
+export function Compteurs({
+  chiffres,
+  libelles,
+}: {
+  chiffres: Chiffres
+  // Chaque entrée à `null` : rien à substituer en base — on retombe sur le
+  // libellé du code, qui reste le plancher garanti. Un intitulé de chiffre clé
+  // vidé laisserait un nombre nu, sans dire de quoi.
+  libelles: Record<keyof Chiffres, string | null>
+}) {
   const t = useTranslations('accueil')
   const lignes = [
-    { valeur: chiffres.fiches, libelle: t('chiffreFiches') },
-    { valeur: chiffres.villes, libelle: t('chiffreVilles') },
-    { valeur: chiffres.architectes, libelle: t('chiffreArchitectes') },
-    { valeur: chiffres.articles, libelle: t('chiffreArticles') },
+    { valeur: chiffres.fiches, libelle: libelles.fiches ?? t('chiffreFiches') },
+    { valeur: chiffres.villes, libelle: libelles.villes ?? t('chiffreVilles') },
+    { valeur: chiffres.architectes, libelle: libelles.architectes ?? t('chiffreArchitectes') },
+    { valeur: chiffres.articles, libelle: libelles.articles ?? t('chiffreArticles') },
   ]
 
   return (

@@ -163,7 +163,8 @@
     "erreurEnregistrement": "Saving failed. Please try again.",
     "aCompleter": "This value is still a TO COMPLETE placeholder.",
     "groupes": {
-      "hero": "Hero", "association": "The association", "travail": "Our work",
+      "hero": "Hero",
+      "film": "Film", "association": "The association", "travail": "Our work",
       "pourquoi": "Why follow us", "activites": "Our activities", "carte": "The territory",
       "raisons": "Reasons to look closer", "agenda": "Calendar", "parallaxe": "Parallax",
       "archive": "Photographic archive", "temoignages": "Testimonials", "journal": "Journal",

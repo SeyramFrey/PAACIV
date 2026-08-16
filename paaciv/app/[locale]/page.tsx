@@ -1,5 +1,5 @@
 import { setRequestLocale } from 'next-intl/server'
-import { chargerTextes, texte } from '@/lib/data/contenu-site'
+import { chargerTextes, texte, libelleOuNull } from '@/lib/data/contenu-site'
 import {
   chiffresCles, listeActivites, listePointsCles, listeTemoignages, listeTypes,
   vedettesHero, vignettesArchive, villesArchive,
@@ -54,11 +54,19 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
 
   const { aVenir } = partitionnerEvenements(evenements, new Date())
   const tx = (cle: string) => texte(textes, cle, locale)
+  // Libellés d'interface : remplacement facultatif venu de la base, `null`
+  // si rien n'est à substituer — le composant retombe sur sa traduction.
+  const lib = (cle: string) => libelleOuNull(textes, cle, locale)
 
   return (
     <main className="flex-1">
-      <Hero vedettes={vedettes} titre={tx('hero_titre')} intro={tx('hero_intro')} />
-      <CarteFilm />
+      <Hero
+        vedettes={vedettes}
+        titre={tx('hero_titre')}
+        intro={tx('hero_intro')}
+        accroche={lib('hero_accroche')}
+      />
+      <CarteFilm textes={textes} />
       <BandeauVilles villes={villes} />
       <Association textes={textes} chiffres={chiffres} montant={tx('soutien_adhesion_montant')} />
       <NotreTravail textes={textes} />
@@ -78,7 +86,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
       />
       <CinqRaisons points={raisons} textes={textes} />
       <Agenda evenements={aVenir.slice(0, 4)} textes={textes} />
-      <AppelArchives texte={tx('parallaxe_texte')} />
+      <AppelArchives texte={tx('parallaxe_texte')} cta={lib('parallaxe_cta')} />
       <GrilleArchive
         vignettes={vignettes}
         types={types}

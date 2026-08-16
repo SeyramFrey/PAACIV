@@ -37,7 +37,7 @@ const VEDETTES: VedetteHero[] = [
 function monter(vedettes = VEDETTES) {
   return render(
     <NextIntlClientProvider locale="fr" messages={messages}>
-      <Hero vedettes={vedettes} titre="Ce qui tient debout" intro="Nous documentons." />
+      <Hero vedettes={vedettes} titre="Ce qui tient debout" intro="Nous documentons." accroche={null} />
     </NextIntlClientProvider>,
   )
 }
