@@ -13,9 +13,13 @@ setup('authentifier l\'admin', async ({ page }) => {
   ).toBeTruthy()
 
   await page.goto('/fr/login')
-  await page.getByLabel('Adresse e-mail').fill(email!)
-  await page.getByLabel('Mot de passe').fill(motDePasse!)
-  await page.getByRole('button', { name: 'Se connecter' }).click()
+  // Scopé à <main> : depuis la Task 9, les trois modales de soutien sont
+  // montées globalement (fermées mais présentes dans le DOM) en dehors de
+  // <main>, et portent elles aussi un champ « Adresse e-mail ».
+  const main = page.getByRole('main')
+  await main.getByLabel('Adresse e-mail').fill(email!)
+  await main.getByLabel('Mot de passe').fill(motDePasse!)
+  await main.getByRole('button', { name: 'Se connecter' }).click()
   await page.waitForURL(/\/fr\/admin/)
 
   fs.mkdirSync(path.dirname(fichier), { recursive: true })

@@ -10,17 +10,21 @@ export type ReportageListItem = {
   titre_en: string | null
   video_url: string
   date: string
+  description_fr: string | null
+  description_en: string | null
 }
 
 export type ReportageDetail = ReportageListItem & {
-  description_fr: string | null
-  description_en: string | null
   patrimoine: PatrimoineLie | null
 }
 
-const SELECT_LISTE = 'id, slug, titre_fr, titre_en, video_url, date'
+// La description est sélectionnée ici (et non ajoutée à part dans
+// `SELECT_DETAIL`) : la carte « Film » de l'accueil (Task 10) affiche le
+// dernier reportage via `listeReportages()`, pas `getReportageParSlug()`, et
+// a besoin de ce résumé sans requête supplémentaire.
+const SELECT_LISTE = 'id, slug, titre_fr, titre_en, video_url, date, description_fr, description_en'
 
-const SELECT_DETAIL = `${SELECT_LISTE}, description_fr, description_en, patrimoine:patrimoine(slug, titre_fr, titre_en, statut)`
+const SELECT_DETAIL = `${SELECT_LISTE}, patrimoine:patrimoine(slug, titre_fr, titre_en, statut)`
 
 export async function listeReportages(): Promise<ReportageListItem[]> {
   const sb = createReadClient()
@@ -43,8 +47,6 @@ export function miniatureReportage(videoUrl: string): string | null {
 }
 
 type ReportageDetailRow = ReportageListItem & {
-  description_fr: string | null
-  description_en: string | null
   patrimoine: PatrimoineLieRow
 }
 

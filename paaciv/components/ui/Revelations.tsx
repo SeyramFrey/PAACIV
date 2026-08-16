@@ -127,9 +127,12 @@ export function Revelations() {
     }
 
     // Barre de progression + parallaxe, sur un seul écouteur de scroll
-    // throttlé par requestAnimationFrame. Installé inconditionnellement,
-    // y compris sous mouvement réduit : une barre de position de lecture
-    // n'est pas une animation, seules les révélations le sont.
+    // throttlé par requestAnimationFrame. La barre reste installée
+    // inconditionnellement, y compris sous mouvement réduit : une barre de
+    // position de lecture n'est pas une animation. La parallaxe, elle, en
+    // est une — `globals.css` neutralise `data-rv`/`data-clip`/`data-line`/
+    // `data-mq`/`data-floaty` sous `prefers-reduced-motion`, mais pas
+    // `data-par` : c'est ici, à la source, qu'elle est coupée.
     const barre = document.querySelector<HTMLElement>('[data-prog]')
     const parallaxes = Array.from(document.querySelectorAll<HTMLElement>('[data-par]'))
     let enAttente = false
@@ -141,12 +144,23 @@ export function Revelations() {
         const y = window.scrollY
         const h = document.body.scrollHeight - window.innerHeight
         if (barre) barre.style.width = `${Math.min(100, (y / Math.max(h, 1)) * 100)}%`
-        parallaxes.forEach((el) => {
-          const facteur = Number(el.getAttribute('data-par') ?? '0')
-          const r = el.getBoundingClientRect()
-          const centre = r.top + r.height / 2 - window.innerHeight / 2
-          el.style.transform = `translate3d(0, ${(-centre * facteur).toFixed(1)}px, 0)`
-        })
+        if (mouvement) {
+          parallaxes.forEach((el) => {
+            const facteur = Number(el.getAttribute('data-par') ?? '0')
+            const r = el.getBoundingClientRect()
+            const centre = r.top + r.height / 2 - window.innerHeight / 2
+            // `style.translate`, PAS `style.transform` : l'ordre de
+            // composition CSS est translate → rotate → scale → transform.
+            // `rotate-45` de Tailwind compile en propriété `rotate`
+            // indépendante (ex. les losanges de CinqRaisons) ; un
+            // `translate3d` écrit dans `transform` s'appliquerait alors DANS
+            // l'espace déjà tourné, faisant dériver la translation en
+            // diagonale au lieu de verticalement. `translate` est une
+            // propriété indépendante elle aussi : elle compose correctement
+            // avec `rotate` sans jamais l'écraser.
+            el.style.translate = `0 ${(-centre * facteur).toFixed(1)}px`
+          })
+        }
         enAttente = false
       })
     }

@@ -10,7 +10,7 @@ export default async function CartePage({ params }: { params: Promise<{ locale: 
   const options = await chargerReferences()
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 pt-20">
       <Container className="py-6">
         <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
       </Container>

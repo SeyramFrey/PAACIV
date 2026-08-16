@@ -7,6 +7,11 @@ loadEnvConfig(process.cwd())
 
 export default defineConfig({
   testDir: './tests',
+  // Les tests écrivent dans les tables de collecte de PRODUCTION ; le couple
+  // setup/teardown borne l'exécution dans le temps puis supprime les seules
+  // lignes qu'elle a insérées. Voir `tests/global-teardown.ts`.
+  globalSetup: './tests/global-setup.ts',
+  globalTeardown: './tests/global-teardown.ts',
   // `next dev` sous la parallélisation par défaut de Playwright déclenche des
   // 500/erreurs JSON intermittentes (recompilations concurrentes). On pince
   // le nombre de workers pour une suite fiable en une seule passe.

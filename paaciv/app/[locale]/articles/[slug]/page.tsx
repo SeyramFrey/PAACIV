@@ -52,7 +52,7 @@ export default async function FicheArticle({ params }: Props) {
   const categorie = a.categorie ? champ(a.categorie.nom_fr, a.categorie.nom_en, locale) : null
 
   return (
-    <main className="flex-1 py-10">
+    <main className="flex-1 pt-20 py-10">
       <Container className="mx-auto max-w-3xl space-y-6">
         <Link href="/articles" className="text-sm text-brun underline">
           {t('retour')}

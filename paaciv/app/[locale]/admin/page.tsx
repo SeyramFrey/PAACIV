@@ -9,6 +9,12 @@ export default async function AdminDashboard() {
   const tArticles = await getTranslations('adminArticles')
   const tReportages = await getTranslations('adminReportages')
   const tEvenements = await getTranslations('adminEvenements')
+  const tContenu = await getTranslations('adminContenu')
+  const tPointsCles = await getTranslations('adminPointsCles')
+  const tActivites = await getTranslations('adminActivites')
+  const tTemoignages = await getTranslations('adminTemoignages')
+  const tAbonnes = await getTranslations('adminAbonnes')
+  const tDemandes = await getTranslations('adminDemandes')
 
   return (
     <div className="space-y-6">
@@ -32,6 +38,24 @@ export default async function AdminDashboard() {
         </Link>
         <Link href="/admin/evenements" className="text-brun underline">
           {tEvenements('titre')}
+        </Link>
+        <Link href="/admin/contenu" className="text-brun underline">
+          {tContenu('titre')}
+        </Link>
+        <Link href="/admin/points-cles" className="text-brun underline">
+          {tPointsCles('titre')}
+        </Link>
+        <Link href="/admin/activites" className="text-brun underline">
+          {tActivites('titre')}
+        </Link>
+        <Link href="/admin/temoignages" className="text-brun underline">
+          {tTemoignages('titre')}
+        </Link>
+        <Link href="/admin/abonnes" className="text-brun underline">
+          {tAbonnes('titre')}
+        </Link>
+        <Link href="/admin/demandes" className="text-brun underline">
+          {tDemandes('titre')}
         </Link>
       </div>
     </div>
