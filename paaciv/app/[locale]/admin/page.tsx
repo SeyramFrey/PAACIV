@@ -19,42 +19,42 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
+        <h1 className="font-serif text-3xl text-ocre">{t('titre')}</h1>
         <LogoutButton />
       </div>
-      <p className="text-encre/80">{t('bienvenue')}</p>
+      <p className="text-doux">{t('bienvenue')}</p>
       <div className="flex flex-col gap-2">
-        <Link href="/admin/patrimoine" className="text-brun underline">
+        <Link href="/admin/patrimoine" className="text-ocre underline">
           {tPatrimoine('titre')}
         </Link>
-        <Link href="/admin/architectes" className="text-brun underline">
+        <Link href="/admin/architectes" className="text-ocre underline">
           {tArchitectes('titre')}
         </Link>
-        <Link href="/admin/articles" className="text-brun underline">
+        <Link href="/admin/articles" className="text-ocre underline">
           {tArticles('titre')}
         </Link>
-        <Link href="/admin/reportages" className="text-brun underline">
+        <Link href="/admin/reportages" className="text-ocre underline">
           {tReportages('titre')}
         </Link>
-        <Link href="/admin/evenements" className="text-brun underline">
+        <Link href="/admin/evenements" className="text-ocre underline">
           {tEvenements('titre')}
         </Link>
-        <Link href="/admin/contenu" className="text-brun underline">
+        <Link href="/admin/contenu" className="text-ocre underline">
           {tContenu('titre')}
         </Link>
-        <Link href="/admin/points-cles" className="text-brun underline">
+        <Link href="/admin/points-cles" className="text-ocre underline">
           {tPointsCles('titre')}
         </Link>
-        <Link href="/admin/activites" className="text-brun underline">
+        <Link href="/admin/activites" className="text-ocre underline">
           {tActivites('titre')}
         </Link>
-        <Link href="/admin/temoignages" className="text-brun underline">
+        <Link href="/admin/temoignages" className="text-ocre underline">
           {tTemoignages('titre')}
         </Link>
-        <Link href="/admin/abonnes" className="text-brun underline">
+        <Link href="/admin/abonnes" className="text-ocre underline">
           {tAbonnes('titre')}
         </Link>
-        <Link href="/admin/demandes" className="text-brun underline">
+        <Link href="/admin/demandes" className="text-ocre underline">
           {tDemandes('titre')}
         </Link>
       </div>

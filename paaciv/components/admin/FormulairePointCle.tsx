@@ -54,7 +54,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
         name={name}
         aria-label={label}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -67,7 +67,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
         aria-label={label}
         rows={3}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -82,7 +82,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
           name="bloc"
           defaultValue={initial?.bloc ?? 'pourquoi'}
           aria-label={t('bloc')}
-          className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="pourquoi">{t('pourquoi')}</option>
           <option value="raisons">{t('raisons')}</option>
@@ -93,14 +93,14 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
         <button
           type="button"
           onClick={() => setOnglet('fr')}
-          className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletFr')}
         </button>
         <button
           type="button"
           onClick={() => setOnglet('en')}
-          className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletEn')}
         </button>
@@ -123,7 +123,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
             type="number"
             aria-label={t('ordre')}
             defaultValue={initial?.ordre ?? 0}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
         <label className="flex flex-col text-sm">
@@ -132,7 +132,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
             name="statut"
             defaultValue={initial?.statut ?? 'brouillon'}
             aria-label={t('statut')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           >
             <option value="brouillon">{t('brouillon')}</option>
             <option value="publie">{t('publie')}</option>
@@ -141,7 +141,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
       </div>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

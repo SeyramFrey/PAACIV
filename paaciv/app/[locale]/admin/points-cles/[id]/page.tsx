@@ -14,7 +14,7 @@ export default async function EditerPointCle({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(p as PointCleAdmin).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(p as PointCleAdmin).titre_fr}</h1>
       <FormulairePointCle initial={p as PointCleAdmin} />
     </div>
   )

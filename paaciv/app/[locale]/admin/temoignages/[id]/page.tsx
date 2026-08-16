@@ -14,7 +14,7 @@ export default async function EditerTemoignage({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(tm as TemoignageAdmin).nom}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(tm as TemoignageAdmin).nom}</h1>
       <FormulaireTemoignage initial={tm as TemoignageAdmin} />
     </div>
   )

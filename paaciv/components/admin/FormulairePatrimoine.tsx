@@ -71,7 +71,7 @@ export function FormulairePatrimoine({
         type={type}
         aria-label={ariaLabel}
         defaultValue={(initial as Record<string, unknown> | undefined)?.[name] as string | undefined ?? ''}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -79,7 +79,7 @@ export function FormulairePatrimoine({
   const selectRef = (name: string, label: string, refs: Ref[], val?: string | null) => (
     <label className="flex flex-col text-sm">
       <span className="mb-1 font-semibold">{label}</span>
-      <select name={name} defaultValue={val ?? ''} className="rounded-xl border border-encre/20 bg-white px-3 py-2">
+      <select name={name} defaultValue={val ?? ''} className="rounded-xl border border-filet bg-fond px-3 py-2">
         <option value="">{t('choisir')}</option>
         {refs.map((r) => (
           <option key={r.id} value={r.id}>
@@ -96,10 +96,10 @@ export function FormulairePatrimoine({
 
       {/* Onglets FR / EN */}
       <div className="flex gap-2">
-        <button type="button" onClick={() => setOnglet('fr')} className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}>
+        <button type="button" onClick={() => setOnglet('fr')} className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}>
           {t('ongletFr')}
         </button>
-        <button type="button" onClick={() => setOnglet('en')} className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}>
+        <button type="button" onClick={() => setOnglet('en')} className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}>
           {t('ongletEn')}
         </button>
       </div>
@@ -168,11 +168,11 @@ export function FormulairePatrimoine({
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm">
             lat
-            <input name="lat" aria-label="lat" type="number" min={-90} max={90} step="any" value={lat} onChange={(e) => setLat(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
+            <input name="lat" aria-label="lat" type="number" min={-90} max={90} step="any" value={lat} onChange={(e) => setLat(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-filet px-2 py-1" />
           </label>
           <label className="flex items-center gap-2 text-sm">
             lng
-            <input name="lng" aria-label="lng" type="number" min={-180} max={180} step="any" value={lng} onChange={(e) => setLng(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-encre/20 px-2 py-1" />
+            <input name="lng" aria-label="lng" type="number" min={-180} max={180} step="any" value={lng} onChange={(e) => setLng(e.target.value === '' ? '' : Number(e.target.value))} className="w-32 rounded border border-filet px-2 py-1" />
           </label>
         </div>
       </div>
@@ -185,7 +185,7 @@ export function FormulairePatrimoine({
           name="statut"
           defaultValue={initial?.statut ?? 'brouillon'}
           aria-label={t('statut')}
-          className="w-48 rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="w-48 rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="brouillon">{t('brouillon')}</option>
           <option value="publie">{t('publie')}</option>
@@ -193,7 +193,7 @@ export function FormulairePatrimoine({
       </label>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

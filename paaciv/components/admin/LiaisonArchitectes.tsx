@@ -38,7 +38,7 @@ export function LiaisonArchitectes({
           <div
             key={a.id}
             data-testid="liaison-architecte"
-            className="flex items-center gap-2 rounded-lg border border-encre/15 p-2 text-sm"
+            className="flex items-center gap-2 rounded-lg border border-filet p-2 text-sm"
           >
             <input
               type="checkbox"
@@ -54,7 +54,7 @@ export function LiaisonArchitectes({
                 value={roles[a.id] ?? ''}
                 onChange={(e) => setRoles((r) => ({ ...r, [a.id]: e.target.value }))}
                 aria-label={t('roleAria', { nom: a.nom })}
-                className="rounded border border-encre/20 px-2 py-1 text-xs"
+                className="rounded border border-filet px-2 py-1 text-xs"
               >
                 <option value="">{t('aucunRole')}</option>
                 {ROLES.map((r) => (

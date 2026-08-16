@@ -71,7 +71,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
         type={type}
         aria-label={label}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -85,14 +85,14 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
         <button
           type="button"
           onClick={() => setOnglet('fr')}
-          className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletFr')}
         </button>
         <button
           type="button"
           onClick={() => setOnglet('en')}
-          className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletEn')}
         </button>
@@ -126,7 +126,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
             type="date"
             aria-label={t('dateDebut')}
             defaultValue={valeurInitiale('date_debut')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
         <label className="flex flex-col text-sm">
@@ -136,7 +136,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
             type="date"
             aria-label={t('dateFin')}
             defaultValue={valeurInitiale('date_fin')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
       </div>
@@ -159,7 +159,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
           name="statut"
           defaultValue={initial?.statut ?? 'brouillon'}
           aria-label={t('statut')}
-          className="w-48 rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="w-48 rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="brouillon">{t('brouillon')}</option>
           <option value="publie">{t('publie')}</option>
@@ -167,7 +167,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
       </label>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

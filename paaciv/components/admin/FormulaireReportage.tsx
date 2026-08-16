@@ -90,7 +90,7 @@ export function FormulaireReportage({
         type={type}
         aria-label={label}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -106,14 +106,14 @@ export function FormulaireReportage({
         <button
           type="button"
           onClick={() => setOnglet('fr')}
-          className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletFr')}
         </button>
         <button
           type="button"
           onClick={() => setOnglet('en')}
-          className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletEn')}
         </button>
@@ -143,7 +143,7 @@ export function FormulaireReportage({
             type="date"
             aria-label={t('date')}
             defaultValue={valeurInitiale('date')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
       </div>
@@ -158,7 +158,7 @@ export function FormulaireReportage({
             aria-label={t('video_url')}
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
         {videoUrl.trim() !== '' &&
@@ -171,7 +171,7 @@ export function FormulaireReportage({
               className="h-24 w-40 rounded-xl object-cover"
             />
           ) : (
-            <p data-testid="url-invalide" className="text-sm text-terracotta">
+            <p data-testid="url-invalide" className="text-sm text-danger">
               {t('urlInvalide')}
             </p>
           ))}
@@ -183,7 +183,7 @@ export function FormulaireReportage({
           name="patrimoine_id"
           defaultValue={initial?.patrimoine_id ?? ''}
           aria-label={t('patrimoine')}
-          className="w-full max-w-md rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="w-full max-w-md rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="">{t('choisir')}</option>
           {patrimoines.map((p) => (
@@ -200,7 +200,7 @@ export function FormulaireReportage({
           name="statut"
           defaultValue={initial?.statut ?? 'brouillon'}
           aria-label={t('statut')}
-          className="w-48 rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="w-48 rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="brouillon">{t('brouillon')}</option>
           <option value="publie">{t('publie')}</option>
@@ -208,7 +208,7 @@ export function FormulaireReportage({
       </label>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

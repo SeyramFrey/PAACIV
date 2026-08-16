@@ -52,14 +52,14 @@ export default async function AdminDemandes({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{t('titre')}</h1>
 
       <div className="flex gap-4 text-sm">
         {onglets.map((o) => (
           <Link
             key={o.label}
             href={o.valeur ? `/admin/demandes?type=${o.valeur}` : '/admin/demandes'}
-            className={filtreType === o.valeur ? 'font-bold text-brun' : 'text-encre/60 underline'}
+            className={filtreType === o.valeur ? 'font-bold text-ocre' : 'text-doux underline'}
           >
             {o.label}
           </Link>
@@ -67,14 +67,14 @@ export default async function AdminDemandes({
       </div>
 
       {error ? (
-        <p role="alert" className="text-terracotta">
+        <p role="alert" className="text-danger">
           {t('erreurChargement')}
         </p>
       ) : items.length === 0 ? (
-        <p className="text-encre/70">{t('aucune')}</p>
+        <p className="text-doux">{t('aucune')}</p>
       ) : (
         <table className="w-full text-left text-sm">
-          <thead className="text-xs uppercase text-encre/50">
+          <thead className="text-xs uppercase text-doux">
             <tr>
               <th className="py-2">{t('type')}</th>
               <th className="py-2">{t('nom')}</th>
@@ -89,7 +89,7 @@ export default async function AdminDemandes({
           </thead>
           <tbody>
             {items.map((d) => (
-              <tr key={d.id} className="border-t border-creme2 align-top">
+              <tr key={d.id} className="border-t border-filet align-top">
                 <td className="py-2">{t(d.type)}</td>
                 <td className="py-2">{d.nom}</td>
                 <td className="py-2">{d.email}</td>
@@ -100,7 +100,7 @@ export default async function AdminDemandes({
                 <td className="py-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
-                      d.statut === 'traitee' ? 'bg-vert text-sable' : 'bg-creme2 text-encre'
+                      d.statut === 'traitee' ? 'bg-vert text-sable' : 'bg-fond2 text-encre-t'
                     }`}
                   >
                     {d.statut === 'traitee' ? t('traitee') : t('nouvelle')}
@@ -120,7 +120,7 @@ export default async function AdminDemandes({
                     action={supprimerDemande.bind(null, d.id)}
                     message={t('confirmer')}
                     erreurLabel={t('erreurAction')}
-                    className="text-terracotta underline"
+                    className="text-danger underline"
                   >
                     {t('supprimer')}
                   </FormSupprimerAction>

@@ -14,7 +14,7 @@ export default async function EditerArchitecte({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(a as ArchitecteAdmin).nom}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(a as ArchitecteAdmin).nom}</h1>
       <FormulaireArchitecte initial={a as ArchitecteAdmin} />
     </div>
   )

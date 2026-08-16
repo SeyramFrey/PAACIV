@@ -31,7 +31,7 @@ export default async function EditerPatrimoine({
 
   return (
     <div className="space-y-10">
-      <h1 className="font-serif text-3xl text-brun">{(p as PatrimoineDetail).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(p as PatrimoineDetail).titre_fr}</h1>
       <FormulairePatrimoine
         options={opts}
         initial={p as PatrimoineDetail}

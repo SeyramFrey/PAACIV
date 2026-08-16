@@ -18,7 +18,7 @@ export default async function EditerArticle({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(a as ArticleAdmin).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(a as ArticleAdmin).titre_fr}</h1>
       <FormulaireArticle
         initial={a as ArticleAdmin}
         categories={categories ?? []}

@@ -39,7 +39,7 @@ export function BoutonExporterAbonnes() {
         {t('exporter')}
       </Button>
       {erreur && (
-        <span role="alert" className="text-xs font-semibold text-terracotta">
+        <span role="alert" className="text-xs font-semibold text-danger">
           {t('erreurExport')}
         </span>
       )}

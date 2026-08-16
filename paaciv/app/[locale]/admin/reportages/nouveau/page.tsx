@@ -10,7 +10,7 @@ export default async function NouveauReportage({ params }: { params: Promise<{ l
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{t('nouveau')}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{t('nouveau')}</h1>
       <FormulaireReportage patrimoines={patrimoines ?? []} locale={locale} />
     </div>
   )

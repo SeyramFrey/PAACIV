@@ -23,20 +23,20 @@ export default async function AdminAbonnes() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
+        <h1 className="font-serif text-3xl text-ocre">{t('titre')}</h1>
         <BoutonExporterAbonnes />
       </div>
-      <p className="text-sm text-encre/60">{t('total', { n: items.length })}</p>
+      <p className="text-sm text-doux">{t('total', { n: items.length })}</p>
 
       {error ? (
-        <p role="alert" className="text-terracotta">
+        <p role="alert" className="text-danger">
           {t('erreurChargement')}
         </p>
       ) : items.length === 0 ? (
-        <p className="text-encre/70">{t('aucun')}</p>
+        <p className="text-doux">{t('aucun')}</p>
       ) : (
         <table className="w-full text-left text-sm">
-          <thead className="text-xs uppercase text-encre/50">
+          <thead className="text-xs uppercase text-doux">
             <tr>
               <th className="py-2">{t('email')}</th>
               <th className="py-2">{t('langue')}</th>
@@ -46,7 +46,7 @@ export default async function AdminAbonnes() {
           </thead>
           <tbody>
             {items.map((a) => (
-              <tr key={a.id} className="border-t border-creme2">
+              <tr key={a.id} className="border-t border-filet">
                 <td className="py-2">{a.email}</td>
                 <td className="py-2">{a.langue.toUpperCase()}</td>
                 <td className="py-2">{new Date(a.created_at).toLocaleDateString('fr-FR')}</td>
@@ -60,7 +60,7 @@ export default async function AdminAbonnes() {
                     action={supprimerAbonne.bind(null, a.id)}
                     message={t('confirmer')}
                     erreurLabel={t('erreurAction')}
-                    className="text-terracotta underline"
+                    className="text-danger underline"
                   >
                     {t('supprimer')}
                   </FormSupprimerAction>

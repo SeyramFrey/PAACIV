@@ -17,17 +17,17 @@ export default async function AdminPatrimoineListe() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
+        <h1 className="font-serif text-3xl text-ocre">{t('titre')}</h1>
         <Link href="/admin/patrimoine/nouveau">
           <Button variant="gold">{t('nouveau')}</Button>
         </Link>
       </div>
 
       {items.length === 0 ? (
-        <p className="text-encre/70">{t('aucun')}</p>
+        <p className="text-doux">{t('aucun')}</p>
       ) : (
         <table className="w-full text-left text-sm">
-          <thead className="text-xs uppercase text-encre/50">
+          <thead className="text-xs uppercase text-doux">
             <tr>
               <th className="py-2">{t('titre')}</th>
               <th className="py-2">{t('statut')}</th>
@@ -36,23 +36,23 @@ export default async function AdminPatrimoineListe() {
           </thead>
           <tbody>
             {items.map((p) => (
-              <tr key={p.id} className="border-t border-creme2">
+              <tr key={p.id} className="border-t border-filet">
                 <td className="py-2">{p.titre_fr}</td>
                 <td className="py-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
-                      p.statut === 'publie' ? 'bg-vert text-sable' : 'bg-creme2 text-encre'
+                      p.statut === 'publie' ? 'bg-vert text-sable' : 'bg-fond2 text-encre-t'
                     }`}
                   >
                     {p.statut === 'publie' ? t('publie') : t('brouillon')}
                   </span>
                 </td>
                 <td className="flex justify-end gap-2 py-2">
-                  <Link href={`/admin/patrimoine/${p.id}`} className="text-brun underline">
+                  <Link href={`/admin/patrimoine/${p.id}`} className="text-ocre underline">
                     {t('editer')}
                   </Link>
                   <form action={supprimerPatrimoine.bind(null, p.id)}>
-                    <BoutonSupprimer message={t('confirmer')} className="text-terracotta underline">
+                    <BoutonSupprimer message={t('confirmer')} className="text-danger underline">
                       {t('supprimer')}
                     </BoutonSupprimer>
                   </form>

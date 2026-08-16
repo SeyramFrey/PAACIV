@@ -86,7 +86,7 @@ export function FormulaireArticle({
         type={type}
         aria-label={ariaLabel}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -98,7 +98,7 @@ export function FormulaireArticle({
         name={name}
         defaultValue={valeurInitiale(name)}
         rows={3}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -115,14 +115,14 @@ export function FormulaireArticle({
         <button
           type="button"
           onClick={() => setOnglet('fr')}
-          className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletFr')}
         </button>
         <button
           type="button"
           onClick={() => setOnglet('en')}
-          className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletEn')}
         </button>
@@ -154,7 +154,7 @@ export function FormulaireArticle({
             type="date"
             aria-label={t('datePublication')}
             defaultValue={valeurInitiale('date_publication')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
       </div>
@@ -166,7 +166,7 @@ export function FormulaireArticle({
             name="categorie_id"
             defaultValue={initial?.categorie_id ?? ''}
             aria-label={t('categorie')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           >
             <option value="">{t('choisir')}</option>
             {categories.map((c) => (
@@ -182,7 +182,7 @@ export function FormulaireArticle({
             name="patrimoine_id"
             defaultValue={initial?.patrimoine_id ?? ''}
             aria-label={t('patrimoine')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           >
             <option value="">{t('choisir')}</option>
             {patrimoines.map((p) => (
@@ -212,7 +212,7 @@ export function FormulaireArticle({
           name="statut"
           defaultValue={initial?.statut ?? 'brouillon'}
           aria-label={t('statut')}
-          className="w-48 rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="w-48 rounded-xl border border-filet bg-fond px-3 py-2"
         >
           <option value="brouillon">{t('brouillon')}</option>
           <option value="publie">{t('publie')}</option>
@@ -220,7 +220,7 @@ export function FormulaireArticle({
       </label>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

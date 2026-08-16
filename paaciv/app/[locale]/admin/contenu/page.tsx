@@ -32,11 +32,11 @@ export default async function AdminContenu() {
 
   return (
     <div className="space-y-10">
-      <h1 className="font-serif text-3xl text-brun">{t('titre')}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{t('titre')}</h1>
 
       {groupes.map(({ cle: groupe, lignes }) => (
         <section key={groupe} className="space-y-3">
-          <h2 className="text-lg font-semibold text-brun">
+          <h2 className="text-lg font-semibold text-ocre">
             {groupe === 'autre' ? groupe : t(`groupes.${groupe}`)}
           </h2>
           <div className="space-y-3">

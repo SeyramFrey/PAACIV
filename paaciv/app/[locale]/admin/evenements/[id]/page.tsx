@@ -14,7 +14,7 @@ export default async function EditerEvenement({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(e as EvenementAdmin).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(e as EvenementAdmin).titre_fr}</h1>
       <FormulaireEvenement initial={e as EvenementAdmin} />
     </div>
   )

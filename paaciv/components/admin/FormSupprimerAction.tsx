@@ -66,7 +66,7 @@ export function FormSupprimerAction({
         </BoutonSupprimer>
       </form>
       {erreur && (
-        <span role="alert" className="text-xs font-semibold text-terracotta">
+        <span role="alert" className="text-xs font-semibold text-danger">
           {erreurLabel}
         </span>
       )}

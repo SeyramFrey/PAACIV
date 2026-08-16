@@ -14,7 +14,7 @@ export default async function EditerActivite({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(a as ActiviteAdmin).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(a as ActiviteAdmin).titre_fr}</h1>
       <FormulaireActivite initial={a as ActiviteAdmin} />
     </div>
   )

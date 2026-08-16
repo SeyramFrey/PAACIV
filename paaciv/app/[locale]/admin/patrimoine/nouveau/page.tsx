@@ -27,7 +27,7 @@ export default async function NouveauPatrimoine({ params }: { params: Promise<{ 
   ])
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">Nouveau patrimoine</h1>
+      <h1 className="font-serif text-3xl text-ocre">Nouveau patrimoine</h1>
       <FormulairePatrimoine options={opts} locale={locale} architectes={architectes ?? []} liaisons={[]} />
     </div>
   )

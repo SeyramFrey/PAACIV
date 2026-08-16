@@ -60,7 +60,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
         name={name}
         aria-label={label}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -73,7 +73,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
         aria-label={label}
         rows={4}
         defaultValue={valeurInitiale(name)}
-        className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
       />
     </label>
   )
@@ -86,14 +86,14 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
         <button
           type="button"
           onClick={() => setOnglet('fr')}
-          className={onglet === 'fr' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'fr' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletFr')}
         </button>
         <button
           type="button"
           onClick={() => setOnglet('en')}
-          className={onglet === 'en' ? 'font-bold text-brun' : 'text-encre/60'}
+          className={onglet === 'en' ? 'font-bold text-ocre' : 'text-doux'}
         >
           {t('ongletEn')}
         </button>
@@ -133,7 +133,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
             type="number"
             aria-label={t('ordre')}
             defaultValue={initial?.ordre ?? 0}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           />
         </label>
         <label className="flex flex-col text-sm">
@@ -142,7 +142,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
             name="statut"
             defaultValue={initial?.statut ?? 'brouillon'}
             aria-label={t('statut')}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond px-3 py-2"
           >
             <option value="brouillon">{t('brouillon')}</option>
             <option value="publie">{t('publie')}</option>
@@ -151,7 +151,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
       </div>
 
       {erreur && (
-        <p role="alert" className="text-sm font-semibold text-brun">
+        <p role="alert" className="text-sm font-semibold text-ocre">
           {erreur}
         </p>
       )}

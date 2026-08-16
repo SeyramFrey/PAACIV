@@ -35,11 +35,11 @@ export function BoutonMarquerTraitee({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <button type="button" onClick={marquer} disabled={enCours} className="text-brun underline disabled:opacity-60">
+      <button type="button" onClick={marquer} disabled={enCours} className="text-ocre underline disabled:opacity-60">
         {t('marquerTraitee')}
       </button>
       {erreur && (
-        <span role="alert" className="text-xs font-semibold text-terracotta">
+        <span role="alert" className="text-xs font-semibold text-danger">
           {t('erreurAction')}
         </span>
       )}

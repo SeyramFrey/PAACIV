@@ -17,7 +17,7 @@ export default async function EditerReportage({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl text-brun">{(r as ReportageAdmin).titre_fr}</h1>
+      <h1 className="font-serif text-3xl text-ocre">{(r as ReportageAdmin).titre_fr}</h1>
       <FormulaireReportage initial={r as ReportageAdmin} patrimoines={patrimoines ?? []} locale={locale} />
     </div>
   )

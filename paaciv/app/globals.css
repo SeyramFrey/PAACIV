@@ -16,6 +16,10 @@
   --ocre:   oklch(0.458 0.114 43);
   --accent: oklch(0.642 0.129 53);
   --vert:   oklch(0.459 0.061 139);
+  /* Rouge d'alerte (suppression, marqueur « À COMPLÉTER »). Ni `--terra` ni
+     `--ocre` ne tenaient 4,5:1 dans LES DEUX thèmes sur `--bg` ; ce jeton est
+     calibré pour, et il porte en plus un sens que l'ocre des titres n'a pas. */
+  --danger: oklch(0.470 0.170 28);
   --deep:   oklch(0.190 0.012 45);
   --onDeep: oklch(0.943 0.021 79);
   --veil:   linear-gradient(180deg, oklch(0.19 0.012 45/.28), oklch(0.16 0.012 45/.72));
@@ -33,6 +37,7 @@
   --ocre:   oklch(0.600 0.130 45);
   --accent: oklch(0.730 0.140 53);
   --vert:   oklch(0.657 0.065 138);
+  --danger: oklch(0.720 0.150 28);
   --deep:   oklch(0.115 0.012 45);
   --onDeep: oklch(0.943 0.021 79);
   --veil:   linear-gradient(180deg, oklch(0.12 0.012 45/.42), oklch(0.10 0.012 45/.86));
@@ -53,6 +58,7 @@
   --color-ocre:    var(--ocre);
   --color-accent:  var(--accent);
   --color-foret:   var(--vert);
+  --color-danger:  var(--danger);
   --color-profond: var(--deep);
   --color-surprofond: var(--onDeep);
 }

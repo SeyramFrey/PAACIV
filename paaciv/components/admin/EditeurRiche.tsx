@@ -38,7 +38,7 @@ export function EditeurRiche({
       aria-label={label}
       aria-pressed={actif}
       onClick={onClick}
-      className={`rounded border border-encre/20 px-2 py-1 text-sm ${actif ? 'bg-or text-encre' : 'bg-white text-brun'}`}
+      className={`rounded border border-filet px-2 py-1 text-sm ${actif ? 'bg-or text-encre-t' : 'bg-fond text-ocre'}`}
     >
       {label}
     </button>
@@ -52,10 +52,10 @@ export function EditeurRiche({
   }
 
   return (
-    <div className="rounded-xl border border-encre/20 bg-white">
+    <div className="rounded-xl border border-filet bg-fond">
       <input type="hidden" name={name} value={html} readOnly />
       {editor && (
-        <div className="flex flex-wrap gap-1 border-b border-encre/10 p-2">
+        <div className="flex flex-wrap gap-1 border-b border-filet p-2">
           {btn(editor.isActive('bold'), () => editor.chain().focus().toggleBold().run(), 'Gras')}
           {btn(editor.isActive('italic'), () => editor.chain().focus().toggleItalic().run(), 'Italique')}
           {btn(editor.isActive('heading', { level: 2 }), () => editor.chain().focus().toggleHeading({ level: 2 }).run(), 'Titre 2')}
