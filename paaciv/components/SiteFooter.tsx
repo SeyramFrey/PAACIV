@@ -17,12 +17,22 @@ const RESEAUX = [
   { libelle: 'LinkedIn', href: 'https://www.linkedin.com/company/paaciv' },
 ] as const
 
+// Une coordonnée vide ou encore marquée « À COMPLÉTER » (cinq valeurs de
+// `contenu_site` le sont volontairement, en attendant que l'association les
+// fournisse) est un chantier interne, pas une information de contact : elle
+// ne doit jamais atteindre le public.
+function renseigne(valeur: string): boolean {
+  return valeur.length > 0 && !valeur.startsWith('À COMPLÉTER')
+}
+
 export async function SiteFooter() {
   const t = await getTranslations('nav')
   const tf = await getTranslations('footer')
   const locale = await getLocale()
   const textes = await chargerTextes()
 
+  const adresse = texte(textes, 'footer_adresse', locale)
+  const telephone = texte(textes, 'footer_telephone', locale)
   const email = texte(textes, 'footer_email', locale)
 
   return (
@@ -52,20 +62,26 @@ export async function SiteFooter() {
 
         <div>
           <h2 className="text-[10px] uppercase tracking-[0.24em] opacity-60">{tf('joindre')}</h2>
+          {/* Tant que l'association n'a pas fourni ses coordonnées, cette
+              liste peut être vide — c'est l'état réel de l'information,
+              préférable à l'affichage d'un marqueur de chantier public. */}
           <ul className="mt-4 space-y-2 text-sm">
-            <li className="opacity-80">{texte(textes, 'footer_adresse', locale)}</li>
-            <li>
-              {/* Un e-mail non renseigné ne doit pas produire un `mailto:` vide
-                  et cliquable : on rend alors le texte brut. */}
-              {email.startsWith('À COMPLÉTER') ? (
-                <span className="opacity-80">{email}</span>
-              ) : (
-                <a href={`mailto:${email}`} className="transition hover:text-[var(--accent)]" style={{ color: 'inherit' }}>
-                  {email}
-                </a>
-              )}
-            </li>
-            <li className="opacity-80">{texte(textes, 'footer_telephone', locale)}</li>
+            {renseigne(adresse) && <li className="opacity-80">{adresse}</li>}
+            {renseigne(email) && (
+              <li>
+                {/* `includes('@')` plutôt qu'un test sur le marqueur français :
+                    robuste même si `renseigne` changeait de logique, et
+                    indépendant d'une chaîne qu'un éditeur pourrait traduire. */}
+                {email.includes('@') ? (
+                  <a href={`mailto:${email}`} className="transition hover:text-[var(--accent)]" style={{ color: 'inherit' }}>
+                    {email}
+                  </a>
+                ) : (
+                  <span className="opacity-80">{email}</span>
+                )}
+              </li>
+            )}
+            {renseigne(telephone) && <li className="opacity-80">{telephone}</li>}
           </ul>
         </div>
 

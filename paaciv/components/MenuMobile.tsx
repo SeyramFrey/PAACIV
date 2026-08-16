@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { BasculeTheme } from '@/components/ui/BasculeTheme'
@@ -13,22 +13,45 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
   const t = useTranslations('nav')
   const { ouvrir } = useSoutien()
   const [ouvert, setOuvert] = useState(false)
+  const ref = useRef<HTMLDialogElement>(null)
 
-  // Échap ferme, et le corps ne défile plus derrière le panneau : sans ce
-  // verrou, le fond continue de scroller sous le doigt sur iOS.
+  // `<dialog>` natif plutôt qu'un div sur-mesure (même choix que
+  // `components/ui/Modal.tsx`) : le navigateur déplace le focus dedans à
+  // l'ouverture, le piège tant qu'il est ouvert, le restitue au bouton
+  // déclencheur à la fermeture, et rend le reste de la page inerte — quatre
+  // garanties qu'un `<div role="dialog">` fait seulement semblant d'offrir
+  // sans JavaScript dédié pour chacune.
+  useEffect(() => {
+    const d = ref.current
+    if (!d) return
+    if (ouvert && !d.open) d.showModal()
+    if (!ouvert && d.open) d.close()
+  }, [ouvert])
+
+  // Le corps ne défile plus derrière le panneau : sans ce verrou, le fond
+  // continue de scroller sous le doigt sur iOS malgré l'inertie du <dialog>.
   useEffect(() => {
     if (!ouvert) return
-    function auClavier(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOuvert(false)
-    }
     const precedent = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    document.addEventListener('keydown', auClavier)
     return () => {
       document.body.style.overflow = precedent
-      document.removeEventListener('keydown', auClavier)
     }
   }, [ouvert])
+
+  // Le déclencheur disparaît dès `lg` (`lg:hidden` ci-dessous) : si le
+  // panneau reste ouvert pendant qu'on franchit ce seuil (rotation, fenêtre
+  // redimensionnée), plus aucun contrôle visible ne permet de le refermer.
+  // On le ferme réellement (close() natif : focus restitué, page réactivée)
+  // dès que la largeur atteint le point de rupture `lg` de Tailwind (1024px).
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    function fermerSiDesktop() {
+      if (mq.matches) setOuvert(false)
+    }
+    mq.addEventListener('change', fermerSiDesktop)
+    return () => mq.removeEventListener('change', fermerSiDesktop)
+  }, [])
 
   return (
     <>
@@ -43,12 +66,31 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
         <span aria-hidden="true" className="block h-px w-6 bg-current" />
       </button>
 
-      <div
-        role="dialog"
-        aria-modal="true"
+      <dialog
+        ref={ref}
         aria-label={t('menu')}
-        hidden={!ouvert}
-        className="fixed inset-0 z-[80] flex flex-col justify-between p-8"
+        onCancel={(e) => {
+          // Échap : on laisse React piloter l'état plutôt que le DOM, sinon
+          // `ouvert` resterait à true et le panneau ne pourrait plus se
+          // rouvrir (même logique que Modal.tsx).
+          e.preventDefault()
+          setOuvert(false)
+        }}
+        onClick={(e) => {
+          // Le fond du <dialog> occupe tout le viewport : un clic dont la
+          // cible est le dialog lui-même (pas un enfant) tombe hors contenu.
+          if (e.target === ref.current) setOuvert(false)
+        }}
+        // `hidden open:flex` plutôt qu'un simple `flex` : un `<dialog>` fermé
+        // n'est masqué que par le style par défaut du navigateur
+        // (`dialog:not([open]) { display: none }`), une règle d'origine
+        // « agent utilisateur ». Poser `flex` (règle d'origine « auteur »,
+        // via Tailwind) directement sur l'élément la fait gagner dans la
+        // cascade malgré sa spécificité plus faible — l'origine prime sur la
+        // spécificité — et le panneau restait alors affiché (et cliquable)
+        // même fermé, recouvrant le reste de la page. `open:flex` rend le
+        // bascule explicite et gérée entièrement par des règles d'auteur.
+        className="hidden fixed inset-0 z-[80] m-0 h-dvh max-h-none w-dvw max-w-none flex-col justify-between border-0 p-8 open:flex"
         style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
       >
         <div className="flex justify-end">
@@ -101,7 +143,7 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
             <LanguageSwitcher />
           </div>
         </div>
-      </div>
+      </dialog>
     </>
   )
 }

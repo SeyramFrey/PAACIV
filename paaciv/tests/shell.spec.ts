@@ -12,9 +12,13 @@ test('le header et le footer sont présents sur l\'accueil', async ({ page }) =>
   // L'adresse de contact du pied de page vient désormais de `contenu_site`
   // (footer_email) et porte volontairement le marqueur « À COMPLÉTER » tant
   // que l'association ne l'a pas renseignée : on ne peut plus asserter une
-  // valeur littérale. On vérifie à la place ce qui est réellement stable —
-  // que la rubrique de contact du pied de page est bien rendue.
-  await expect(page.getByRole('contentinfo')).toContainText('Nous joindre')
+  // valeur littérale (round 1 : une assertion sur un libellé de traduction
+  // statique passerait même si `chargerTextes()` ne renvoyait rien).
+  // À la place, on verrouille le vrai risque : le marqueur de chantier ne
+  // doit jamais fuiter en public. Vrai aujourd'hui (SiteFooter le masque),
+  // le restera quand l'association fournira ses coordonnées, et
+  // détecterait une régression si le marqueur réapparaissait.
+  await expect(page.getByRole('contentinfo')).not.toContainText('À COMPLÉTER')
   await expect(page.getByRole('contentinfo')).toContainText('LinkedIn')
 })
 

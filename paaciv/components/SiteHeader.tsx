@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { BasculeTheme } from '@/components/ui/BasculeTheme'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { MenuMobile, type Entree } from '@/components/MenuMobile'
@@ -23,20 +23,33 @@ const ENTREES: readonly Entree[] = [
 export function SiteHeader() {
   const t = useTranslations('nav')
   const { ouvrir } = useSoutien()
-  const [opaque, setOpaque] = useState(false)
+  const pathname = usePathname()
+  // Seul l'accueil aura un hero sombre plein écran (Task 10) : c'est la
+  // seule page où l'en-tête peut partir transparent. Partout ailleurs
+  // (carte, fiches, login, admin…), il n'y a pas de hero sous lequel se
+  // fondre — un en-tête transparent y écrirait du texte clair sur un fond
+  // clair (ou l'inverse), illisible en permanence puisque le seuil de
+  // défilement ci-dessous n'est jamais atteint sur une page courte.
+  const estAccueil = pathname === '/'
+  const [opaqueDefilement, setOpaqueDefilement] = useState(false)
 
-  // Le header devient opaque une fois le hero dépassé (85 % de la hauteur
-  // d'écran, comme la référence ligne 700+). Sur les pages sans hero, la
-  // valeur est franchie presque immédiatement, ce qui est le comportement
-  // voulu : fond lisible dès le premier défilement.
+  // Sur l'accueil, le header devient opaque une fois le hero dépassé — un
+  // seuil fixe (85 % de la hauteur d'écran), pas une détection de contenu :
+  // il est franchi tôt ou tard sur *toute* page assez longue, hero ou pas.
+  // Ailleurs, l'écoute du défilement est inutile : l'en-tête y est opaque en
+  // permanence, une valeur dérivée au rendu (ci-dessous) plutôt qu'un état à
+  // synchroniser dans cet effet.
   useEffect(() => {
+    if (!estAccueil) return
     function auScroll() {
-      setOpaque(window.scrollY > window.innerHeight * 0.85)
+      setOpaqueDefilement(window.scrollY > window.innerHeight * 0.85)
     }
     window.addEventListener('scroll', auScroll, { passive: true })
     auScroll()
     return () => window.removeEventListener('scroll', auScroll)
-  }, [])
+  }, [estAccueil])
+
+  const opaque = estAccueil ? opaqueDefilement : true
 
   return (
     <header
