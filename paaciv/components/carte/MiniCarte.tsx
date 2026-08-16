@@ -57,5 +57,38 @@ export function MiniCarte({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; lat/lng/titre initiaux capturés par closure, onChoisir lu via ref.
   }, [])
 
+  // Suivi des coordonnées venues de l'EXTÉRIEUR (saisie au clavier dans les
+  // champs lat/lng du formulaire d'administration). L'effet d'initialisation
+  // ci-dessus ne s'exécute qu'une fois — indispensable, sinon chaque clic sur
+  // la carte détruirait le contexte WebGL — si bien que le marqueur restait
+  // figé pendant qu'on tapait les coordonnées : l'administrateur devait
+  // enregistrer pour voir où tombait son point.
+  //
+  // La carte n'est PAS recentrée à chaque frappe : recadrer sur « 5 » puis
+  // « 5.3 » puis « 5.32 » ferait sauter la vue à chaque caractère. On ne se
+  // déplace que si le point sort du cadre visible, et en `easeTo` pour garder
+  // le repère visuel.
+  useEffect(() => {
+    const map = mapRef.current
+    const marqueur = marqueurRef.current
+    if (!map || !marqueur) return
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+    // BORNES OBLIGATOIRES. `setLngLat` LÈVE sur une latitude hors [-90, 90]
+    // (« Invalid LngLat latitude value ») — et cette exception, jetée depuis
+    // un effet, casse le rendu de tout le formulaire : l'administrateur ne
+    // peut plus ni corriger sa saisie ni enregistrer. Or l'écran de saisie est
+    // précisément l'endroit où une latitude aberrante existe, le temps de
+    // taper « 5.32 » on passe par « 5 », et une faute de frappe (« 5000 »)
+    // est le cas que les gardes du formulaire sont là pour rattraper.
+    // Le point hors bornes est donc ignoré, pas appliqué : les trois barrières
+    // existantes (min/max du champ, action serveur, contrainte CHECK) font le
+    // reste du travail.
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return
+    const actuel = marqueur.getLngLat()
+    if (actuel.lat === lat && actuel.lng === lng) return
+    marqueur.setLngLat([lng, lat])
+    if (!map.getBounds().contains([lng, lat])) map.easeTo({ center: [lng, lat], duration: 500 })
+  }, [lat, lng])
+
   return <div ref={conteneur} className="h-64 w-full overflow-hidden rounded-2xl" aria-label={titre} />
 }

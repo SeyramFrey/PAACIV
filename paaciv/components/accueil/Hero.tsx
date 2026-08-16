@@ -134,7 +134,12 @@ export function Hero({
       <div aria-hidden="true" className="absolute inset-0 z-[1]" style={{ background: 'var(--veil)' }} />
       <div ref={lampe} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2]" />
 
-      <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(120px,16vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      {/* Retrait haut ramené de `clamp(120px,16vh,180px)` à
+          `clamp(104px,14vh,180px)` : au-delà de 1285 px de hauteur d'écran la
+          borne haute de 180 px s'applique comme avant, donc la maquette est
+          intacte là où elle tenait déjà. Le resserrement ne mord que sur les
+          écrans courts, ceux où le hero débordait. */}
+      <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(104px,14vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         {/* Plus de `max-w-[900px]`. La maquette casse son `<h1>` en DEUX lignes
             explicites (« Ce qui tient debout » / « raconte encore ») ; le nôtre
             reçoit un titre unique venu du CMS, qu'un plafond de 900 px faisait
@@ -151,15 +156,20 @@ export function Hero({
           >
             {t('accroche')}
           </p>
-          {/* `min(8.4vw, 11.5vh)` : la taille de la maquette est purement
+          {/* `min(8.4vw, 10.5vh)` : la taille de la maquette est purement
               horizontale, or ce titre occupe un hero haut de `100svh`. Sur un
               écran large mais court (2000×1000, portable en paysage), 8.4vw
               seul donnait un titre plus haut que la place disponible. Le terme
-              en `vh` ne mord que là — au-delà de 1235 px de hauteur, la valeur
-              de la maquette reprend la main intacte. */}
+              en `vh` ne mord que là — au-delà de 1353 px de hauteur, la valeur
+              de la maquette reprend la main intacte.
+              10,5 et non 11,5 : mesuré, c'est le palier qui fait tomber le
+              titre à TROIS lignes en 1280×800 au lieu de quatre, et le hero
+              tient alors dans l'écran sans qu'il faille aussi rogner le retrait
+              bas. Moins de lignes rapproche en prime de la composition en deux
+              lignes de la maquette. */}
           <h1
             data-drop=""
-            className="m-0 font-serif text-[clamp(46px,min(8.4vw,11.5vh),142px)] leading-[0.92] tracking-[-0.02em] text-balance"
+            className="m-0 font-serif text-[clamp(46px,min(8.4vw,10.5vh),142px)] leading-[0.92] tracking-[-0.02em] text-balance"
             style={{ color: 'var(--onDeep)', animation: 'drop 1.1s .35s both cubic-bezier(.16,1,.3,1)' }}
           >
             {titre}

@@ -70,7 +70,7 @@ export function FormulaireReportage({
       }
       // Même contrat que FormulaireArticle : retour sur la liste après
       // enregistrement (décision de contrôleur de la Task 12).
-      router.push('/admin/reportages')
+      router.push('/admin/reportages?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

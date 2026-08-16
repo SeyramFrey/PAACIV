@@ -49,27 +49,27 @@ export default async function FicheArchitecte({ params }: Props) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={a.photo} alt={a.nom} className="w-full rounded-2xl object-cover" />
           )}
-          <h1 className="font-serif text-3xl text-brun">{a.nom}</h1>
-          {dates && <p className="text-encre/60">{dates}</p>}
+          <h1 className="font-serif text-3xl text-ocre">{a.nom}</h1>
+          {dates && <p className="text-doux">{dates}</p>}
         </aside>
 
         <div className="space-y-8">
           {bio && (
             <section>
-              <h2 className="mb-2 font-serif text-xl text-brun">{t('bio')}</h2>
+              <h2 className="mb-2 font-serif text-xl text-ocre">{t('bio')}</h2>
               <TexteRiche html={bio} />
             </section>
           )}
           {parcours && (
             <section>
-              <h2 className="mb-2 font-serif text-xl text-brun">{t('parcours')}</h2>
+              <h2 className="mb-2 font-serif text-xl text-ocre">{t('parcours')}</h2>
               <TexteRiche html={parcours} />
             </section>
           )}
 
           {(a.realisations.length > 0 || realisationsTexte) && (
             <section>
-              <h2 className="mb-3 font-serif text-xl text-brun">{t('realisations')}</h2>
+              <h2 className="mb-3 font-serif text-xl text-ocre">{t('realisations')}</h2>
               {a.realisations.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2">
                   {a.realisations.map((r) => (

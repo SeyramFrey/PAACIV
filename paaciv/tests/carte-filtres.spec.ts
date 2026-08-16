@@ -6,11 +6,19 @@ test('les filtres carte réduisent le nombre de points', async ({ page, request 
   const attendu = (await res.json()).features.length
   expect(attendu).toBeGreaterThan(0)
 
+  // Total initial pris à l'API, jamais écrit en dur. Le chiffre « 7 » qui
+  // figurait ici supposait que la base ne bouge pas pendant l'exécution — or
+  // `admin-patrimoine.spec.ts` PUBLIE une fiche de test le temps de son
+  // scénario, et la suite tourne sur deux workers en parallèle contre la base
+  // de production. Selon l'ordonnancement, ce test lisait 7 ou 8 et échouait
+  // une fois sur deux, pour une raison qui n'avait rien à voir avec lui.
+  const resTotal = await request.get('/api/carte/points')
+  const total = (await resTotal.json()).features.length
+
   await page.goto('/fr/carte')
   await page.waitForFunction(() => (window as unknown as { __carteReady?: boolean }).__carteReady === true)
 
-  // Total initial : 7 édifices publiés.
-  await expect(page.getByTestId('compteur-carte')).toContainText('7')
+  await expect(page.getByTestId('compteur-carte')).toContainText(new RegExp(`\\b${total}\\b`))
 
   await page.getByLabel('Type').selectOption('religieux')
 

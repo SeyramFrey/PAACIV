@@ -45,8 +45,8 @@ export default async function FichePatrimoine({ params }: Props) {
   const ligne = (label: string, valeur: string | null | undefined) =>
     valeur ? (
       <div>
-        <dt className="text-xs uppercase tracking-wide text-encre/50">{label}</dt>
-        <dd className="text-encre">{valeur}</dd>
+        <dt className="text-xs uppercase tracking-wide text-doux">{label}</dt>
+        <dd className="text-encre-t">{valeur}</dd>
       </div>
     ) : null
 
@@ -69,14 +69,14 @@ export default async function FichePatrimoine({ params }: Props) {
               </span>
             )}
           </div>
-          <h1 className="font-serif text-4xl text-brun">{titre}</h1>
+          <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
           <Galerie images={p.images} locale={locale} />
           <TexteRiche html={champ(p.description_fr, p.description_en, locale)} />
           <FacadeVideo url={p.video_url} titre={titre} labelLire={tVideo('lire')} />
           {champ(p.sources_fr, p.sources_en, locale) && (
             <section>
-              <h2 className="font-serif text-lg text-brun">{t('sources')}</h2>
-              <p className="whitespace-pre-line text-sm text-encre/70">
+              <h2 className="font-serif text-lg text-ocre">{t('sources')}</h2>
+              <p className="whitespace-pre-line text-sm text-doux">
                 {champ(p.sources_fr, p.sources_en, locale)}
               </p>
             </section>
@@ -101,14 +101,14 @@ export default async function FichePatrimoine({ params }: Props) {
           )}
           {p.architectes.length > 0 && (
             <section>
-              <h2 className="mb-2 font-serif text-lg text-brun">{t('architectes')}</h2>
+              <h2 className="mb-2 font-serif text-lg text-ocre">{t('architectes')}</h2>
               <ul className="space-y-1 text-sm">
                 {p.architectes.map((a) => (
                   <li key={a.slug}>
-                    <Link href={`/architectes/${a.slug}`} className="text-brun underline">
+                    <Link href={`/architectes/${a.slug}`} className="text-ocre underline">
                       {a.nom}
                     </Link>
-                    {a.role ? <span className="text-encre/60"> ({a.role})</span> : null}
+                    {a.role ? <span className="text-doux"> ({a.role})</span> : null}
                   </li>
                 ))}
               </ul>
@@ -118,11 +118,11 @@ export default async function FichePatrimoine({ params }: Props) {
             <section data-testid="contenus-lies" className="space-y-4">
               {articles.length > 0 && (
                 <div>
-                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aLire')}</h2>
+                  <h2 className="mb-2 font-serif text-lg text-ocre">{t('aLire')}</h2>
                   <ul className="space-y-1 text-sm">
                     {articles.map((a) => (
                       <li key={a.slug}>
-                        <Link href={`/articles/${a.slug}`} className="text-brun underline">
+                        <Link href={`/articles/${a.slug}`} className="text-ocre underline">
                           {champ(a.titre_fr, a.titre_en, locale)}
                         </Link>
                       </li>
@@ -132,11 +132,11 @@ export default async function FichePatrimoine({ params }: Props) {
               )}
               {reportages.length > 0 && (
                 <div>
-                  <h2 className="mb-2 font-serif text-lg text-brun">{t('aVoir')}</h2>
+                  <h2 className="mb-2 font-serif text-lg text-ocre">{t('aVoir')}</h2>
                   <ul className="space-y-1 text-sm">
                     {reportages.map((r) => (
                       <li key={r.slug}>
-                        <Link href={`/reportages/${r.slug}`} className="text-brun underline">
+                        <Link href={`/reportages/${r.slug}`} className="text-ocre underline">
                           {champ(r.titre_fr, r.titre_en, locale)}
                         </Link>
                       </li>

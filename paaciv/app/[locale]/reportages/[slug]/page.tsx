@@ -55,15 +55,15 @@ export default async function FicheReportage({ params }: Props) {
   return (
     <main className="flex-1 pt-20 py-10">
       <Container className="mx-auto max-w-3xl space-y-6">
-        <Link href="/reportages" className="text-sm text-brun underline">
+        <Link href="/reportages" className="text-sm text-ocre underline">
           {t('retour')}
         </Link>
 
         <header className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-encre/50">
+          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-doux">
             <span>{dateLocalisee(r.date, locale)}</span>
           </div>
-          <h1 className="font-serif text-4xl text-brun">{titre}</h1>
+          <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
         </header>
 
         <FacadeVideo url={r.video_url} titre={titre} labelLire={tVideo('lire')} />
@@ -71,9 +71,9 @@ export default async function FicheReportage({ params }: Props) {
         <TexteRiche html={description} />
 
         {r.patrimoine && (
-          <section data-testid="patrimoine-lie" className="rounded-2xl border border-creme2 p-4">
-            <h2 className="mb-2 font-serif text-lg text-brun">{t('patrimoineLie')}</h2>
-            <Link href={`/patrimoine/${r.patrimoine.slug}`} className="text-brun underline">
+          <section data-testid="patrimoine-lie" className="rounded-2xl border border-filet p-4">
+            <h2 className="mb-2 font-serif text-lg text-ocre">{t('patrimoineLie')}</h2>
+            <Link href={`/patrimoine/${r.patrimoine.slug}`} className="text-ocre underline">
               {champ(r.patrimoine.titre_fr, r.patrimoine.titre_en, locale)}
             </Link>
           </section>

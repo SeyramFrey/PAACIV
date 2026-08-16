@@ -21,7 +21,7 @@ export function Galerie({ images, locale }: { images: ImageRow[]; locale: string
         />
       </div>
       {(courante.legende_fr || courante.credit) && (
-        <figcaption className="text-xs text-encre/60">
+        <figcaption className="text-xs text-doux">
           {champ(courante.legende_fr, courante.legende_en, locale)}
           {courante.credit && <span className="italic"> — {courante.credit}</span>}
         </figcaption>

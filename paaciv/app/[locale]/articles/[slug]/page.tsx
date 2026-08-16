@@ -54,17 +54,17 @@ export default async function FicheArticle({ params }: Props) {
   return (
     <main className="flex-1 pt-20 py-10">
       <Container className="mx-auto max-w-3xl space-y-6">
-        <Link href="/articles" className="text-sm text-brun underline">
+        <Link href="/articles" className="text-sm text-ocre underline">
           {t('retour')}
         </Link>
 
         <header className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-encre/50">
+          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-doux">
             {categorie && <span>{categorie}</span>}
             <span>{dateLocalisee(a.date_publication, locale)}</span>
           </div>
-          <h1 className="font-serif text-4xl text-brun">{titre}</h1>
-          {chapo && <p className="text-lg text-encre/70">{chapo}</p>}
+          <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
+          {chapo && <p className="text-lg text-doux">{chapo}</p>}
         </header>
 
         {a.image && (
@@ -75,9 +75,9 @@ export default async function FicheArticle({ params }: Props) {
         <TexteRiche html={corps} />
 
         {a.patrimoine && (
-          <section data-testid="patrimoine-lie" className="rounded-2xl border border-creme2 p-4">
-            <h2 className="mb-2 font-serif text-lg text-brun">{t('patrimoineLie')}</h2>
-            <Link href={`/patrimoine/${a.patrimoine.slug}`} className="text-brun underline">
+          <section data-testid="patrimoine-lie" className="rounded-2xl border border-filet p-4">
+            <h2 className="mb-2 font-serif text-lg text-ocre">{t('patrimoineLie')}</h2>
+            <Link href={`/patrimoine/${a.patrimoine.slug}`} className="text-ocre underline">
               {champ(a.patrimoine.titre_fr, a.patrimoine.titre_en, locale)}
             </Link>
           </section>

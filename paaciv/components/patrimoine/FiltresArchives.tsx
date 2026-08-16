@@ -41,7 +41,7 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
           defaultValue={sp.get('q') ?? ''}
           onChange={(e) => majDebounce('q', e.target.value)}
           placeholder={t('recherche')}
-          className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+          className="rounded-xl border border-filet bg-fond text-encre-t px-3 py-2"
         />
       </label>
       {selects.map(([cle, refs]) => (
@@ -50,7 +50,7 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
           <select
             value={sp.get(cle) ?? ''}
             onChange={(e) => maj(cle, e.target.value)}
-            className="rounded-xl border border-encre/20 bg-white px-3 py-2"
+            className="rounded-xl border border-filet bg-fond text-encre-t px-3 py-2"
           >
             <option value="">{t('tous')}</option>
             {refs.map((r) => (

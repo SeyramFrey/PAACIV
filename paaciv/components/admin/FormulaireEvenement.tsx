@@ -51,7 +51,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
       // Même contrat que FormulaireArticle / FormulaireReportage : retour sur
       // la liste après enregistrement (décision de contrôleur, cohérence de
       // l'admin éditorial).
-      router.push('/admin/evenements')
+      router.push('/admin/evenements?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

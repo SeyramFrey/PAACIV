@@ -41,7 +41,7 @@ export function FormulaireTemoignage({ initial }: { initial?: Partial<Temoignage
         setErreur(t(cles[resultat.erreur]))
         return
       }
-      router.push('/admin/temoignages')
+      router.push('/admin/temoignages?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

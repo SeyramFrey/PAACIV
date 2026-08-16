@@ -39,7 +39,7 @@ export default function LoginPage() {
   return (
     <main className="flex-1 pt-20 py-16">
       <Container className="max-w-md">
-        <h1 className="mb-8 font-serif text-3xl text-brun">{t('titre')}</h1>
+        <h1 className="mb-8 font-serif text-3xl text-ocre">{t('titre')}</h1>
         <form onSubmit={connexion} className="space-y-5">
           <label className="block">
             <span className="mb-1 block text-sm font-semibold">{t('email')}</span>
@@ -49,7 +49,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-encre/20 bg-white px-4 py-3 outline-none focus:border-terracotta"
+              className="w-full rounded-xl border border-filet bg-fond2 px-4 py-3 text-encre-t outline-none focus:border-terracotta"
             />
           </label>
           <label className="block">
@@ -60,11 +60,11 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={motDePasse}
               onChange={(e) => setMotDePasse(e.target.value)}
-              className="w-full rounded-xl border border-encre/20 bg-white px-4 py-3 outline-none focus:border-terracotta"
+              className="w-full rounded-xl border border-filet bg-fond2 px-4 py-3 text-encre-t outline-none focus:border-terracotta"
             />
           </label>
           {erreur && (
-            <p role="alert" className="text-sm font-semibold text-brun">
+            <p role="alert" className="text-sm font-semibold text-ocre">
               {t('erreur')}
             </p>
           )}

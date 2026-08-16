@@ -48,7 +48,7 @@ export function FormulaireArchitecte({
     const fd = new FormData(e.currentTarget)
     try {
       const { id } = await enregistrerArchitecte(fd)
-      router.push(`/admin/architectes/${id}`)
+      router.push(`/admin/architectes/${id}?enregistre=1`)
       router.refresh()
     } catch {
       setErreur(true)

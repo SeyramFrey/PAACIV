@@ -32,16 +32,16 @@ export default async function ArchivesPage({
     <main className="flex-1 pt-20 py-10">
       <Container className="space-y-8">
         <header className="space-y-2">
-          <h1 className="font-serif text-4xl text-brun">{t('titre')}</h1>
-          <p className="text-encre/70">{t('intro')}</p>
+          <h1 className="font-serif text-4xl text-ocre">{t('titre')}</h1>
+          <p className="text-doux">{t('intro')}</p>
         </header>
 
         <FiltresArchives options={options} locale={locale} />
 
-        <p className="text-sm text-encre/60">{t('resultats', { n: items.length })}</p>
+        <p className="text-sm text-doux">{t('resultats', { n: items.length })}</p>
 
         {items.length === 0 ? (
-          <p className="text-encre/70">{t('aucun')}</p>
+          <p className="text-doux">{t('aucun')}</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (

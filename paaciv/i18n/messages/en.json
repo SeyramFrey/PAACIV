@@ -87,7 +87,8 @@
   "admin": {
     "titre": "Dashboard",
     "bienvenue": "Welcome to the PAACIV administration area.",
-    "deconnexion": "Sign out"
+    "deconnexion": "Sign out",
+    "enregistre": "Saved."
   },
   "adminPatrimoine": {
     "titre": "Heritage",
@@ -329,6 +330,9 @@
     "ivoiriens": "Ivorians",
     "etrangers": "Foreign",
     "intro": "The designers of the heritage documented by PAACIV.",
+    "recherche": "Search for an architect",
+    "recherchePlaceholder": "Architect name…",
+    "resultats": "{n} architect(s)",
     "aucun": "No architects yet."
   },
   "ficheArchitecte": {

@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Container } from '@/components/ui/Container'
-import { PastilleArchitecte } from '@/components/architectes/PastilleArchitecte'
+import { RechercheArchitectes } from '@/components/architectes/RechercheArchitectes'
 import { listeArchitectes } from '@/lib/data/architectes'
 
 // Route sans segment dynamique ni API dynamique : sans ce flag, Next la
@@ -28,35 +28,22 @@ export default async function ArchitectesPage({
     <main className="flex-1 pt-20 py-10">
       <Container className="space-y-10">
         <header className="space-y-2">
-          <h1 className="font-serif text-4xl text-brun">{t('titre')}</h1>
-          <p className="text-encre/70">{t('intro')}</p>
+          <h1 className="font-serif text-4xl text-ocre">{t('titre')}</h1>
+          <p className="text-doux">{t('intro')}</p>
         </header>
 
-        <section aria-label={t('ivoiriens')} className="space-y-4">
-          <h2 className="font-serif text-2xl text-brun">{t('ivoiriens')}</h2>
-          {ivoiriens.length === 0 ? (
-            <p className="text-encre/70">{t('aucun')}</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
-              {ivoiriens.map((a) => (
-                <PastilleArchitecte key={a.id} a={a} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section aria-label={t('etrangers')} className="space-y-4">
-          <h2 className="font-serif text-2xl text-brun">{t('etrangers')}</h2>
-          {etrangers.length === 0 ? (
-            <p className="text-encre/70">{t('aucun')}</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
-              {etrangers.map((a) => (
-                <PastilleArchitecte key={a.id} a={a} />
-              ))}
-            </div>
-          )}
-        </section>
+        {/* Les deux sections passent dans un Composant Client : la recherche
+            filtre les deux à la fois, il lui faut donc les deux listes. Le
+            filtrage reste côté navigateur — la liste complète est déjà servie
+            et tient en quelques dizaines de noms, un aller-retour serveur par
+            frappe ne rendrait pas service. */}
+        <RechercheArchitectes
+          ivoiriens={ivoiriens}
+          etrangers={etrangers}
+          libelleIvoiriens={t('ivoiriens')}
+          libelleEtrangers={t('etrangers')}
+          libelleAucun={t('aucun')}
+        />
       </Container>
     </main>
   )

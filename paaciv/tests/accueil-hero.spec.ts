@@ -15,6 +15,7 @@ const FORMATS = [
   { largeur: 2000, hauteur: 1000 },
   { largeur: 1600, hauteur: 900 },
   { largeur: 1366, hauteur: 768 },
+  { largeur: 1280, hauteur: 800 },
 ]
 
 for (const { largeur, hauteur } of FORMATS) {

@@ -54,7 +54,7 @@ export function FormulairePatrimoine({
         setErreur(t(resultat.erreur === 'latitudeHorsBornes' ? 'erreurLatitudeHorsBornes' : 'erreurLongitudeHorsBornes'))
         return
       }
-      router.push(`/admin/patrimoine/${resultat.id}`)
+      router.push(`/admin/patrimoine/${resultat.id}?enregistre=1`)
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

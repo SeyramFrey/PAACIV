@@ -41,7 +41,7 @@ export function FormulaireActivite({ initial }: { initial?: Partial<ActiviteAdmi
         setErreur(t(resultat.erreur === 'titreRequis' ? 'erreurTitreRequis' : 'erreurEnregistrement'))
         return
       }
-      router.push('/admin/activites')
+      router.push('/admin/activites?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

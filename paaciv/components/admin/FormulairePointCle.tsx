@@ -35,7 +35,7 @@ export function FormulairePointCle({ initial }: { initial?: Partial<PointCleAdmi
         setErreur(t(resultat.erreur === 'titreRequis' ? 'erreurTitreRequis' : 'erreurEnregistrement'))
         return
       }
-      router.push('/admin/points-cles')
+      router.push('/admin/points-cles?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

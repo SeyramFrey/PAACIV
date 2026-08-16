@@ -66,7 +66,7 @@ export function FormulaireArticle({
       // Contrairement à FormulaireArchitecte / FormulairePatrimoine (qui
       // rouvrent la fiche éditée), le contrat e2e de cette liste attend un
       // retour sur le tableau après enregistrement.
-      router.push('/admin/articles')
+      router.push('/admin/articles?enregistre=1')
       router.refresh()
     } catch {
       setErreur(t('erreurEnregistrement'))

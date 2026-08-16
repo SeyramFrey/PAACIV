@@ -36,14 +36,14 @@ export default async function EvenementsPage({
     <main className="flex-1 pt-20 py-10">
       <Container className="space-y-10">
         <header className="space-y-2">
-          <h1 className="font-serif text-4xl text-brun">{t('titre')}</h1>
-          <p className="text-encre/70">{t('intro')}</p>
+          <h1 className="font-serif text-4xl text-ocre">{t('titre')}</h1>
+          <p className="text-doux">{t('intro')}</p>
         </header>
 
         <section aria-label={t('aVenir')} className="space-y-4">
-          <h2 className="font-serif text-2xl text-brun">{t('aVenir')}</h2>
+          <h2 className="font-serif text-2xl text-ocre">{t('aVenir')}</h2>
           {aVenir.length === 0 ? (
-            <p className="text-encre/70">{t('aucunAVenir')}</p>
+            <p className="text-doux">{t('aucunAVenir')}</p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {aVenir.map((e) => (
@@ -61,9 +61,9 @@ export default async function EvenementsPage({
         </section>
 
         <section aria-label={t('passes')} className="space-y-4">
-          <h2 className="font-serif text-2xl text-brun">{t('passes')}</h2>
+          <h2 className="font-serif text-2xl text-ocre">{t('passes')}</h2>
           {passes.length === 0 ? (
-            <p className="text-encre/70">{t('aucunPasse')}</p>
+            <p className="text-doux">{t('aucunPasse')}</p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {passes.map((e) => (
