@@ -52,7 +52,8 @@
     "sInscrire": "Subscribe",
     "votreEmail": "Your email address",
     "merciNewsletter": "Thank you, you are subscribed.",
-    "aucunEvenement": "No upcoming events at the moment."
+    "aucunEvenement": "No upcoming events at the moment.",
+    "noteSur": "{note} out of 5"
   },
   "nav": {
     "carte": "The map",

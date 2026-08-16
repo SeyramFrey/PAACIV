@@ -52,7 +52,8 @@
     "sInscrire": "S'inscrire",
     "votreEmail": "Votre adresse e-mail",
     "merciNewsletter": "Merci, vous êtes inscrit.",
-    "aucunEvenement": "Aucun événement à venir pour le moment."
+    "aucunEvenement": "Aucun événement à venir pour le moment.",
+    "noteSur": "{note} sur 5"
   },
   "nav": {
     "carte": "La carte",
