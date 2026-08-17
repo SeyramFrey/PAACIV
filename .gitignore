@@ -23,3 +23,8 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
+
+# Claude Code : `launch.json` (définition du serveur de dev) est versionné,
+# `settings.local.json` porte les autorisations d'outils propres à chaque
+# poste et ne doit pas l'être.
+.claude/settings.local.json
