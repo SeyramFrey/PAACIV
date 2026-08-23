@@ -1,8 +1,9 @@
 import { Fragment } from 'react'
 
-// Une piste du bandeau : une copie de la liste des villes séparée par des
-// « ✦ ». La seconde copie (voir plus bas) porte `aria-hidden` — elle n'existe
-// que pour que la boucle de défilement paraisse continue.
+// Une piste du bandeau : une copie de la liste des villes séparée par
+// l'emblème de l'association. La seconde copie (voir plus bas) porte
+// `aria-hidden` — elle n'existe que pour que la boucle de défilement paraisse
+// continue.
 function Piste({ villes, cache = false }: { villes: string[]; cache?: boolean }) {
   return (
     <div
@@ -13,9 +14,22 @@ function Piste({ villes, cache = false }: { villes: string[]; cache?: boolean })
       {villes.map((ville) => (
         <Fragment key={ville}>
           <span>{ville}</span>
-          <span aria-hidden="true" style={{ color: 'var(--terra)' }}>
-            ✦
-          </span>
+          {/* Séparateur purement décoratif : `alt=""` ET `aria-hidden`, sinon
+              un lecteur d'écran énumérerait l'emblème entre chaque ville.
+              Dimensions fixées en attributs autant qu'en classes : elles
+              réservent la place avant le chargement, sans quoi le bandeau
+              sauterait à l'arrivée des images. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/separateur.png"
+            alt=""
+            aria-hidden="true"
+            width={26}
+            height={26}
+            loading="lazy"
+            decoding="async"
+            className="h-[26px] w-[26px] shrink-0"
+          />
         </Fragment>
       ))}
     </div>

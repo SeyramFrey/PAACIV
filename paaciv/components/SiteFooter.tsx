@@ -43,7 +43,9 @@ export async function SiteFooter() {
     >
       <div className="mx-auto grid max-w-7xl gap-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Logo variante="surSombre" hauteur={54} />
+          {/* Compact : la baseline du logo complet répète mot pour mot le
+              texte de description juste en dessous. */}
+          <Logo variante="surSombre" compact hauteur={44} />
           <p className="mt-4 text-sm opacity-70">{texte(textes, 'footer_description', locale)}</p>
         </div>
 

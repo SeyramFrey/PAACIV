@@ -2,12 +2,13 @@
 
 // Le logo de l'association, en deux variantes.
 //
-// Pourquoi deux fichiers plutôt qu'un : le logo fourni est une image matricielle
-// dont le mot « PAACIV » et la baseline sont quasi noirs. Sur un fond sombre ils
-// disparaissent purement et simplement, et une image matricielle ne se recolore
-// pas en CSS. `public/logo-inverse.png` est donc le même dessin dont les seuls
-// pixels désaturés et sombres ont été remplacés par le crème `--onDeep` ; le
-// vert et l'orange de l'emblème sont identiques dans les deux fichiers.
+// Pourquoi deux fichiers plutôt qu'un : le logo est un bloc typographique
+// entièrement NOIR, fourni en JPEG sans canal alpha. Sur un fond sombre il
+// disparaît purement et simplement, et une image matricielle ne se recolore pas
+// en CSS. `public/logo-inverse.png` est donc le même dessin dont tous les
+// pixels opaques ont été portés au crème `--onDeep`, l'alpha inchangé — le
+// détourage a été fait avec démélange des bords, faute de quoi les artefacts de
+// compression du JPEG auraient laissé un halo gris autour des lettres.
 //
 // LE CHOIX DE LA VARIANTE SUIT LA SURFACE, PAS LE THÈME. C'est la distinction
 // qui compte ici :
@@ -32,6 +33,7 @@ export function Logo({
    * haut, cette ligne n'est plus lisible — elle devient une bavure grise qui
    * salit le logo au lieu de l'expliquer. On la retire plutôt que de faire
    * semblant : c'est l'usage normal d'un lockup compact en en-tête.
+   * Le mot et le trait qui le souligne, eux, sont conservés.
    */
   compact?: boolean
   className?: string
@@ -40,9 +42,12 @@ export function Logo({
   /** Vrai pour le logo de l'en-tête, visible d'emblée : pas de chargement paresseux. */
   priorite?: boolean
 }) {
-  // Rapports des fichiers sources : 560 × 289 complet, 560 × 265 compact.
+  // Rapports des fichiers sources : 800 × 216 complet, 640 × 141 compact.
+  // À tenir en accord avec `public/` — un rapport faux déformerait le logo ou
+  // réserverait la mauvaise largeur, et ferait sauter la mise en page au
+  // chargement.
   const suffixe = compact ? '-compact' : ''
-  const largeur = Math.round((hauteur * 560) / (compact ? 265 : 289))
+  const largeur = Math.round(hauteur * (compact ? 640 / 141 : 800 / 216))
   const commun = {
     width: largeur,
     height: hauteur,

@@ -19,7 +19,7 @@ test('le pied de page est sombre dans les deux thèmes : toujours la variante cl
     await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
     const logo = page.locator('footer img[alt="PAACIV"]')
     await expect(logo, theme).toHaveCount(1)
-    await expect(logo, theme).toHaveAttribute('src', '/logo-inverse.png')
+    await expect(logo, theme).toHaveAttribute('src', '/logo-compact-inverse.png')
   }
 })
 
