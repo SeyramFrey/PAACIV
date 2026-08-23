@@ -11,7 +11,7 @@ export function Galerie({ images, locale }: { images: ImageRow[]; locale: string
   const courante = images[actif]
 
   return (
-    <figure className="space-y-3">
+    <figure className="space-y-3" data-testid="galerie">
       <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-creme2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

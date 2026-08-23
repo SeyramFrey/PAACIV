@@ -245,3 +245,63 @@ export const chiffresCles = cache(async function chiffresCles(): Promise<Chiffre
   ])
   return { fiches, villes, architectes, articles }
 })
+
+export type PointCarte = { ville: string; lat: number; lng: number; nombre: number }
+
+export type StatistiquesTerritoire = {
+  points: PointCarte[]
+  edifices: number
+  communes: number
+  districts: number
+  parType: { nom_fr: string; nom_en: string | null; couleur: string | null; nombre: number }[]
+}
+
+// Données du bloc « territoire » de la page d'accueil : le tracé de la Côte
+// d'Ivoire et les chiffres qui l'accompagnent.
+//
+// Les édifices sont REGROUPÉS PAR COMMUNE, avec leur compte. Sans ce
+// regroupement, les cinq fiches d'Abidjan se superposent en un seul amas
+// illisible à l'échelle du pays — un point par commune, dont le rayon dit
+// combien d'édifices s'y trouvent, porte la même information et se lit.
+export const statistiquesTerritoire = cache(async function statistiquesTerritoire(): Promise<StatistiquesTerritoire> {
+  const sb = createReadClient()
+  const { data, error } = await sb
+    .from('patrimoine')
+    .select('ville, lat, lng, district_id, types(nom_fr, nom_en, couleur)')
+    .eq('statut', 'publie')
+  if (error) throw error
+
+  type Ligne = {
+    ville: string | null
+    lat: number | null
+    lng: number | null
+    district_id: string | null
+    types: { nom_fr: string; nom_en: string | null; couleur: string | null } | null
+  }
+  const lignes = (data ?? []) as unknown as Ligne[]
+
+  const parVille = new Map<string, PointCarte>()
+  for (const l of lignes) {
+    if (l.lat == null || l.lng == null) continue
+    const cle = l.ville ?? `${l.lat},${l.lng}`
+    const existant = parVille.get(cle)
+    if (existant) existant.nombre += 1
+    else parVille.set(cle, { ville: l.ville ?? '', lat: l.lat, lng: l.lng, nombre: 1 })
+  }
+
+  const parType = new Map<string, { nom_fr: string; nom_en: string | null; couleur: string | null; nombre: number }>()
+  for (const l of lignes) {
+    if (!l.types) continue
+    const e = parType.get(l.types.nom_fr)
+    if (e) e.nombre += 1
+    else parType.set(l.types.nom_fr, { ...l.types, nombre: 1 })
+  }
+
+  return {
+    points: [...parVille.values()].sort((a, b) => b.nombre - a.nombre),
+    edifices: lignes.filter((l) => l.lat != null && l.lng != null).length,
+    communes: new Set(lignes.map((l) => l.ville).filter(Boolean)).size,
+    districts: new Set(lignes.map((l) => l.district_id).filter(Boolean)).size,
+    parType: [...parType.values()].sort((a, b) => b.nombre - a.nombre),
+  }
+})

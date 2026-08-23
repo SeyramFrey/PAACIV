@@ -7,7 +7,7 @@ function Piste({ villes, cache = false }: { villes: string[]; cache?: boolean })
   return (
     <div
       aria-hidden={cache ? 'true' : undefined}
-      className="flex items-center gap-14 pr-14 font-serif text-[clamp(26px,3.4vw,46px)] leading-none whitespace-nowrap"
+      className="flex items-center gap-8 pr-8 font-serif text-[20px] leading-none whitespace-nowrap"
       style={{ color: 'var(--ink)' }}
     >
       {villes.map((ville) => (

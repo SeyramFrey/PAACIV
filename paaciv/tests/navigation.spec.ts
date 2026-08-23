@@ -25,7 +25,11 @@ test.describe('navigation de bureau', () => {
     const hrefs = await page.locator('header a, footer a').evaluateAll((as) =>
       as.map((a) => a.getAttribute('href') ?? ''),
     )
-    for (const mort of ['/a-propos', '/contact', '/conditions-utilisation']) {
+    // `/a-propos` a quitté cette liste : la page existe désormais et figure
+    // légitimement dans la navigation. Les deux autres routes n'existent
+    // toujours pas — le jour où elles seront créées, elles devront sortir
+    // d'ici de la même façon, et non être contournées.
+    for (const mort of ['/contact', '/conditions-utilisation']) {
       expect(hrefs.some((h) => h.includes(mort)), mort).toBe(false)
     }
     expect(hrefs.some((h) => h === '#' || h === '')).toBe(false)

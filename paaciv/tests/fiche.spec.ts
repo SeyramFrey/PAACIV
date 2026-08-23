@@ -3,7 +3,10 @@ import { test, expect } from '@playwright/test'
 test('la fiche patrimoine affiche titre, type et galerie', async ({ page }) => {
   await page.goto('/fr/patrimoine/basilique-yamoussoukro')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Basilique')
-  await expect(page.locator('img').first()).toBeVisible()
+  // Viser la GALERIE, et non « la première image de la page » : le logo de
+  // l'en-tête a depuis pris cette place, si bien que le test passait — ou
+  // échouait — pour une raison qui n'avait rien à voir avec la fiche.
+  await expect(page.getByTestId('galerie').locator('img').first()).toBeVisible()
 })
 
 test('la fiche patrimoine affiche l\'architecte lié', async ({ page }) => {

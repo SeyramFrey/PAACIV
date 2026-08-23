@@ -3,6 +3,7 @@ import { chargerTextes, texte, libelleOuNull } from '@/lib/data/contenu-site'
 import { chargerMedias, visuel } from '@/lib/data/medias'
 import {
   chiffresCles, listeActivites, listePointsCles, listeTemoignages, listeTypes,
+  statistiquesTerritoire,
   vedettesHero, vignettesArchive, villesArchive,
 } from '@/lib/data/accueil'
 import { listeArticles } from '@/lib/data/articles'
@@ -36,11 +37,12 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
   // Un seul palier d'attente : ces lectures sont indépendantes, les
   // enchaîner en série multiplierait le temps de rendu par dix.
   const [
-    textes, medias, vedettes, villes, chiffres, pourquoi, raisons,
+    textes, medias, statsTerritoire, vedettes, villes, chiffres, pourquoi, raisons,
     activites, types, evenements, vignettes, temoignages, articles,
   ] = await Promise.all([
     chargerTextes(),
     chargerMedias(),
+    statistiquesTerritoire(),
     vedettesHero(5),
     villesArchive(),
     chiffresCles(),
@@ -85,8 +87,8 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         intro={tx('activites_intro')}
       />
       <ApercuCarte
-        types={types}
-        nombre={chiffres.fiches}
+        stats={statsTerritoire}
+        locale={locale}
         surtitre={tx('carte_surtitre')}
         titre={tx('carte_titre')}
         texte={tx('carte_texte')}

@@ -1,66 +1,44 @@
-'use client'
-
-import dynamic from 'next/dynamic'
-import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import type { Ref } from '@/lib/data/patrimoine'
+import { CarteCoteIvoire } from '@/components/accueil/CarteCoteIvoire'
+import { champ } from '@/lib/i18n-champ'
+import type { StatistiquesTerritoire } from '@/lib/data/accueil'
 
-// `'use client'` ne retire RIEN du HTML servi : ce composant est rendu par le
-// serveur comme les autres, seul son code est aussi envoyé au navigateur.
-// C'est `ssr: false` qui retire du HTML, et il ne porte donc que sur
-// `CarteApercu` — le surtitre, le `<h2>`, le paragraphe et surtout le lien
-// interne vers `/carte` restent dans le HTML de la page la plus visitée du
-// site. (Auparavant `ssr: false` portait sur toute la section : elle en avait
-// entièrement disparu.)
-const CarteApercu = dynamic(
-  () => import('@/components/accueil/CarteApercu').then((mod) => mod.CarteApercu),
-  { ssr: false },
-)
-
-export function ApercuCarte({
-  types,
-  nombre,
+// Bloc « territoire ».
+//
+// Composant SERVEUR, sans une ligne de JavaScript envoyée au navigateur — là
+// où la version précédente montait MapLibre (785 Ko de WebGL), derrière un
+// observateur d'intersection et un `next/dynamic`, pour afficher un carré.
+// Tout ce fragile échafaudage disparaît avec lui : plus de garde de
+// visibilité, plus de chargement paresseux, plus d'état « prête », plus
+// d'écouteur d'erreur sur le style MapLibre. La carte interactive, elle, n'a
+// pas bougé : elle est sur /carte, où elle a un sens.
+export async function ApercuCarte({
+  stats,
   surtitre,
   titre,
   texte,
+  locale,
 }: {
-  types: Ref[]
-  nombre: number
+  stats: StatistiquesTerritoire
   surtitre: string
   titre: string
   texte: string
+  locale: string
 }) {
-  const t = useTranslations('accueil')
-  const conteneur = useRef<HTMLDivElement>(null)
-  const [pret, setPret] = useState(false)
-  const [visible, setVisible] = useState(false)
+  const t = await getTranslations('accueil')
 
-  // La carte est décorative sur la page la plus visitée du site. Le garde
-  // vit ICI, et non dans `CarteApercu`, parce qu'un garde placé dans le
-  // module à charger suppose ce module déjà chargé : `next/dynamic` est un
-  // `React.lazy`, dont le chargeur part au PREMIER RENDU de l'élément. Rendre
-  // `<CarteApercu />` sans condition faisait donc partir les 785 Ko à chaque
-  // visite, simplement après l'hydratation au lieu d'être dans le bundle
-  // initial. En le montant seulement quand `visible` passe à vrai, le chunk
-  // n'est demandé qu'à l'approche de la section.
-  // `rootMargin: '200px'` laisse une marge d'anticipation : la carte est
-  // prête un peu avant que le conteneur n'entre réellement dans le viewport,
-  // pas seulement au pixel exact.
-  useEffect(() => {
-    if (!conteneur.current) return
-    const observateur = new IntersectionObserver(
-      (entrees) => {
-        if (entrees[0]?.isIntersecting) {
-          setVisible(true)
-          observateur.disconnect()
-        }
-      },
-      { rootMargin: '200px' },
-    )
-    observateur.observe(conteneur.current)
-    return () => observateur.disconnect()
-  }, [])
+  const chiffres = [
+    { valeur: stats.edifices, libelle: t('statEdifices') },
+    { valeur: stats.communes, libelle: t('statCommunes') },
+    { valeur: stats.districts, libelle: t('statDistricts') },
+  ]
+
+  // Part de chaque type, rapportée au type le plus représenté : c'est ce qui
+  // donne à la barre une longueur comparable d'une ligne à l'autre. Rapportée
+  // au TOTAL, avec sept types et sept fiches, toutes les barres seraient des
+  // moignons indistincts.
+  const maxType = Math.max(1, ...stats.parType.map((x) => x.nombre))
 
   return (
     <section
@@ -73,35 +51,82 @@ export function ApercuCarte({
         <p data-rv="" data-d="120" className="mt-5 opacity-75">{texte}</p>
       </div>
 
-      <div
-        data-rv=""
-        data-d="180"
-        className="mx-auto mt-12 w-[min(720px,100%)] overflow-hidden rounded border"
-        style={{ borderColor: 'color-mix(in oklab, var(--onDeep) 22%, transparent)' }}
-      >
-        {/* Carré strict, demandé explicitement. `aspect-square` + hauteur
-            pilotée par la largeur : MapLibre a besoin d'un conteneur mesuré.
-            Ce div est aussi la cible de l'observateur et il réserve la place
-            avant le montage de la carte, donc la page ne saute pas.
-            Pas d'`aria-label` ici : un `<div>` sans rôle explicite l'ignore
-            selon la spécification ARIA, et il ferait de toute façon doublon
-            avec le `aria-live` du paragraphe voisin ci-dessous. */}
-        <div ref={conteneur} className="aspect-square w-full">
-          {visible ? <CarteApercu types={types} onPret={() => setPret(true)} /> : null}
+      <div className="mx-auto mt-14 grid max-w-[1180px] items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.82fr)]">
+        <div data-rv="" data-d="180" className="mx-auto w-[min(520px,100%)]">
+          <CarteCoteIvoire points={stats.points} legende={t('legendeCarte')} />
         </div>
-      </div>
 
-      <div className="mt-8 flex flex-col items-center gap-3">
-        <p className="text-sm opacity-70" aria-live="polite">
-          {pret ? t('edifices', { n: nombre }) : null}
-        </p>
-        <Link
-          href="/carte"
-          className="rounded-full px-8 py-4 text-sm font-semibold transition hover:-translate-y-0.5"
-          style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
-        >
-          {t('ouvrirCarte')}
-        </Link>
+        <div data-rv="" data-d="240" className="flex flex-col gap-9">
+          <dl className="grid grid-cols-3 gap-4">
+            {chiffres.map((c) => (
+              // `flex-col-reverse` : le DOM porte `<dt>` avant `<dd>`, l'œil
+              // lit le nombre avant son intitulé. Même patron que `Compteurs`.
+              <div key={c.libelle} className="flex flex-col-reverse gap-1">
+                <dt className="text-[10px] uppercase leading-tight tracking-[0.18em] opacity-60">
+                  {c.libelle}
+                </dt>
+                <dd className="font-serif text-[clamp(34px,4.4vw,54px)] leading-none">{c.valeur}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {stats.parType.length > 0 && (
+            <div>
+              <p className="mb-4 text-[10px] uppercase tracking-[0.2em] opacity-60">
+                {t('repartitionTypes')}
+              </p>
+              <ul className="flex flex-col gap-2.5">
+                {stats.parType.map((ty) => (
+                  // Trois colonnes : intitulé, PISTE de largeur fixe, compte.
+                  // Une barre posée sous l'intitulé et calculée en pourcentage
+                  // de la colonne entière se lisait comme un soulignement de
+                  // texte, pas comme une donnée — c'est la piste, constante
+                  // d'une ligne à l'autre, qui rend les longueurs comparables.
+                  <li
+                    key={ty.nom_fr}
+                    className="grid grid-cols-[minmax(0,max-content)_minmax(56px,1fr)_2ch] items-center gap-3"
+                  >
+                    <span className="truncate text-sm">{champ(ty.nom_fr, ty.nom_en, locale)}</span>
+                    <span
+                      aria-hidden="true"
+                      className="h-1.5 w-full overflow-hidden rounded-full"
+                      style={{ background: 'color-mix(in oklab, var(--onDeep) 14%, transparent)' }}
+                    >
+                      <span
+                        className="block h-full rounded-full"
+                        style={{
+                          width: `${(ty.nombre / maxType) * 100}%`,
+                          background: ty.couleur ?? 'var(--terra)',
+                        }}
+                      />
+                    </span>
+                    <span className="text-right font-serif text-base tabular-nums opacity-80">
+                      {ty.nombre}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {stats.points.length > 0 && (
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm opacity-70">
+              {stats.points.map((p) => (
+                <li key={p.ville}>
+                  {p.ville} <span className="opacity-60">· {t('compteEdifices', { n: p.nombre })}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <Link
+            href="/carte"
+            className="self-start rounded-full px-8 py-4 text-sm font-semibold transition hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+          >
+            {t('ouvrirCarte')}
+          </Link>
+        </div>
       </div>
     </section>
   )

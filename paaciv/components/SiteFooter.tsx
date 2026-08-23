@@ -1,5 +1,6 @@
 import { getTranslations, getLocale } from 'next-intl/server'
 import { chargerMedias, attributions } from '@/lib/data/medias'
+import { Logo } from '@/components/ui/Logo'
 import { Link } from '@/i18n/navigation'
 import { chargerTextes, texte, renseigne } from '@/lib/data/contenu-site'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -42,7 +43,7 @@ export async function SiteFooter() {
     >
       <div className="mx-auto grid max-w-7xl gap-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="font-serif text-2xl">PAACIV</p>
+          <Logo variante="surSombre" hauteur={54} />
           <p className="mt-4 text-sm opacity-70">{texte(textes, 'footer_description', locale)}</p>
         </div>
 

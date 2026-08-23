@@ -7,12 +7,14 @@ import { BasculeTheme } from '@/components/ui/BasculeTheme'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { MenuMobile, type Entree } from '@/components/MenuMobile'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
+import { Logo } from '@/components/ui/Logo'
 
-// Six entrées, une par rubrique du site. Les ancres du design (#archive,
+// Sept entrées, une par rubrique du site. Les ancres du design (#archive,
 // #journal…) sont remplacées par les vraies routes : le header est partagé
 // par toutes les pages, où ces ancres ne mèneraient nulle part.
 const ENTREES: readonly Entree[] = [
   { href: '/carte', cle: 'carte' },
+  { href: '/a-propos', cle: 'apropos' },
   { href: '/archives', cle: 'archives' },
   { href: '/architectes', cle: 'architectes' },
   { href: '/articles', cle: 'articles' },
@@ -84,20 +86,11 @@ export function SiteHeader() {
         color: opaque ? 'var(--ink)' : 'var(--onDeep)',
       }}
     >
-      <Link href="/" className="flex items-center gap-3" style={{ color: 'inherit' }}>
-        <span
-          aria-hidden="true"
-          className="grid h-9 w-9 place-items-center border text-[15px]"
-          style={{ borderColor: 'currentColor', fontFamily: 'var(--font-fraunces), serif' }}
-        >
-          P
-        </span>
-        <span className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold tracking-wide">PAACIV</span>
-          <span className="text-[10px] uppercase tracking-[0.2em] opacity-70">
-            Patrimoine · Côte d&apos;Ivoire
-          </span>
-        </span>
+      <Link href="/" className="flex items-center" style={{ color: 'inherit' }} aria-label="PAACIV">
+        {/* Variante pilotée par `opaque`, pas par le thème : tant que l'en-tête
+            est transparent il repose sur le hero, sombre dans les deux thèmes.
+            Une fois opaque il est sur `--bg`, qui suit le thème, lui. */}
+        <Logo variante={opaque ? 'auto' : 'surSombre'} compact hauteur={52} priorite />
       </Link>
 
       <nav aria-label={t('principale')} className="hidden lg:block">
