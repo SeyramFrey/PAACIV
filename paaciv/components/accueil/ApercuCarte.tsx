@@ -53,7 +53,7 @@ export async function ApercuCarte({
 
       <div className="mx-auto mt-14 grid max-w-[1180px] items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.82fr)]">
         <div data-rv="" data-d="180" className="mx-auto w-[min(520px,100%)]">
-          <CarteCoteIvoire points={stats.points} legende={t('legendeCarte')} />
+          <CarteCoteIvoire points={stats.points} />
         </div>
 
         <div data-rv="" data-d="240" className="flex flex-col gap-9">
@@ -107,16 +107,6 @@ export async function ApercuCarte({
                 ))}
               </ul>
             </div>
-          )}
-
-          {stats.points.length > 0 && (
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm opacity-70">
-              {stats.points.map((p) => (
-                <li key={p.ville}>
-                  {p.ville} <span className="opacity-60">· {t('compteEdifices', { n: p.nombre })}</span>
-                </li>
-              ))}
-            </ul>
           )}
 
           <Link

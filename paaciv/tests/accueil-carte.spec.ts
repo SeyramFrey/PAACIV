@@ -34,10 +34,55 @@ test('le tracé du pays et les chiffres sont dans le HTML servi', async ({ reque
   const html = await (await request.get('/fr')).text()
   expect(html).toContain('Ouvrir la carte')
   expect(html).toContain('href="/fr/carte"')
-  // Le `viewBox` du contour : 968 × 1000, la vraie proportion du pays.
-  expect(html).toContain('viewBox="0 0 968 1000"')
+  // Le `viewBox` du contour, calé sur les bornes réelles du pays.
+  // À REGÉNÉRER AVEC `lib/carte-ci.ts` : ces deux nombres viennent des données
+  // de frontières, pas d'un choix de mise en page.
+  expect(html).toContain('viewBox="0 0 949 1000"')
   expect(html).toContain('Édifices géolocalisés')
   expect(html).not.toContain('maplibregl-map')
+})
+
+// Le tracé doit être FIN, pas un polygone approximatif : un premier essai à 46
+// points donnait une silhouette reconnaissable mais fausse dans le détail —
+// pas de lagunes, pas de dentelures. Le seuil ci-dessous échouerait si
+// quelqu'un resimplifiait trop agressivement.
+test('le contour national est tracé finement, pas approximé', async ({ request }) => {
+  const html = await (await request.get('/fr')).text()
+  const contour = html.match(/d="(M[\d.,LZM]{2000,})"/)
+  expect(contour, 'aucun chemin long trouvé — le contour a-t-il été simplifié ?').not.toBeNull()
+  const sommets = (contour![1].match(/[ML]/g) ?? []).length
+  expect(sommets).toBeGreaterThan(500)
+})
+
+test('les quatorze districts sont dessinés et nommés', async ({ page }) => {
+  await page.goto('/fr')
+  const svg = page.getByRole('img', { name: /Carte de la Côte/ })
+  await svg.scrollIntoViewIfNeeded()
+  // Chaque district porte un <title> : infobulle native et lecteurs d'écran.
+  const noms = await svg.locator('g > path > title').allTextContents()
+  expect(noms).toHaveLength(14)
+  expect(noms).toContain('Abidjan')
+  expect(noms).toContain('Vallée du Bandama')
+})
+
+// L'attribution des frontières. Sur un site qui reproche à ses propres
+// photographies de n'être pas créditées, importer une frontière sans dire d'où
+// elle vient serait incohérent.
+test('la provenance des frontières est créditée sous la carte', async ({ page }) => {
+  await page.goto('/fr')
+  const svg = page.getByRole('img', { name: /Carte de la Côte/ })
+  await svg.scrollIntoViewIfNeeded()
+  await expect(page.getByRole('link', { name: 'geoBoundaries' })).toBeVisible()
+  await expect(page.getByText(/CC BY 4\.0/)).toBeVisible()
+})
+
+test('chaque ville mène à l’archive filtrée sur son nom', async ({ page }) => {
+  await page.goto('/fr')
+  const svg = page.getByRole('img', { name: /Carte de la Côte/ })
+  await svg.scrollIntoViewIfNeeded()
+  const liens = await svg.locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))
+  expect(liens.length).toBeGreaterThanOrEqual(1)
+  for (const h of liens) expect(h).toMatch(new RegExp("^\\/fr\\/archives\\?q="))
 })
 
 // L'exigence explicite : le bloc n'est plus un carré, il a la forme de la

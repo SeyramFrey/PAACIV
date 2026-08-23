@@ -28,8 +28,25 @@ export async function NotreTravail({ textes, medias }: { textes: Textes; medias:
   const recitTexte = texte(textes, 'travail_recit_texte', locale)
 
   return (
-    <section className="px-[clamp(20px,5vw,80px)] py-[clamp(60px,7vw,110px)]">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-center gap-[clamp(24px,3vw,48px)]">
+    <section className="relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(60px,7vw,110px)]">
+      {/* Filigrane : l'emblème de l'association, très en retrait derrière le
+          bloc. `aria-hidden` et `pointer-events-none` — c'est une texture, il
+          ne doit ni être annoncé, ni intercepter un clic destiné au contenu.
+          L'opacité est délibérément basse : le dessin est dense et coloré, et à
+          pleine force il rendrait le texte illisible. Il est posé sous un
+          `z-0` explicite, le contenu sous `z-10`, faute de quoi l'ordre
+          d'empilement dépendrait de l'ordre du DOM et un futur déplacement de
+          bloc ferait passer le filigrane devant. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/embleme-fond.png"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[clamp(460px,62vw,900px)] max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.07]"
+      />
+      <div className="relative z-10 mx-auto grid max-w-[1440px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-center gap-[clamp(24px,3vw,48px)]">
         <div data-clip="" data-par="0.06" className="h-[clamp(320px,36vw,520px)] overflow-hidden rounded-[6px]">
           <img
             src={image1.src}
