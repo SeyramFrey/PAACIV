@@ -46,6 +46,16 @@ jobs:
           cache: npm
           cache-dependency-path: paaciv/package-lock.json
 
+      # Node 22 embarque npm 10 ; le verrou de ce dépôt est écrit par npm 11.
+      # Les deux majeures ne calculent pas le même arbre idéal : npm 10 recalcule
+      # depuis `next: ^16.3.0`, tombe sur une version plus récente que celle
+      # épinglée, et réclame un `@swc/helpers` qui ne figure nulle part dans le
+      # verrou — « Missing: @swc/helpers@0.5.23 from lock file ». Le verrou n'y
+      # est pour rien : c'est le lecteur qui diverge de l'écrivain.
+      # Aligner les deux est la seule façon que `npm ci` tienne sa promesse.
+      - name: Aligner la version de npm sur celle qui écrit le verrou
+        run: npm install -g npm@11
+
       # `npm ci` et non `npm install` : il installe EXACTEMENT le lockfile et
       # échoue s'il a dérivé de package.json, au lieu de le réécrire en silence.
       - name: Installer les dépendances
