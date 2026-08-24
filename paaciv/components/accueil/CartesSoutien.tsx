@@ -56,13 +56,13 @@ function Carte({
         <span
           aria-hidden="true"
           className="absolute inset-0"
-          style={{ background: 'oklch(0.24 0.03 46)' }}
+          style={{ background: 'oklch(0.24 0.026 252)' }}
         />
       )}
       <span
         aria-hidden="true"
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, transparent 20%, oklch(0.14 0.02 46 / 0.82))' }}
+        style={{ background: 'linear-gradient(180deg, transparent 20%, oklch(0.14 0.018 252 / 0.82))' }}
       />
       <span className="relative font-serif text-[clamp(26px,2.4vw,34px)] leading-[1.1]">{titre}</span>
       {texte && (

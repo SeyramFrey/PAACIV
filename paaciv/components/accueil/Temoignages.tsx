@@ -12,9 +12,9 @@ import type { Temoignage } from '@/lib/data/accueil'
 const FOND = ['var(--terra)', 'var(--ocre)', 'var(--deep)', 'var(--accent)'] as const
 const SUR_FOND = [
   'oklch(0.98 0.01 84)',
-  'oklch(0.16 0.02 48)',
+  'oklch(0.16 0.018 252)',
   'var(--onDeep)',
-  'oklch(0.16 0.02 48)',
+  'oklch(0.16 0.018 252)',
 ] as const
 
 // Transposition des lignes 475-524 de la référence de design.
@@ -61,7 +61,10 @@ export function Temoignages({
   const dernier = temoignages.length - 1
 
   return (
-    <section className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)]" style={{ background: 'var(--bg2)' }}>
+    <section
+      className="surface-papier px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)]"
+      style={{ background: 'var(--bg2)' }}
+    >
       <div className="mx-auto max-w-[1440px]">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>

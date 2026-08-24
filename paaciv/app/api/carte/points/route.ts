@@ -27,6 +27,10 @@ export async function GET(req: NextRequest) {
         id: p.id,
         slug: p.slug,
         type_id: p.type_id,
+        // Sert la bascule « lecture par état » de la carte : une propriété de
+        // plus dans le GeoJSON coûte moins qu'un second appel réseau pour
+        // recolorer exactement les mêmes points.
+        etat_conservation: p.etat_conservation,
         titre_fr: p.titre_fr,
         titre_en: p.titre_en,
         ville: p.ville,

@@ -7,10 +7,13 @@ import { Galerie } from '@/components/patrimoine/Galerie'
 import { MiniCarte } from '@/components/carte/MiniCarte'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { FacadeVideo } from '@/components/editorial/FacadeVideo'
+import { PictoType } from '@/components/ui/PictoType'
+import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
-import { estEtatConservation } from '@/lib/etats-conservation'
+import { slugify } from '@/lib/slug'
+import { COULEUR_DEFAUT } from '@/lib/carte-style'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
@@ -38,7 +41,6 @@ export default async function FichePatrimoine({ params }: Props) {
   setRequestLocale(locale)
   const t = await getTranslations('fiche')
   const tVideo = await getTranslations('video')
-  const tEtats = await getTranslations('etats')
   const p = await getPatrimoineParSlug(slug)
   if (!p) notFound()
   const { articles, reportages } = await contenusLies(p.id)
@@ -57,13 +59,13 @@ export default async function FichePatrimoine({ params }: Props) {
     [p.annee_debut, p.annee_fin].filter(Boolean).join(' – ') ||
     null
 
-  // La colonne stocke un slug (`en_danger`), le libellé bilingue vit en i18n.
-  // Une valeur hors vocabulaire — ligne écrite avant la contrainte 0023 —
-  // n'affiche rien plutôt que d'exposer le slug brut au visiteur, et `ligne()`
-  // fait alors disparaître la définition entière.
-  const etatLisible = estEtatConservation(p.etat_conservation)
-    ? tEtats(p.etat_conservation)
-    : null
+  // L'état de conservation est REMONTÉ dans le bandeau de titre, aux côtés de la
+  // typologie : c'est une clé de lecture, elle doit se voir avant la
+  // photographie. Il n'est donc plus répété dans la liste de définitions plus
+  // bas — la même information écrite deux fois à trente centimètres d'écart ne
+  // renseigne pas mieux, elle encombre. Le composant `PastilleEtat` porte la
+  // garde sur le vocabulaire (une valeur hors 0023 n'affiche rien plutôt qu'un
+  // slug brut) ; elle n'a plus à être écrite ici.
 
   return (
     <main className="flex-1 pt-20 py-10">
@@ -72,12 +74,16 @@ export default async function FichePatrimoine({ params }: Props) {
           <div className="flex flex-wrap items-center gap-3">
             {p.type && (
               <span
-                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-sable"
-                style={{ backgroundColor: p.type.couleur ?? '#8A3E1B' }}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-sable"
+                style={{ backgroundColor: p.type.couleur ?? COULEUR_DEFAUT }}
               >
+                {/* Décoratif : le nom du type suit immédiatement, en toutes
+                    lettres. L'annoncer deux fois ne ferait que bavarder. */}
+                <PictoType type={p.type.id} taille={15} />
                 {champ(p.type.nom_fr, p.type.nom_en, locale)}
               </span>
             )}
+            <PastilleEtat etat={p.etat_conservation} />
           </div>
           <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
           <Galerie images={p.images} locale={locale} />
@@ -100,14 +106,29 @@ export default async function FichePatrimoine({ params }: Props) {
             {ligne(t('epoque'), p.epoque && champ(p.epoque.nom_fr, p.epoque.nom_en, locale))}
             {ligne(t('style'), champ(p.style_fr, p.style_en, locale) || null)}
             {ligne(t('statutPatrimonial'), p.statut_patrimonial)}
-            {ligne(t('etat'), etatLisible)}
             {ligne(
               t('localisation'),
-              [champ(p.adresse_fr, p.adresse_en, locale), p.ville].filter(Boolean).join(', ') || null,
+              champ(p.adresse_fr, p.adresse_en, locale) || null,
+            )}
+            {/* La commune est un LIEN vers sa page, là où l'adresse reste du
+                texte : « patrimoine Grand-Bassam » est une entrée du site à
+                part entière depuis qu'existe /villes, et une fiche est le
+                meilleur endroit d'où y renvoyer. */}
+            {p.ville && (
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-doux">{t('commune')}</dt>
+                <dd>
+                  <Link href={`/villes/${slugify(p.ville)}`} className="text-ocre underline">
+                    {p.ville}
+                  </Link>
+                </dd>
+              </div>
             )}
           </dl>
           {p.lat != null && p.lng != null && (
-            <MiniCarte lat={p.lat} lng={p.lng} titre={titre} />
+            <div className="filet-double overflow-hidden rounded-2xl">
+              <MiniCarte lat={p.lat} lng={p.lng} titre={titre} />
+            </div>
           )}
           {p.architectes.length > 0 && (
             <section data-testid="architectes-fiche">

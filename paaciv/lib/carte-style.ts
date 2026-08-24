@@ -7,4 +7,7 @@ export const STYLE_CARTE = MAPTILER_KEY
   ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`
   : 'https://tiles.openfreemap.org/styles/liberty'
 
-export const COULEUR_DEFAUT = '#8A3E1B'
+// Couleur d'un point dont le type n'a pas de couleur en base. Le brun de la
+// palette « Matières » (identique à `--color-brun`) : un point de carte est
+// évalué par WebGL, hors du document, et ne peut donc pas lire un jeton CSS.
+export const COULEUR_DEFAUT = '#7E3F20'

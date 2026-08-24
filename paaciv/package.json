@@ -8,6 +8,7 @@
     "start": "next start -p 3100",
     "lint": "eslint",
     "test": "vitest run",
+    "contraste": "node scripts/contraste.mjs",
     "e2e": "playwright test"
   },
   "dependencies": {

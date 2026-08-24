@@ -42,7 +42,7 @@ export function MiniCarte({
       attributionControl: { compact: true },
     })
     mapRef.current = map
-    const marqueur = new Marker({ color: '#B5581F' }).setLngLat([lng, lat]).addTo(map)
+    const marqueur = new Marker({ color: '#A9502A' }).setLngLat([lng, lat]).addTo(map)
     marqueurRef.current = marqueur
     if (titre) marqueur.setPopup(new Popup().setText(titre))
     map.on('click', (e) => {

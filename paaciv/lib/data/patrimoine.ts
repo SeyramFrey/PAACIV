@@ -45,6 +45,22 @@ export type PatrimoineListItem = {
   district_id: string | null
   epoque_id: string | null
   ville: string | null
+  // Ajoutés pour la FRISE CHRONOLOGIQUE et la PASTILLE D'ÉTAT — deux lectures
+  // qui portent sur la liste entière, là où ces champs n'étaient jusqu'ici
+  // chargés que par la fiche ouverte. Les trois champs de datation voyagent
+  // ensemble parce que `anneeEdifice()` les consulte dans cet ordre : en
+  // emporter deux sur trois ferait sortir de la frise, sans un mot, les fiches
+  // datées par le seul texte libre.
+  annee_debut: number | null
+  annee_fin: number | null
+  date_texte: string | null
+  // Pour l'extrait de carte des pages de commune. Nullables : une fiche peut
+  // être publiée sans avoir encore été située.
+  lat: number | null
+  lng: number | null
+  // `string` et non `EtatConservation` : la valeur vient de la base sans
+  // revalidation applicative. Même raison que sur `PatrimoineDetail`.
+  etat_conservation: string | null
   images: ImageMini[]
 }
 
@@ -95,6 +111,10 @@ export type PointPublie = {
   titre_fr: string
   titre_en: string | null
   type_id: string | null
+  // La carte sait désormais se lire PAR ÉTAT : sans ce champ dans le GeoJSON,
+  // la bascule devrait recharger un second jeu de données pour afficher
+  // exactement les mêmes points d'une autre couleur.
+  etat_conservation: string | null
   lat: number
   lng: number
   ville: string | null
@@ -126,7 +146,7 @@ export async function listePatrimoine(
   let q = sb
     .from('patrimoine')
     .select(
-      'id, slug, titre_fr, titre_en, resume_fr, resume_en, type_id, programme_id, district_id, epoque_id, ville, images(chemin, est_principale, ordre)',
+      'id, slug, titre_fr, titre_en, resume_fr, resume_en, type_id, programme_id, district_id, epoque_id, ville, annee_debut, annee_fin, date_texte, etat_conservation, lat, lng, images(chemin, est_principale, ordre)',
     )
     .eq('statut', 'publie')
     .order('titre_fr', { ascending: true })
@@ -240,7 +260,7 @@ export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPub
   let q = sb
     .from('patrimoine')
     .select(
-      'id, slug, titre_fr, titre_en, type_id, lat, lng, ville, images(chemin, est_principale, ordre)',
+      'id, slug, titre_fr, titre_en, type_id, etat_conservation, lat, lng, ville, images(chemin, est_principale, ordre)',
     )
     .eq('statut', 'publie')
     .not('lat', 'is', null)
@@ -250,13 +270,15 @@ export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPub
   if (error) throw error
   return (data ?? []).map((row: {
     id: string; slug: string; titre_fr: string; titre_en: string | null
-    type_id: string | null; lat: number; lng: number; ville: string | null; images: ImageMini[]
+    type_id: string | null; etat_conservation: string | null
+    lat: number; lng: number; ville: string | null; images: ImageMini[]
   }) => ({
     id: row.id,
     slug: row.slug,
     titre_fr: row.titre_fr,
     titre_en: row.titre_en,
     type_id: row.type_id,
+    etat_conservation: row.etat_conservation,
     lat: row.lat,
     lng: row.lng,
     ville: row.ville,

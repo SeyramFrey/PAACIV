@@ -134,7 +134,7 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
               ouvrir('adhesion')
             }}
             className="rounded-full px-6 py-3 text-sm font-semibold"
-            style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+            style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
           >
             {t('adherer')}
           </button>

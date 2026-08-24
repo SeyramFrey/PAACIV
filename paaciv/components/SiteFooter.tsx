@@ -8,6 +8,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 const ENTREES = [
   { href: '/carte', cle: 'carte' },
   { href: '/archives', cle: 'archives' },
+  { href: '/villes', cle: 'villes' },
   { href: '/architectes', cle: 'architectes' },
   { href: '/articles', cle: 'articles' },
   { href: '/reportages', cle: 'reportages' },

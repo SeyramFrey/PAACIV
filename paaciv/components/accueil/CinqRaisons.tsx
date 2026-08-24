@@ -155,7 +155,7 @@ export async function CinqRaisons({
           <Link
             href="/evenements"
             data-rv=""
-            className="rounded-[2px] border border-[var(--accent)] px-[42px] py-[18px] text-[11px] font-semibold uppercase leading-none tracking-[0.24em] text-[var(--accent)] transition-colors duration-[0.45s] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)]"
+            className="rounded-[2px] border border-[var(--accent)] px-[42px] py-[18px] text-[11px] font-semibold uppercase leading-none tracking-[0.24em] text-[var(--accent)] transition-colors duration-[0.45s] hover:bg-[var(--accent)] hover:text-[var(--surAccent)]"
           >
             {cta}
           </Link>

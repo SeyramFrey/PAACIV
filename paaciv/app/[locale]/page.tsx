@@ -24,6 +24,7 @@ import { GrilleArchive } from '@/components/accueil/GrilleArchive'
 import { Temoignages } from '@/components/accueil/Temoignages'
 import { Journal, SECOURS_JOURNAL } from '@/components/accueil/Journal'
 import { Newsletter } from '@/components/accueil/Newsletter'
+import { SeparateurTisse } from '@/components/ui/SeparateurTisse'
 
 // La page lit Supabase et n'a pas de segment dynamique : sans ce flag, Next
 // la prérend au build et aucun contenu publié ensuite n'y apparaît jamais
@@ -80,6 +81,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
       />
       <NotreTravail textes={textes} medias={medias} />
       <PourquoiNousSuivre points={pourquoi} titre={tx('pourquoi_titre')} />
+      <SeparateurTisse />
       <Activites
         activites={activites}
         surtitre={tx('activites_surtitre')}
@@ -118,6 +120,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         titre={tx('journal_titre')}
         image={visuel(medias, 'journal_image', locale, SECOURS_JOURNAL)}
       />
+      <SeparateurTisse densite="large" />
       <Newsletter titre={tx('newsletter_titre')} texte={tx('newsletter_texte')} />
     </main>
   )

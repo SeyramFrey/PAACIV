@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { CI_CONTOUR, CI_DISTRICTS, CI_VIEWBOX, projeter, dansLeCadre } from '@/lib/carte-ci'
+import { slugify } from '@/lib/slug'
 import type { PointCarte } from '@/lib/data/accueil'
 
 // Le territoire, dessiné à sa vraie forme et parcourable.
@@ -125,7 +126,7 @@ export function CarteCoteIvoire({ points }: { points: PointCarte[] }) {
         {villes.map((v) => (
           <Link
             key={v.ville}
-            href={{ pathname: '/archives', query: { q: v.ville } }}
+            href={`/villes/${slugify(v.ville)}`}
             className="group outline-none"
             aria-label={`${v.ville} — ${t('compteEdifices', { n: v.nombre })}`}
           >

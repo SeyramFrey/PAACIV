@@ -39,3 +39,43 @@ export function etatOuNull(v: unknown): EtatConservation | null {
   const s = (v ?? '').toString().trim()
   return estEtatConservation(s) ? s : null
 }
+
+/**
+ * Couleur de chaque état, en hexadécimal.
+ *
+ * POURQUOI de l'hexadécimal et non un jeton `var(--…)` comme partout ailleurs :
+ * ces valeurs sont lues par MapLibre, dans une expression `match` de la couche
+ * `points`. Une expression de style de carte est évaluée par WebGL, hors du
+ * document — elle ne sait pas résoudre une variable CSS. Une même constante
+ * sert donc la carte et l'interface, plutôt qu'une palette de carte qui
+ * dériverait en silence de celle des pastilles.
+ *
+ * Conséquence assumée : ces quatre teintes NE BASCULENT PAS avec le thème.
+ * C'est ici une qualité et non un pis-aller — l'état de conservation est une
+ * clé de lecture, et un rouge qui changerait de valeur entre le mode clair et
+ * le mode sombre demanderait de réapprendre la légende à chaque bascule. Elles
+ * sont choisies en tons moyens pour tenir sur les deux fonds, et reprennent les
+ * matières de la palette (lagune, latérite, rouge d'alerte, acier).
+ */
+export const COULEUR_ETAT: Record<EtatConservation, string> = {
+  intact: '#2F6A63',          // lagune — l'édifice tient
+  en_restauration: '#B5652F', // latérite fraîche — le chantier est ouvert
+  en_danger: '#B3341F',       // rouge d'alerte
+  demoli: '#6B6F76',          // acier éteint — il n'y a plus de bâtiment
+}
+
+/** Couleur d'un état, ou `null` si la valeur n'appartient pas au vocabulaire. */
+export function couleurEtat(v: unknown): string | null {
+  return estEtatConservation(v) ? COULEUR_ETAT[v] : null
+}
+
+/**
+ * Les deux états qui font le propos militant de l'association : ce que la carte
+ * des menaces met en avant, et ce que les cartes de soutien de l'accueil
+ * pointent déjà (`/archives?etat=en_danger`).
+ */
+export const ETATS_MENACES: readonly EtatConservation[] = ['en_danger', 'demoli']
+
+export function estMenace(v: unknown): boolean {
+  return estEtatConservation(v) && (ETATS_MENACES as readonly string[]).includes(v)
+}

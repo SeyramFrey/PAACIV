@@ -28,7 +28,7 @@ export async function CarteFilm({ textes }: { textes: Textes }) {
           background: 'var(--bg2)',
           borderColor: 'var(--line)',
           color: 'var(--ink)',
-          boxShadow: '0 30px 60px -30px oklch(0.1 0.02 48 / 0.6)',
+          boxShadow: '0 30px 60px -30px oklch(0.1 0.018 252 / 0.6)',
         }}
       >
         <div className="relative h-[88px] w-[132px] flex-none overflow-hidden rounded">
@@ -53,11 +53,11 @@ export async function CarteFilm({ textes }: { textes: Textes }) {
           <span
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center"
-            style={{ background: 'oklch(0.15 0.012 45 / .32)' }}
+            style={{ background: 'color-mix(in oklab, var(--tole) 32%, transparent)' }}
           >
             <span
               className="relative grid h-[34px] w-[34px] place-items-center rounded-full text-[11px]"
-              style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+              style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
             >
               ▶
               <span

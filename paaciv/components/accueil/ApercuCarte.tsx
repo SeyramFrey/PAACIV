@@ -112,7 +112,7 @@ export async function ApercuCarte({
           <Link
             href="/carte"
             className="self-start rounded-full px-8 py-4 text-sm font-semibold transition hover:-translate-y-0.5"
-            style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+            style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
           >
             {t('ouvrirCarte')}
           </Link>

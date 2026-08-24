@@ -52,7 +52,7 @@ export function AppelArchives({
       <span
         aria-hidden="true"
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, oklch(0.14 0.02 46 / 0.6), oklch(0.12 0.02 46 / 0.78))' }}
+        style={{ background: 'linear-gradient(180deg, oklch(0.14 0.018 252 / 0.6), oklch(0.12 0.018 252 / 0.78))' }}
       />
       {/* Raccords en arc vers le fond de page : la bande plein cadre se fond
           dans var(--bg) au lieu de heurter les sections voisines par une
@@ -68,7 +68,7 @@ export function AppelArchives({
         style={{ background: 'var(--bg)', borderRadius: '50% 50% 0 0' }}
       />
 
-      <div className="relative px-6" style={{ color: 'oklch(0.96 0.02 84)' }}>
+      <div className="relative px-6" style={{ color: 'var(--onDeep)' }}>
         <h2
           data-rv=""
           className="m-0 text-balance font-serif text-[clamp(30px,4.4vw,66px)] leading-[1.1] tracking-[0.01em]"

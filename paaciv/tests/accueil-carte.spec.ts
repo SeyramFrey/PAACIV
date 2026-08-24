@@ -76,13 +76,18 @@ test('la provenance des frontières est créditée sous la carte', async ({ page
   await expect(page.getByText(/CC BY 4\.0/)).toBeVisible()
 })
 
-test('chaque ville mène à l’archive filtrée sur son nom', async ({ page }) => {
+// La destination a changé : les villes menaient vers `/archives?q=<nom>`,
+// c'est-à-dire vers une recherche PLEIN TEXTE — « Abidjan » y ramenait aussi
+// tout édifice dont le titre contient le mot, et la page obtenue n'avait ni
+// titre propre, ni description, ni URL stable. Elles mènent maintenant vers la
+// page de la commune, qui est indexable et dit ce qu'elle montre.
+test('chaque ville mène à sa page de commune', async ({ page }) => {
   await page.goto('/fr')
   const svg = page.getByRole('img', { name: /Carte de la Côte/ })
   await svg.scrollIntoViewIfNeeded()
   const liens = await svg.locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))
   expect(liens.length).toBeGreaterThanOrEqual(1)
-  for (const h of liens) expect(h).toMatch(new RegExp("^\\/fr\\/archives\\?q="))
+  for (const h of liens) expect(h).toMatch(new RegExp("^\\/fr\\/villes\\/[a-z0-9-]+$"))
 })
 
 // L'exigence explicite : le bloc n'est plus un carré, il a la forme de la

@@ -37,7 +37,11 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
   }
 
   return (
-    <section id="adherer" className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center" style={{ background: 'var(--bg3)' }}>
+    <section
+      id="adherer"
+      className="surface-papier px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center"
+      style={{ background: 'var(--bg3)' }}
+    >
       <div className="mx-auto max-w-[640px]">
         <h2 data-rv="" className="m-0 font-serif text-[clamp(28px,3.4vw,50px)] leading-[1.1]" style={{ color: 'var(--ink)' }}>
           {titre}

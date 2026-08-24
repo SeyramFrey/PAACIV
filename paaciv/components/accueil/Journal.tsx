@@ -77,10 +77,10 @@ export function Journal({
       <span
         aria-hidden="true"
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(180deg, oklch(0.12 0.02 46 / 0.86), oklch(0.1 0.02 46 / 0.92))' }}
+        style={{ background: 'linear-gradient(180deg, oklch(0.12 0.018 252 / 0.86), oklch(0.1 0.018 252 / 0.92))' }}
       />
 
-      <div className="relative mx-auto max-w-[1240px]" style={{ color: 'oklch(0.96 0.02 84)' }}>
+      <div className="relative mx-auto max-w-[1240px]" style={{ color: 'var(--onDeep)' }}>
         <div className="mb-11 text-center">
           <p
             data-rv=""
@@ -100,7 +100,7 @@ export function Journal({
             onClick={() => setIndex((i) => Math.max(0, i - 1))}
             disabled={index === 0}
             aria-label={t('precedent')}
-            className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full border border-[oklch(0.95_0.02_84/0.4)] text-[oklch(0.96_0.02_84)] transition-colors duration-[0.4s] hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)] disabled:opacity-40"
+            className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full border border-[color-mix(in_oklab,var(--onDeep)_40%,transparent)] text-[var(--onDeep)] transition-colors duration-[0.4s] hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--surAccent)] disabled:opacity-40"
           >
             ←
           </button>
@@ -189,7 +189,7 @@ export function Journal({
             onClick={() => setIndex((i) => Math.min(dernier, i + 1))}
             disabled={index === dernier}
             aria-label={t('suivant')}
-            className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full border border-[oklch(0.95_0.02_84/0.4)] text-[oklch(0.96_0.02_84)] transition-colors duration-[0.4s] hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[oklch(0.14_0.02_46)] disabled:opacity-40"
+            className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full border border-[color-mix(in_oklab,var(--onDeep)_40%,transparent)] text-[var(--onDeep)] transition-colors duration-[0.4s] hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--surAccent)] disabled:opacity-40"
           >
             →
           </button>

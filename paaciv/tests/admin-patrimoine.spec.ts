@@ -23,9 +23,12 @@ test('créer puis publier un patrimoine le rend visible côté public', async ({
 
   await page.waitForURL(/\/fr\/admin\/patrimoine\/[0-9a-f-]{36}/)
 
-  // visible publiquement dans les archives
+  // visible publiquement dans les archives. Portée à la grille : depuis la
+  // frise chronologique, la même fiche est liée deux fois sur la page.
   await page.goto('/fr/archives?q=Villa%20Moderne')
-  await expect(page.getByRole('link', { name: /Test Villa Moderne/ })).toBeVisible()
+  await expect(
+    page.getByTestId('grille-patrimoine').getByRole('link', { name: /Test Villa Moderne/ }),
+  ).toBeVisible()
 })
 
 // Coordonnées hors bornes : deux lignes avaient été enregistrées avec

@@ -197,7 +197,7 @@ export function Hero({
             <Link
               href="/archives"
               className="inline-flex items-center gap-3 rounded-full px-[30px] py-[17px] text-xs font-semibold uppercase tracking-[0.16em] transition"
-              style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+              style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
             >
               <span>{t('explorer')}</span>
               <span aria-hidden="true">→</span>

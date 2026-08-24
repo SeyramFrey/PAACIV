@@ -59,16 +59,29 @@ test('un état choisi en admin se retrouve sur la fiche publique, en toutes lett
   await expect(page.getByLabel('État de conservation')).toHaveValue('en_danger')
 
   // La colonne stocke le slug ; le visiteur doit lire le libellé traduit.
+  //
+  // L'état a QUITTÉ la liste de définitions de la colonne latérale pour monter
+  // dans le bandeau de titre, sous forme de pastille : c'est une clé de lecture,
+  // elle doit se voir avant la photographie, et l'écrire aux deux endroits
+  // n'aurait rien renseigné de plus.
   await page.goto(`/fr/patrimoine/${SLUG}`)
-  await expect(page.locator('dd').filter({ hasText: 'En danger' })).toBeVisible()
+  const pastille = page.getByTestId('pastille-etat')
+  await expect(pastille).toBeVisible()
+  await expect(pastille).toHaveAttribute('data-etat', 'en_danger')
+  await expect(pastille).toContainText('En danger')
   await expect(page.getByText('en_danger')).toHaveCount(0)
 })
 
 test('le filtre d’état restreint l’archive via l’URL', async ({ page }) => {
   await page.goto('/fr/archives?etat=en_danger')
-  await expect(page.getByRole('link', { name: new RegExp(TITRE) })).toBeVisible()
+  // Portée à la grille : depuis la frise, la même fiche est liée deux fois.
+  await expect(
+    page.getByTestId('grille-patrimoine').getByRole('link', { name: new RegExp(TITRE) }),
+  ).toBeVisible()
 
-  // La même fiche ne doit pas apparaître dans une autre catégorie.
+  // La même fiche ne doit apparaître dans aucune autre catégorie — ni dans la
+  // grille, ni sur l'axe. Pas de portée ici, volontairement : c'est une absence
+  // qu'on vérifie, et elle doit valoir pour toute la page.
   await page.goto('/fr/archives?etat=intact')
   await expect(page.getByRole('link', { name: new RegExp(TITRE) })).toHaveCount(0)
 })
@@ -80,7 +93,9 @@ test('le filtre d’état restreint l’archive via l’URL', async ({ page }) =
 // une fiche le temps de son scénario.
 test('un état inconnu dans l’URL est ignoré plutôt que de vider l’archive', async ({ page }) => {
   await page.goto('/fr/archives?etat=nimporte-quoi')
-  await expect(page.getByRole('link', { name: /Basilique Notre-Dame/ })).toBeVisible()
+  await expect(
+    page.getByTestId('grille-patrimoine').getByRole('link', { name: /Basilique Notre-Dame/ }),
+  ).toBeVisible()
 })
 
 // Sans cela, le visiteur arrivant depuis une carte de la page d'accueil verrait

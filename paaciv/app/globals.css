@@ -5,43 +5,102 @@
    préférence de l'OS, et la bascule doit gagner dans les deux sens. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MATIÈRES
+   ═══════════════════════════════════════════════════════════════════════════
+   La palette ne descend plus d'une charte abstraite (« Terre & Ocre ») mais du
+   bâti ivoirien lui-même. Cinq matières, nommées par ce qu'elles sont :
+
+     --chaux     l'enduit blanchi des maisons du Quartier France, Grand-Bassam
+     --banco     la terre crue des mosquées soudanaises du Nord (Kong, Kaouara)
+     --laterite  la latérite des pistes, et la brique qu'on en cuit
+     --lagune    l'eau de la lagune Ébrié — un vert sombre, presque bleu
+     --tole      la tôle des toitures, qui vire au bleu-nuit en vieillissant
+
+   Les jetons de RÔLE (--bg, --ink, --accent…) en sont DÉRIVÉS : c'est là que la
+   matière devient interface, et c'est la seule couche que le reste du code
+   connaît. Règle de tenue : on ne repeint jamais un rôle sans dire de quelle
+   matière il vient. Une couleur qui n'a pas de matière n'a pas sa place ici.
+
+   Les valeurs sont en OKLCH pour que clair et sombre soient deux réglages de la
+   MÊME matière (même teinte, luminosité et chroma retournés) et non deux
+   palettes sans rapport. Le jaune est banni : aucune teinte entre 85 et 110.
+   ═════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --bg:     oklch(0.943 0.021 79);
-  --bg2:    oklch(0.907 0.029 83);
-  --bg3:    oklch(0.868 0.034 81);
-  --ink:    oklch(0.263 0.012 45);
-  --soft:   oklch(0.470 0.030 50);
-  --line:   oklch(0.840 0.025 78);
-  --terra:  oklch(0.566 0.138 48);
-  --ocre:   oklch(0.458 0.114 43);
-  --accent: oklch(0.642 0.129 53);
-  --vert:   oklch(0.459 0.061 139);
-  /* Rouge d'alerte (suppression, marqueur « À COMPLÉTER »). Ni `--terra` ni
-     `--ocre` ne tenaient 4,5:1 dans LES DEUX thèmes sur `--bg` ; ce jeton est
-     calibré pour, et il porte en plus un sens que l'ocre des titres n'a pas. */
+  /* — Matières, réglage « plein jour » — */
+  --chaux:          oklch(0.962 0.009 78);
+  --chaux2:         oklch(0.930 0.014 76);
+  --chaux3:         oklch(0.889 0.019 74);
+  --banco:          oklch(0.472 0.086 62);
+  --laterite:       oklch(0.553 0.150 42);
+  --laterite-vif:   oklch(0.646 0.140 47);
+  --lagune:         oklch(0.452 0.058 172);
+  --tole:           oklch(0.206 0.030 252);
+
+  /* — Rôles — */
+  --bg:     var(--chaux);
+  --bg2:    var(--chaux2);
+  --bg3:    var(--chaux3);
+  /* L'encre est une tôle très sombre, pas un brun : le noir bleuté sur crème
+     est celui des plaques d'inventaire et des relevés d'architecte — c'est ce
+     couple qui donne au site son air de fonds documentaire (cf. .filet-double
+     et .duotone plus bas, qui reposent dessus). */
+  --ink:    oklch(0.252 0.022 254);
+  --soft:   oklch(0.487 0.024 252);
+  --line:   oklch(0.866 0.014 74);
+  --terra:  var(--laterite);
+  --ocre:   var(--banco);
+  --accent: var(--laterite-vif);
+  --vert:   var(--lagune);
+  /* Rouge d'alerte (suppression, marqueur « À COMPLÉTER », état « en danger »).
+     Ni `--terra` ni `--ocre` ne tenaient 4,5:1 dans LES DEUX thèmes sur `--bg` ;
+     ce jeton est calibré pour, et il porte en plus un sens que la latérite des
+     titres n'a pas. Vérifié par scripts/contraste.mjs. */
   --danger: oklch(0.470 0.170 28);
-  --deep:   oklch(0.190 0.012 45);
-  --onDeep: oklch(0.943 0.021 79);
-  --veil:   linear-gradient(180deg, oklch(0.19 0.012 45/.28), oklch(0.16 0.012 45/.72));
-  --imgf:   saturate(1.02) contrast(1.02);
+  --deep:   var(--tole);
+  --onDeep: oklch(0.958 0.010 78);
+  /* Texte posé SUR --accent. Était écrit en dur (`oklch(0.15 0.012 45)`) dans
+     neuf fichiers, avec une teinte brune héritée de l'ancienne palette qui ne
+     suivait plus la latérite. */
+  --surAccent: oklch(0.165 0.024 252);
+  --veil:   linear-gradient(180deg, oklch(0.21 0.030 252/.30), oklch(0.16 0.024 252/.74));
+  --imgf:   saturate(1.02) contrast(1.03);
+  /* Grain de papier des fonds clairs (voir .surface-papier). En plein jour la
+     texture doit se sentir sans se voir ; en mode sombre elle disparaît
+     presque, un papier éclairé de nuit n'ayant plus de grain visible. */
+  --papier-opacite: 0.30;
 }
 
 [data-theme="dark"] {
-  --bg:     oklch(0.148 0.014 45);
-  --bg2:    oklch(0.196 0.020 47);
-  --bg3:    oklch(0.245 0.024 49);
-  --ink:    oklch(0.945 0.020 82);
-  --soft:   oklch(0.735 0.028 70);
-  --line:   oklch(0.305 0.028 50);
-  --terra:  oklch(0.680 0.150 48);
-  --ocre:   oklch(0.600 0.130 45);
-  --accent: oklch(0.730 0.140 53);
-  --vert:   oklch(0.657 0.065 138);
+  /* — Mêmes matières, réglage « nuit ». Teintes identiques à la ligne près :
+       seules la luminosité et la chroma changent. — */
+  --chaux:          oklch(0.950 0.012 78);
+  --chaux2:         oklch(0.900 0.016 76);
+  --chaux3:         oklch(0.845 0.020 74);
+  --banco:          oklch(0.646 0.082 64);
+  --laterite:       oklch(0.672 0.155 45);
+  --laterite-vif:   oklch(0.740 0.142 50);
+  --lagune:         oklch(0.662 0.062 172);
+  --tole:           oklch(0.118 0.018 252);
+
+  --bg:     oklch(0.155 0.020 252);
+  --bg2:    oklch(0.203 0.024 252);
+  --bg3:    oklch(0.253 0.026 250);
+  --ink:    var(--chaux);
+  --soft:   oklch(0.742 0.020 76);
+  --line:   oklch(0.312 0.024 250);
+  --terra:  var(--laterite);
+  --ocre:   var(--banco);
+  --accent: var(--laterite-vif);
+  --vert:   var(--lagune);
   --danger: oklch(0.720 0.150 28);
-  --deep:   oklch(0.115 0.012 45);
-  --onDeep: oklch(0.943 0.021 79);
-  --veil:   linear-gradient(180deg, oklch(0.12 0.012 45/.42), oklch(0.10 0.012 45/.86));
+  --deep:   var(--tole);
+  --onDeep: oklch(0.952 0.012 78);
+  --surAccent: oklch(0.160 0.022 252);
+  --veil:   linear-gradient(180deg, oklch(0.12 0.018 252/.44), oklch(0.10 0.014 252/.87));
   --imgf:   saturate(.92) contrast(1.08) brightness(.86);
+  --papier-opacite: 0.10;
 }
 
 /* `@theme inline` fait pointer les utilitaires générés vers var(--x) au lieu
@@ -61,19 +120,33 @@
   --color-danger:  var(--danger);
   --color-profond: var(--deep);
   --color-surprofond: var(--onDeep);
+  /* Les matières, accessibles en utilitaires (bg-banco, text-laterite…) pour
+     les blocs qui parlent explicitement matière — la frise, les pictogrammes,
+     le motif tissé — sans repasser par un rôle qui dirait autre chose. */
+  --color-chaux:    var(--chaux);
+  --color-banco:    var(--banco);
+  --color-laterite: var(--laterite);
+  --color-lagune:   var(--lagune);
+  --color-tole:     var(--tole);
 }
 
-/* Palette « Terre & Ocre » des phases 1 à 4. Conservée à l'identique : les
-   pages livrées s'en servent plus de cent fois et ne bougent pas avant
-   l'étape 2 (propagation de la nouvelle identité au reste du site). */
+/* Palette « Terre & Ocre » des phases 1 à 4. Conservée : les pages livrées s'en
+   servent plus de cent fois. Les valeurs sont RECALÉES sur les matières
+   ci-dessus (mêmes teintes, mêmes luminosités) pour que les deux couches ne se
+   contredisent plus à l'écran — un `bg-terracotta` et un `bg-terra` voisins
+   affichaient deux oranges différents. Ces jetons restent figés, eux : ils
+   n'ont pas de variante sombre. */
 @theme {
-  --color-terracotta: #B5581F;
-  --color-brun: #8A3E1B;
-  --color-or: #D9A441;
-  --color-vert: #46603F;
-  --color-sable: #F4EBDD;
-  --color-creme2: #EADFCB;
-  --color-encre: #2A2320;
+  --color-terracotta: #A9502A;
+  --color-brun: #7E3F20;
+  /* Banco clair : l'enduit de terre séchée. C'est un FOND, et il porte
+     partout un texte sombre figé — l'assombrir casse ces couples (7,84:1
+     contre --color-encre ; vérifié par tests/lisibilite-admin.spec.ts). */
+  --color-or: #E3B183;
+  --color-vert: #2F6A63;
+  --color-sable: #F6F1E7;
+  --color-creme2: #E9E1D3;
+  --color-encre: #23262E;
   --font-serif: var(--font-fraunces);
   --font-sans: var(--font-inter);
 }
@@ -90,7 +163,7 @@ img { display: block; }
    zéro, ce qui laissait tous les boutons de l'accueil afficher une flèche
    plutôt qu'une main. */
 button:not(:disabled) { cursor: pointer; }
-::selection { background: var(--accent); color: oklch(0.15 0.012 45); }
+::selection { background: var(--accent); color: var(--surAccent); }
 
 /* Révélations au scroll : l'état de départ est posé en CSS, la classe .rv-in
    est ajoutée par components/ui/Revelations.tsx à l'entrée dans le viewport. */
@@ -139,3 +212,143 @@ button:not(:disabled) { cursor: pointer; }
 .logo-paaciv--compact { background-image: url('/logo-compact-inverse.png'); }
 [data-theme='light'] .logo-paaciv { background-image: url('/logo.png'); }
 [data-theme='light'] .logo-paaciv--compact { background-image: url('/logo-compact.png'); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MATIÈRE : grain, filets, duotone
+   ═══════════════════════════════════════════════════════════════════════════
+   Trois traitements qui donnent au site l'air d'un fonds d'archive plutôt que
+   d'un site web. Ils sont volontairement en CSS pur (aucune image chargée) :
+   c'est de la matière prise aux jetons du thème, comme `Grain` et
+   `VisuelAbsent` avant eux.
+
+   À ne pas confondre avec `components/ui/Grain.tsx` : Grain est un voile FIXE
+   posé sur toute la fenêtre en `soft-light`, qui casse l'aspect lisse des
+   photos. `.surface-papier` est une texture LOCALE, attachée à un bloc, qui
+   lui donne sa fibre. Les deux se superposent sans se gêner.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* Fibre de papier. `background-attachment: local` et une taille en pixels
+   fixes : la texture ne doit ni s'étirer avec le bloc ni glisser au
+   défilement, sans quoi elle se lit comme un dégradé et non comme un grain. */
+.surface-papier { position: relative; isolation: isolate; }
+.surface-papier::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--papier-opacite);
+  mix-blend-mode: multiply;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='4' seed='7'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23f)' opacity='0.55'/></svg>");
+  background-size: 220px 220px;
+}
+/* En thème sombre, `multiply` noircirait le bloc au lieu de le grainer. */
+[data-theme="dark"] .surface-papier::before { mix-blend-mode: overlay; }
+
+/* Filet double, façon planche d'inventaire : un trait fin, un blanc, un trait
+   épais. Deux bordures réelles auraient demandé un élément d'emballage ; ici
+   c'est une bordure + un `box-shadow` sans flou, qui suit le rayon d'angle. */
+.filet-double {
+  border: 1px solid color-mix(in oklab, var(--ink) 22%, transparent);
+  box-shadow:
+    0 0 0 1px var(--bg),
+    0 0 0 3px color-mix(in oklab, var(--ink) 12%, transparent);
+}
+.filet-double-clair {
+  border: 1px solid color-mix(in oklab, var(--onDeep) 26%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--deep) 90%, transparent),
+    0 0 0 3px color-mix(in oklab, var(--onDeep) 14%, transparent);
+}
+
+/* Duotone des photographies d'archive.
+   Le filtre SVG lui-même vit dans `components/ui/FiltresImage.tsx`, monté une
+   seule fois par le layout : un `<filter>` référencé par `url(#…)` doit exister
+   dans le document, et le dupliquer à chaque vignette multiplierait le même
+   nœud par le nombre d'images.
+   Le repli `grayscale + sepia` n'est PAS un simple dégradé : il garantit qu'une
+   image reste lisible si le filtre n'a pas (encore) été parsé. */
+.duotone { filter: grayscale(1) contrast(1.08) url(#paaciv-duotone) var(--imgf); }
+[data-theme="dark"] .duotone { filter: grayscale(1) contrast(1.08) url(#paaciv-duotone-nuit) var(--imgf); }
+/* `--imgf` est déjà dans la chaîne ci-dessus : une vignette en duotone ne doit
+   pas le porter deux fois. */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TISSAGE
+   ═══════════════════════════════════════════════════════════════════════════
+   Trame géométrique de séparation, inspirée du principe du TISSAGE AUX BANDES
+   ouest-africain : des lés étroits cousus bord à bord, chacun portant des
+   losanges et des chevrons.
+
+   Précaution volontaire, et elle compte : les motifs du pagne baoulé, du kita
+   ou des toiles sénoufo sont un patrimoine VIVANT, dont chaque dessin porte un
+   nom et un propriétaire. Reproduire l'un d'eux ici, sans nom ni crédit, serait
+   exactement la faute que le site reproche à ses propres photographies. Ce qui
+   suit ne cite donc aucun motif : c'est la GÉOMÉTRIE générique du procédé
+   (losanges à 45°, coutures verticales), celle qu'on retrouve dans tout tissage
+   à bandes du monde. Le jour où l'association obtiendra le droit d'utiliser un
+   motif précis, il remplacera celui-ci — et sera crédité.
+
+   Réalisé en dégradés CSS et non en <pattern> SVG pour une raison technique :
+   `currentColor` dans un <pattern> partagé se résout à la couleur du bloc qui
+   DÉFINIT le motif, pas de celui qui l'utilise. Un dégradé, lui, hérite
+   normalement — le motif prend donc la couleur de son contexte, encre sur fond
+   clair, chaux sur fond sombre, sans qu'on en décline deux versions.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.motif-tisse {
+  --tisse-pas: 22px;
+  --tisse-trait: 1px;
+  background-image:
+    /* losanges : les deux diagonales du tissage */
+    repeating-linear-gradient(45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    repeating-linear-gradient(-45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    /* coutures : la limite entre deux lés, tous les trois pas */
+    repeating-linear-gradient(90deg, currentColor 0 var(--tisse-trait),
+      transparent var(--tisse-trait) calc(var(--tisse-pas) * 3));
+}
+.motif-tisse--fin  { --tisse-pas: 13px; }
+.motif-tisse--large { --tisse-pas: 34px; }
+
+/* Le motif ne doit jamais buter net sur le bord d'un bloc : un tissage coupé
+   au couteau se lit comme un défaut de rendu. Il s'éteint donc vers les
+   extrémités. */
+.motif-tisse--fondu {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+/* Ombres de défilement horizontal.
+   Motif classique en quatre couches : deux CACHES posés aux extrémités,
+   attachés au CONTENU (`local`), et deux OMBRES attachées au conteneur
+   (`scroll`). Tant qu'il reste du contenu d'un côté, le cache correspondant a
+   glissé hors du cadre et l'ombre se voit ; arrivé en bout de course, le cache
+   revient la couvrir. On obtient donc une indication de défilement qui
+   s'éteint d'elle-même aux extrémités — sans une ligne de JavaScript, et sans
+   masquer du contenu quand il n'y a plus rien à révéler.
+   Indispensable ici : la frise déborde de son cadre dès une quinzaine
+   d'édifices, et rien ne disait au lecteur qu'il pouvait la faire défiler. */
+.defilement-ombre {
+  background:
+    linear-gradient(90deg, var(--bg2) 40%, transparent) left / 28px 100% no-repeat,
+    linear-gradient(270deg, var(--bg2) 40%, transparent) right / 28px 100% no-repeat,
+    /* Bandes DROITES et non ellipses : un `radial-gradient(farthest-side)` de
+       20 px concentre sa densité au milieu de la hauteur et s'évanouit vers le
+       haut et le bas — sur une frise de 400 px de haut, il ne se voyait
+       simplement pas. Une bande verticale se lit d'un bout à l'autre du bord. */
+    linear-gradient(to right, color-mix(in oklab, var(--ink) 26%, transparent), transparent)
+      left / 26px 100% no-repeat,
+    linear-gradient(to left, color-mix(in oklab, var(--ink) 26%, transparent), transparent)
+      right / 26px 100% no-repeat;
+  background-color: var(--bg2);
+  /* EXACTEMENT quatre valeurs, une par image. Le fond uni a été sorti du
+     raccourci et posé en `background-color` : glissé comme cinquième couche, il
+     donnait cinq valeurs pour quatre images, ce qui invalide la déclaration
+     entière — les quatre couches retombaient alors en `scroll`, les caches ne
+     glissaient plus, et ils recouvraient les ombres en permanence. Le motif ne
+     marchait tout simplement pas, sans que rien ne le signale. */
+  background-attachment: local, local, scroll, scroll;
+}

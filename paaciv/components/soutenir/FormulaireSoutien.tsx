@@ -139,7 +139,7 @@ export function FormulaireSoutien({
         type="submit"
         disabled={enCours}
         className="rounded-full px-6 py-3 text-sm font-semibold transition disabled:opacity-60"
-        style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+        style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
       >
         {enCours ? t('envoi') : t('envoyer')}
       </button>

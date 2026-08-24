@@ -101,7 +101,7 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
                 <span
                   aria-hidden="true"
                   className="absolute inset-0"
-                  style={{ background: 'linear-gradient(180deg, transparent 30%, oklch(0.1 0.02 46 / 0.88))' }}
+                  style={{ background: 'linear-gradient(180deg, transparent 30%, oklch(0.1 0.018 252 / 0.88))' }}
                 />
                 <p className="relative m-0 font-serif text-[clamp(22px,2vw,30px)] leading-[1.2]">
                   {champ(vedette.titre_fr, vedette.titre_en, locale)}

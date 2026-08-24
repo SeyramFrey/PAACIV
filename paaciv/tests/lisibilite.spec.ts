@@ -8,7 +8,14 @@ import { test, expect } from '@playwright/test'
 //
 // Ce test balaie les pages publiques dans LES DEUX thèmes : corriger le sombre
 // en cassant le clair serait un échange, pas un correctif.
-const PAGES = ['/fr/architectes', '/fr/archives', '/fr/articles', '/fr/evenements', '/fr/reportages', '/fr/login', '/fr/carte']
+const PAGES = [
+  '/fr/architectes', '/fr/archives', '/fr/articles', '/fr/evenements', '/fr/reportages',
+  '/fr/login', '/fr/carte',
+  // Les pages de commune entrent dans le balayage dès leur arrivée : c'est
+  // précisément une page neuve, écrite après coup, qui rouvrirait la dette de
+  // lisibilité que ce test a été écrit pour fermer.
+  '/fr/villes', '/fr/villes/grand-bassam',
+]
 
 for (const chemin of PAGES) {
   for (const theme of ['dark', 'light'] as const) {

@@ -33,7 +33,7 @@ export function LanguageSwitcher() {
             className="rounded-full px-3 py-1 transition hover:opacity-70"
             style={
               actif
-                ? { background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }
+                ? { background: 'var(--accent)', color: 'var(--surAccent)' }
                 : { color: 'inherit' }
             }
           >

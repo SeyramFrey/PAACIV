@@ -38,7 +38,7 @@ export function EditeurRiche({
       aria-label={label}
       aria-pressed={actif}
       onClick={onClick}
-      className={`rounded border border-filet px-2 py-1 text-sm ${actif ? 'bg-or text-encre-t' : 'bg-fond text-ocre'}`}
+      className={`rounded border border-filet px-2 py-1 text-sm ${actif ? 'bg-or text-encre' : 'bg-fond text-ocre'}`}
     >
       {label}
     </button>

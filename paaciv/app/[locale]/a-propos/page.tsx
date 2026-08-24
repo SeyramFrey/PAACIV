@@ -170,7 +170,7 @@ export default async function APropos({ params }: Props) {
             <Link
               href="/archives"
               className="rounded-full px-8 py-4 text-sm font-semibold transition hover:-translate-y-0.5"
-              style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+              style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
             >
               {t('explorer')}
             </Link>

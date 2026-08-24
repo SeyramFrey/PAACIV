@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScriptTheme } from "@/components/ScriptTheme";
 import { Grain } from "@/components/ui/Grain";
+import { FiltresImage } from "@/components/ui/FiltresImage";
 import { Revelations } from "@/components/ui/Revelations";
 import { FournisseurSoutien } from "@/components/soutenir/ContexteSoutien";
 import { chargerTextes, texte, renseigne } from "@/lib/data/contenu-site";
@@ -76,6 +77,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider>
           <FournisseurSoutien paiement={paiement}>
+            <FiltresImage />
             <Grain />
             <Revelations />
             <SiteHeader />

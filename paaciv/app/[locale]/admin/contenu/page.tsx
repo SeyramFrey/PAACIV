@@ -13,6 +13,10 @@ const GROUPES: readonly string[] = [
   'hero', 'film', 'apropos', 'association', 'travail', 'pourquoi', 'activites', 'carte', 'raisons',
   'agenda', 'parallaxe', 'archive', 'temoignages', 'journal', 'newsletter',
   'footer', 'soutien',
+  // Textes de présentation des communes (`ville_<slug>_intro`, migration 0030).
+  // En queue de liste : ce ne sont pas des blocs de l'accueil, dont cette liste
+  // suit par ailleurs l'ordre.
+  'ville',
 ]
 
 export default async function AdminContenu() {

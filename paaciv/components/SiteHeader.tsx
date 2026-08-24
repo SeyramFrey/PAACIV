@@ -9,13 +9,16 @@ import { MenuMobile, type Entree } from '@/components/MenuMobile'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 import { Logo } from '@/components/ui/Logo'
 
-// Sept entrées, une par rubrique du site. Les ancres du design (#archive,
+// Huit entrées, une par rubrique du site. Les ancres du design (#archive,
 // #journal…) sont remplacées par les vraies routes : le header est partagé
 // par toutes les pages, où ces ancres ne mèneraient nulle part.
 const ENTREES: readonly Entree[] = [
   { href: '/carte', cle: 'carte' },
   { href: '/a-propos', cle: 'apropos' },
   { href: '/archives', cle: 'archives' },
+  // Juste après l'archive : les communes sont une AUTRE entrée dans le même
+  // corpus — par le lieu plutôt que par la fiche —, pas une rubrique de plus.
+  { href: '/villes', cle: 'villes' },
   { href: '/architectes', cle: 'architectes' },
   { href: '/articles', cle: 'articles' },
   { href: '/reportages', cle: 'reportages' },
@@ -108,12 +111,12 @@ export function SiteHeader() {
       <div className="flex items-center gap-3">
         <div className="hidden lg:flex lg:items-center lg:gap-3">
           <LanguageSwitcher />
-          <BasculeTheme className="rounded-full border p-2 transition hover:bg-[var(--accent)] hover:text-[oklch(0.15_0.012_45)]" />
+          <BasculeTheme className="rounded-full border p-2 transition hover:bg-[var(--accent)] hover:text-[var(--surAccent)]" />
           <button
             type="button"
             onClick={() => ouvrir('adhesion')}
             className="rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5"
-            style={{ background: 'var(--accent)', color: 'oklch(0.15 0.012 45)' }}
+            style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
           >
             {t('adherer')}
           </button>
