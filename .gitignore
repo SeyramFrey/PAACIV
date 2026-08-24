@@ -10,6 +10,12 @@ next-env.d.ts
 # Environnement / secrets
 .env
 .env*.local
+# Le dépôt est PUBLIC. `.env*.local` ne couvrait pas `.env.production`, que la
+# chaîne de déploiement fabrique à la volée : sans cette ligne, un `git add -A`
+# le publierait avec la clé Supabase et la clé MapTiler dedans. Les valeurs de
+# production vivent dans les réglages de déploiement Hostinger, jamais ici.
+.env.production
+.env.development
 
 # Companion visuel de brainstorming (superpowers)
 .superpowers/

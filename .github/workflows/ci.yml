@@ -1,0 +1,89 @@
+name: Contrôles
+
+# Le garde-fou du déploiement.
+#
+# Le déploiement lui-même n'est PAS fait ici : Hostinger est connecté au dépôt
+# et reconstruit de lui-même à chaque push sur `main` (voir docs/deploiement.md).
+# Ce workflow existe pour qu'un push cassé se voie sur GitHub — sans lui, la
+# seule façon d'apprendre qu'une régression est partie en ligne serait de
+# regarder le site.
+#
+# Il tourne aussi sur les pull requests, où il est le seul filet : rien n'est
+# déployé depuis une branche.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Permet de relancer les contrôles à la main depuis l'onglet Actions, sans
+  # avoir à pousser un commit vide.
+  workflow_dispatch:
+
+# Un push qui en suit un autre de près annule le premier : inutile de payer
+# deux fois la même vérification quand seule la dernière compte.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  controles:
+    name: Types, lint, tests, contraste, build
+    runs-on: ubuntu-latest
+    # Le paquet n'est pas à la racine du dépôt : l'application vit dans paaciv/.
+    defaults:
+      run:
+        working-directory: paaciv
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Doit rester d'accord avec `engines.node` de paaciv/package.json et
+          # avec la version choisie dans les réglages de déploiement Hostinger.
+          # Trois endroits, une seule vérité : Node 22.
+          node-version: 22
+          cache: npm
+          cache-dependency-path: paaciv/package-lock.json
+
+      # `npm ci` et non `npm install` : il installe EXACTEMENT le lockfile et
+      # échoue s'il a dérivé de package.json, au lieu de le réécrire en silence.
+      - name: Installer les dépendances
+        run: npm ci
+
+      # Le lint ne remplace pas le contrôle de types : la leçon avait déjà été
+      # apprise en phase 4. Les deux tournent, dans cet ordre.
+      - name: Contrôle des types
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests unitaires
+        run: npm test
+
+      # Vérifie que la palette « Matières » tient ses 4,5:1 dans les deux
+      # thèmes. Sort en code non nul si un couple passe sous son seuil.
+      - name: Contraste de la palette
+        run: npm run contraste
+
+      - name: Build de production
+        # Valeurs FACTICES, et c'est voulu. Cette étape prouve que le projet
+        # COMPILE ; elle ne prouve pas qu'il se connecte. Les vraies valeurs
+        # vivent dans les réglages de déploiement Hostinger, où elles sont
+        # injectées au build réel.
+        #
+        # L'URL doit rester syntaxiquement valide : supabase-js refuse une URL
+        # malformée, et l'échec ressemblerait alors à une erreur de code.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://exemple-ci.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: cle-factice-pour-la-compilation
+          NEXT_PUBLIC_MAPTILER_KEY: ''
+        run: npm run build
+
+# Les tests de bout en bout (Playwright) ne tournent PAS ici, délibérément :
+# ils s'authentifient sur la vraie base et écrivent dans les tables de collecte
+# de production (`demandes`, `newsletter_abonnes`), qu'ils nettoient ensuite.
+# Les faire tourner à chaque push depuis GitHub demanderait d'y confier les
+# identifiants administrateur du site, pour un gain que les 210 tests unitaires
+# couvrent déjà en grande partie. Ils restent une commande locale : `npm run e2e`.
