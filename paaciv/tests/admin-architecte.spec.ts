@@ -55,7 +55,70 @@ test('créer un architecte le persiste réellement (champ riche inclus) et reste
   await expect(page.locator('.ProseMirror').first()).toContainText('Biographie de test E2E.')
 })
 
-// Nettoyage : le test ci-dessus insère une vraie ligne en base. On la supprime
+// Les quatre listes du gabarit de fiche (migration 0032) sont réécrites en bloc
+// à chaque enregistrement : on supprime celles de l'architecte puis on
+// réinsère. C'est le chemin le plus risqué de l'action serveur — une erreur de
+// rezippage des colonnes `getAll()` mélangerait silencieusement les titres et
+// les textes entre types. Ce test le prouve de bout en bout : saisie, écriture,
+// relecture.
+//
+// Le slug part du même préfixe que le test ci-dessus, donc le nettoyage final
+// l'emporte aussi — et avec lui ses blocs, que la clé étrangère supprime en
+// cascade.
+test('les blocs de la fiche font l’aller-retour saisie → base → formulaire', async ({ page }) => {
+  await page.goto('/fr/admin/architectes/nouveau')
+  const main = page.getByRole('main')
+  await main.getByLabel('Nom').fill('Test Architecte E2E Blocs')
+  // `.first()` : « Profession » existe dans l'onglet FR ET dans l'onglet EN
+  // (masqué mais présent dans le DOM, comme les autres champs bilingues).
+  await main.getByLabel('Profession', { exact: true }).first().fill('Urbaniste de test')
+
+  // Une mission : c'est le seul type qui expose les trois niveaux
+  // (sur-titre, titre, texte), donc celui qui couvre le rezippage complet.
+  await main.getByRole('button', { name: /Ajouter/ }).nth(2).click()
+  const mission = page.getByTestId('bloc-mission')
+  await expect(mission).toHaveCount(1)
+  await mission.getByLabel('Sur-titre FR').fill('Mali · Bamako')
+  await mission.getByLabel('Titre FR', { exact: true }).fill('Résidence de test')
+  await mission.getByLabel('Texte FR', { exact: true }).fill('Texte de la mission de test.')
+
+  // Un programme, saisi APRÈS la mission : si l'action serveur se fiait à
+  // l'ordre du DOM plutôt qu'au champ `bloc_type`, les deux se retrouveraient
+  // dans le mauvais groupe.
+  await main.getByRole('button', { name: /Ajouter/ }).first().click()
+  await page
+    .getByTestId('bloc-programme')
+    .getByLabel('Titre FR', { exact: true })
+    .fill('Programme de test')
+
+  await main.getByLabel('Statut').selectOption('publie')
+  await page.getByRole('button', { name: 'Enregistrer' }).click()
+  await page.waitForURL(/\/fr\/admin\/architectes\/[0-9a-f-]{36}/)
+  await page.reload()
+
+  // Relu depuis la base, chaque bloc est revenu dans SON groupe, avec ses
+  // trois champs distincts.
+  const missionRelue = page.getByTestId('bloc-mission')
+  await expect(missionRelue).toHaveCount(1)
+  await expect(missionRelue.getByLabel('Sur-titre FR')).toHaveValue('Mali · Bamako')
+  await expect(missionRelue.getByLabel('Titre FR', { exact: true })).toHaveValue(
+    'Résidence de test',
+  )
+  await expect(missionRelue.getByLabel('Texte FR', { exact: true })).toHaveValue(
+    'Texte de la mission de test.',
+  )
+  await expect(
+    page.getByTestId('bloc-programme').getByLabel('Titre FR', { exact: true }),
+  ).toHaveValue('Programme de test')
+
+  // Et la fiche publique les rend.
+  await page.goto('/fr/architectes/test-architecte-e2e-blocs')
+  await expect(page.getByRole('heading', { name: "À l'étranger" })).toBeVisible()
+  await expect(page.locator('#etranger').getByText('Résidence de test')).toBeVisible()
+  await expect(page.locator('#programmes').getByText('Programme de test')).toBeVisible()
+})
+
+// Nettoyage : les tests ci-dessus insèrent de vraies lignes en base. On la supprime
 // après coup (par préfixe de slug) pour ne pas polluer la BDD et garder les
 // relances idempotentes. Le seed (`pierre-fakhoury`, `architecte-brouillon`,
 // etc.) n'est jamais touché par ce préfixe.

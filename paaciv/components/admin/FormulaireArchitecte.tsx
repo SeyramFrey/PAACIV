@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { EditeurRiche } from '@/components/admin/EditeurRiche'
 import { enregistrerArchitecte } from '@/app/[locale]/admin/architectes/actions'
 import { imageUrl } from '@/lib/media'
+import { BlocsArchitecte, type BlocsSaisis } from '@/components/admin/BlocsArchitecte'
 
 // Forme brute de la ligne `architectes` telle que renvoyée par
 // `select('*')` côté admin (contrairement à `ArchitecteDetail`, qui est la
@@ -26,14 +27,24 @@ export type ArchitecteAdmin = {
   parcours_en: string | null
   realisations_texte_fr: string | null
   realisations_texte_en: string | null
+  lieu_naissance: string | null
+  profession_fr: string | null
+  profession_en: string | null
+  agence: string | null
+  distinction_fr: string | null
+  distinction_en: string | null
   ordre: number
   statut: 'brouillon' | 'publie'
 }
 
 export function FormulaireArchitecte({
   initial,
+  blocs,
 }: {
   initial?: Partial<ArchitecteAdmin> | null
+  // Chargés par la page d'édition : ils vivent dans leur propre table et le
+  // `select('*')` sur `architectes` ne les rapporte pas.
+  blocs?: BlocsSaisis
 }) {
   const t = useTranslations('formArchitecte')
   const router = useRouter()
@@ -99,7 +110,11 @@ export function FormulaireArchitecte({
         {champ('ordre', t('ordre'), 'number')}
       </div>
 
-      {champ('periode_texte', t('periode'))}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {champ('periode_texte', t('periode'))}
+        {champ('lieu_naissance', t('lieuNaissance'))}
+        {champ('agence', t('agence'))}
+      </div>
 
       {/* Onglets FR / EN */}
       <div className="flex gap-2">
@@ -120,6 +135,10 @@ export function FormulaireArchitecte({
       </div>
 
       <div className={onglet === 'fr' ? 'grid gap-4' : 'hidden'}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {champ('profession_fr', t('profession'))}
+          {champ('distinction_fr', t('distinction'))}
+        </div>
         <div className="flex flex-col text-sm">
           <span className="mb-1 font-semibold">{t('bio')}</span>
           <EditeurRiche name="bio_fr" defaultValue={initial?.bio_fr ?? ''} ariaLabel={t('bio')} />
@@ -138,6 +157,10 @@ export function FormulaireArchitecte({
         </div>
       </div>
       <div className={onglet === 'en' ? 'grid gap-4' : 'hidden'}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {champ('profession_en', t('profession'))}
+          {champ('distinction_en', t('distinction'))}
+        </div>
         <div className="flex flex-col text-sm">
           <span className="mb-1 font-semibold">{t('bio')}</span>
           <EditeurRiche name="bio_en" defaultValue={initial?.bio_en ?? ''} ariaLabel={t('bio')} />
@@ -167,6 +190,10 @@ export function FormulaireArchitecte({
           <img src={imageUrl(initial.photo)} alt="" className="h-24 w-24 rounded-xl object-cover" />
         )}
       </div>
+
+      <BlocsArchitecte
+        initial={blocs ?? { programme: [], domaine: [], mission: [], chiffre: [] }}
+      />
 
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('statut')}</span>

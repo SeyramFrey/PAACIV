@@ -29,13 +29,15 @@ export function SiteHeader() {
   const t = useTranslations('nav')
   const { ouvrir } = useSoutien()
   const pathname = usePathname()
-  // Seul l'accueil aura un hero sombre plein écran (Task 10) : c'est la
-  // seule page où l'en-tête peut partir transparent. Partout ailleurs
-  // (carte, fiches, login, admin…), il n'y a pas de hero sous lequel se
-  // fondre — un en-tête transparent y écrirait du texte clair sur un fond
-  // clair (ou l'inverse), illisible en permanence puisque le seuil de
-  // défilement ci-dessous n'est jamais atteint sur une page courte.
-  const estAccueil = pathname === '/'
+  // La condition n'est plus « est-on à l'accueil ? » mais « cette page
+  // pose-t-elle un hero sombre ? ». Le gabarit de fiche architecte en pose un
+  // lui aussi depuis qu'il suit la maquette, et le critère par chemin aurait
+  // demandé une expression régulière de plus à chaque page qui s'y ajoute.
+  // Le marqueur est le même qu'avant — l'élément `#top` — et l'effet ci-dessous
+  // mesure déjà son bas RÉEL : une page sans `#top` n'installe rien et reste
+  // opaque, l'état sûr. C'est exactement ce qu'il faut partout ailleurs
+  // (carte, login, admin…), où un en-tête transparent écrirait du texte clair
+  // sur fond clair, illisible en permanence.
   const header = useRef<HTMLElement>(null)
   // État sûr par défaut : OPAQUE. Un en-tête transparent qui écrirait
   // `--onDeep` sur un fond clair (identiques en thème clair, dette de la
@@ -59,7 +61,13 @@ export function SiteHeader() {
   // y est opaque en permanence, une valeur dérivée au rendu (ci-dessous)
   // plutôt qu'un état à synchroniser dans cet effet.
   useEffect(() => {
-    if (!estAccueil) return
+    // Pas de hero sur cette page : aucun écouteur à installer. Le test à
+    // l'entrée remplace l'ancien garde `if (!estAccueil)`. On ne repose PAS
+    // l'état ici — un `setState` synchrone dans le corps d'un effet déclenche
+    // une cascade de rendus ; c'est le nettoyage de la page précédente qui a
+    // déjà remis l'opacité, et l'état initial vaut déjà `true` au tout premier
+    // montage.
+    if (!document.getElementById('top')) return
     function evaluer() {
       const hero = document.getElementById('top')
       const h = header.current
@@ -75,10 +83,19 @@ export function SiteHeader() {
     return () => {
       window.removeEventListener('scroll', evaluer)
       window.removeEventListener('resize', evaluer)
+      // Quitter une page à hero remet l'en-tête à l'état SÛR. Sans cela, une
+      // fiche quittée alors qu'on était encore sur son hero laisserait
+      // `opaqueDefilement` à `false`, et la page suivante — sans hero, donc
+      // sans écouteur pour corriger — afficherait un en-tête transparent
+      // écrivant du texte clair sur fond clair.
+      setOpaqueDefilement(true)
     }
-  }, [estAccueil])
+    // `pathname` et non `[]` : le layout n'est pas remonté d'une page à
+    // l'autre, et sans cette dépendance une fiche atteinte par <Link> depuis
+    // une page sans hero n'installerait jamais l'écoute.
+  }, [pathname])
 
-  const opaque = estAccueil ? opaqueDefilement : true
+  const opaque = opaqueDefilement
 
   return (
     <header

@@ -120,7 +120,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         titre={tx('journal_titre')}
         image={visuel(medias, 'journal_image', locale, SECOURS_JOURNAL)}
       />
-      <SeparateurTisse densite="large" />
+      <SeparateurTisse densite="large" dessin="chevrons" />
       <Newsletter titre={tx('newsletter_titre')} texte={tx('newsletter_texte')} />
     </main>
   )

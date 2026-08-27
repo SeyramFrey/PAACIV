@@ -168,7 +168,39 @@ export function Revelations() {
     window.addEventListener('scroll', auScroll, { passive: true })
     auScroll()
 
+    // Inclinaison au survol (`data-tilt`), reprise de la maquette de fiche
+    // architecte. Elle vit ici, avec le reste du mouvement, plutôt que dans un
+    // composant client dédié : les blocs qui l'utilisent restent des Server
+    // Components, comme pour `data-rv`.
+    //
+    // Écrit dans `style.transform` et non `style.translate`/`rotate` : c'est
+    // une composition perspective + deux rotations + une translation, qui n'a
+    // de sens que comme une seule matrice. Les éléments concernés ne portent
+    // aucune classe Tailwind de transformation, le piège de composition décrit
+    // plus haut ne s'applique donc pas ici.
+    const inclinables = mouvement
+      ? Array.from(document.querySelectorAll<HTMLElement>('[data-tilt]'))
+      : []
+    const detacheurs = inclinables.map((carte) => {
+      const bouger = (e: MouseEvent) => {
+        const r = carte.getBoundingClientRect()
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -5
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 6
+        carte.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-4px)`
+      }
+      const partir = () => {
+        carte.style.transform = 'none'
+      }
+      carte.addEventListener('mousemove', bouger)
+      carte.addEventListener('mouseleave', partir)
+      return () => {
+        carte.removeEventListener('mousemove', bouger)
+        carte.removeEventListener('mouseleave', partir)
+      }
+    })
+
     return () => {
+      detacheurs.forEach((detacher) => detacher())
       observateur?.disconnect()
       if (secours !== undefined) window.clearTimeout(secours)
       window.removeEventListener('scroll', auScroll)

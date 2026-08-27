@@ -94,3 +94,40 @@ test('la version anglaise rend la page sans texte français résiduel', async ({
     expect(texte, `« ${francais} » ne doit pas apparaître sur /en`).not.toContain(francais)
   }
 })
+
+// Le tissage n'est plus seulement une bande entre deux sections : il devient
+// surface (fond de bloc) et lisière (bord de lé). Ce test ne juge pas
+// l'apparence — il tient les deux règles qui encadrent ces ornements :
+// ils sont DÉCORATIFS (donc masqués aux lecteurs d'écran) et ils n'introduisent
+// aucune couleur, puisqu'ils empruntent `currentColor`.
+test('les motifs tissés de l’accueil sont décoratifs et sans couleur propre', async ({ page }) => {
+  await page.goto('/fr')
+
+  // L'assertion porte sur l'ASCENDANCE, pas sur l'élément lui-même : dans
+  // `SeparateurTisse`, c'est l'emballage qui porte `aria-hidden` et le div à
+  // motif qui est dedans. Ce qui compte pour un lecteur d'écran, c'est que la
+  // trame soit dans un sous-arbre masqué — peu importe quel nœud le déclare.
+  const horsSousArbreMasque = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('.lisiere-tissee, .motif-tisse')].filter(
+        (e) => !e.closest('[aria-hidden="true"]'),
+      ).length,
+  )
+  expect(horsSousArbreMasque).toBe(0)
+  await expect(page.locator('.lisiere-tissee, .motif-tisse').first()).toBeAttached()
+
+  // La trame de fond est posée en `::before` : c'est l'élément porteur qui doit
+  // exister, et il ne doit jamais capter le pointeur ni s'annoncer.
+  await expect(page.locator('section.surface-tissee')).not.toHaveCount(0)
+
+  // Aucune couleur en dur : la trame prend l'encre de son contexte. Une valeur
+  // littérale ici rouvrirait la question du contraste et du jaune banni.
+  const couleursEnDur = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('.lisiere-tissee, .motif-tisse, .surface-tissee')].filter(
+        (e) => (e as HTMLElement).style.backgroundImage.includes('#') ||
+          (e as HTMLElement).style.backgroundImage.includes('rgb'),
+      ).length,
+  )
+  expect(couleursEnDur).toBe(0)
+})

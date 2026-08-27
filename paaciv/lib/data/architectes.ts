@@ -21,6 +21,27 @@ export type RealisationLiee = {
   role: string | null
 }
 
+// Les quatre listes du gabarit de fiche (programmes, domaines d'intervention,
+// missions à l'étranger, chiffres-clés) partagent une table et une forme —
+// voir la migration 0032. Elles partagent donc aussi un type.
+export type BlocArchitecte = {
+  id: string
+  bloc: TypeBloc
+  surtitre_fr: string | null
+  surtitre_en: string | null
+  titre_fr: string
+  titre_en: string | null
+  texte_fr: string | null
+  texte_en: string | null
+  ordre: number
+}
+
+export const TYPES_BLOC = ['programme', 'domaine', 'mission', 'chiffre'] as const
+export type TypeBloc = (typeof TYPES_BLOC)[number]
+
+/** Les blocs d'une fiche, rangés par type et prêts à rendre. */
+export type BlocsArchitecte = Record<TypeBloc, BlocArchitecte[]>
+
 export type ArchitecteDetail = {
   id: string
   slug: string
@@ -30,6 +51,12 @@ export type ArchitecteDetail = {
   annee_naissance: number | null
   annee_deces: number | null
   periode_texte: string | null
+  lieu_naissance: string | null
+  profession_fr: string | null
+  profession_en: string | null
+  agence: string | null
+  distinction_fr: string | null
+  distinction_en: string | null
   bio_fr: string | null
   bio_en: string | null
   parcours_fr: string | null
@@ -37,6 +64,7 @@ export type ArchitecteDetail = {
   realisations_texte_fr: string | null
   realisations_texte_en: string | null
   realisations: RealisationLiee[]
+  blocs: BlocsArchitecte
 }
 
 function photoUrl(chemin: string | null): string | null {
@@ -67,8 +95,28 @@ export type LiaisonRow = {
   } | null
 }
 
-type ArchitecteDetailRow = Omit<ArchitecteDetail, 'realisations'> & {
+type ArchitecteDetailRow = Omit<ArchitecteDetail, 'realisations' | 'blocs'> & {
   patrimoine_architecte: LiaisonRow[]
+  architecte_blocs: BlocArchitecte[]
+}
+
+/** Un jeu de blocs vide — c'est l'état de toute fiche qui n'en a pas encore. */
+export function blocsVides(): BlocsArchitecte {
+  return { programme: [], domaine: [], mission: [], chiffre: [] }
+}
+
+// Range les blocs par type et les ordonne. Fonction pure exportée pour être
+// testée sans base, comme `mapRealisationsLiees` juste au-dessus. Le tri se
+// fait ICI et pas dans la requête : une seule table porte les quatre listes,
+// et un `.order()` global ne saurait pas les ordonner indépendamment.
+// Une valeur de `bloc` hors vocabulaire (contrainte CHECK contournée, ou type
+// ajouté en base avant de l'être ici) est ignorée plutôt que de faire tomber
+// la page.
+export function grouperBlocs(lignes: BlocArchitecte[] | null | undefined): BlocsArchitecte {
+  const par = blocsVides()
+  for (const l of lignes ?? []) if (par[l.bloc]) par[l.bloc].push(l)
+  for (const t of TYPES_BLOC) par[t].sort((a, b) => a.ordre - b.ordre)
+  return par
 }
 
 // Une réalisation n'est exposée côté public que si le patrimoine lié est
@@ -99,7 +147,8 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
   const { data, error } = await sb
     .from('architectes')
     .select(
-      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, images(chemin, est_principale, ordre)))',
+      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, images(chemin, est_principale, ordre)))' +
+        ', architecte_blocs(id, bloc, surtitre_fr, surtitre_en, titre_fr, titre_en, texte_fr, texte_en, ordre)',
     )
     .eq('slug', slug)
     .eq('statut', 'publie')
@@ -119,6 +168,12 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
     annee_naissance: row.annee_naissance,
     annee_deces: row.annee_deces,
     periode_texte: row.periode_texte,
+    lieu_naissance: row.lieu_naissance,
+    profession_fr: row.profession_fr,
+    profession_en: row.profession_en,
+    agence: row.agence,
+    distinction_fr: row.distinction_fr,
+    distinction_en: row.distinction_en,
     bio_fr: row.bio_fr,
     bio_en: row.bio_en,
     parcours_fr: row.parcours_fr,
@@ -126,6 +181,7 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
     realisations_texte_fr: row.realisations_texte_fr,
     realisations_texte_en: row.realisations_texte_en,
     realisations,
+    blocs: grouperBlocs(row.architecte_blocs),
   }
 }
 

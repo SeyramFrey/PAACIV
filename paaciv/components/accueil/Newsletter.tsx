@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { inscrireNewsletter } from '@/app/[locale]/actions/newsletter'
+import { LisiereTissee } from '@/components/ui/LisiereTissee'
 
 // Transposition des lignes 572-581 de la référence de design.
 //
@@ -37,12 +38,16 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
   }
 
   return (
+    // `surface-papier` ET `surface-tissee` : une fibre et un tissu se
+    // superposent sans se gêner — l'une graine, l'autre trame.
     <section
       id="adherer"
-      className="surface-papier px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center"
+      className="surface-papier surface-tissee relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center"
       style={{ background: 'var(--bg3)' }}
     >
-      <div className="mx-auto max-w-[640px]">
+      <LisiereTissee cote="gauche" />
+      <LisiereTissee cote="droite" />
+      <div className="relative z-[2] mx-auto max-w-[640px]">
         <h2 data-rv="" className="m-0 font-serif text-[clamp(28px,3.4vw,50px)] leading-[1.1]" style={{ color: 'var(--ink)' }}>
           {titre}
         </h2>

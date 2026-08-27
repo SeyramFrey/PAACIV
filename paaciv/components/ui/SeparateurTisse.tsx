@@ -12,13 +12,18 @@
 export function SeparateurTisse({
   sur = 'clair',
   densite = 'normal',
+  dessin = 'losanges',
 }: {
   /** Fond sur lequel la bande est posée : elle emprunte l'encre correspondante. */
   sur?: 'clair' | 'sombre'
   densite?: 'fin' | 'normal' | 'large'
+  /** Les deux figures du tissage aux bandes. Une page qui répète la même bande
+      trois fois donne un gabarit ; en alterner deux donne un tissu. */
+  dessin?: 'losanges' | 'chevrons'
 }) {
   const classeDensite =
     densite === 'fin' ? ' motif-tisse--fin' : densite === 'large' ? ' motif-tisse--large' : ''
+  const classeDessin = dessin === 'chevrons' ? ' motif-tisse--chevrons' : ''
 
   return (
     <div
@@ -30,7 +35,7 @@ export function SeparateurTisse({
       }}
     >
       <div
-        className={`h-[54px] w-full opacity-[0.13] motif-tisse motif-tisse--fondu${classeDensite}`}
+        className={`h-[54px] w-full opacity-[0.13] motif-tisse motif-tisse--fondu${classeDensite}${classeDessin}`}
       />
       {/* Deux filets, façon planche d'inventaire : un fin, un épais. */}
       <span

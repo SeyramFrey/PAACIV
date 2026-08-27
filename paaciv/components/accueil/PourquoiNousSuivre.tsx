@@ -27,7 +27,7 @@ export async function PourquoiNousSuivre({ points, titre }: { points: PointCle[]
   const locale = await getLocale()
 
   return (
-    <section className="px-[clamp(20px,5vw,80px)] pt-[clamp(40px,5vw,80px)] pb-[clamp(60px,7vw,110px)]">
+    <section className="surface-tissee surface-tissee--fondu-bas px-[clamp(20px,5vw,80px)] pt-[clamp(40px,5vw,80px)] pb-[clamp(60px,7vw,110px)]">
       <div className="mx-auto max-w-[1440px]">
         {/* `<h2>`, PAS `<h3>` : la maquette pose bien un `<h3>` ici (ligne
             247) mais c'est un défaut de la référence, pas une intention à
