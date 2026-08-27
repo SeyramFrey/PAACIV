@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { Map, Marker, Popup, LngLatBounds } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { STYLE_CARTE, COULEUR_DEFAUT } from '@/lib/carte-style'
+import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 
 export type PointVille = {
   slug: string
@@ -42,13 +42,27 @@ export function CarteVille({ points, hauteur = 300 }: { points: PointVille[]; ha
     const liste = pointsRef.current
     if (liste.length === 0) return
 
-    const map = new Map({
-      container: hote,
-      style: STYLE_CARTE,
-      center: [liste[0].lng, liste[0].lat],
-      zoom: 12,
-      attributionControl: { compact: true },
-    })
+    // Init asynchrone, même raison que sur `/carte` : `styleDisponible()`
+    // vérifie que MapTiler accepte la clé sur cette origine avant de construire
+    // la carte, et rend le fond libre sinon. `annule` couvre le départ du
+    // visiteur pendant la vérification.
+    let map: Map | null = null
+    let annule = false
+
+    void (async () => {
+      const style = await styleDisponible()
+      if (annule || !conteneur.current) return
+      map = new Map({
+        container: hote,
+        style,
+        center: [liste[0].lng, liste[0].lat],
+        zoom: 12,
+        attributionControl: { compact: true },
+      })
+      dessiner(map)
+    })()
+
+    function dessiner(map: Map) {
 
     // Même piège que sur `/carte` : quitter la page avant la fin du chargement
     // appelle `map.remove()`, qui annule les requêtes en vol ; l'AbortError qui
@@ -76,7 +90,12 @@ export function CarteVille({ points, hauteur = 300 }: { points: PointVille[]; ha
       map.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 0 })
     }
 
-    return () => map.remove()
+    }
+
+    return () => {
+      annule = true
+      map?.remove()
+    }
   }, [])
 
   if (points.length === 0) return null

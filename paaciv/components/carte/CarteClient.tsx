@@ -11,7 +11,7 @@ import type { ReferencesFiltres } from '@/lib/data/references'
 import { construirePopupContenu } from '@/components/carte/popup'
 import { FiltresCarte } from '@/components/carte/FiltresCarte'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
-import { STYLE_CARTE, COULEUR_DEFAUT } from '@/lib/carte-style'
+import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 import { PictoType } from '@/components/ui/PictoType'
 import { COULEUR_ETAT, ETATS_CONSERVATION } from '@/lib/etats-conservation'
 
@@ -118,12 +118,27 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   // toute la carte WebGL.
   useEffect(() => {
     if (!conteneur.current) return
-    const map = new Map({
-      container: conteneur.current,
-      style: STYLE_CARTE,
-      center: [-5.5, 7.5], // Côte d'Ivoire
-      zoom: 6,
-    })
+    // L'initialisation devient ASYNCHRONE : `styleDisponible()` vérifie d'abord
+    // que MapTiler accepte la clé sur cette origine, et rend le fond libre
+    // sinon (voir lib/carte-style.ts). `annule` couvre le cas où le visiteur
+    // quitte la page pendant cette vérification — sans lui, on construirait une
+    // carte WebGL dans un conteneur déjà démonté, que plus rien ne détruirait.
+    let map: Map | null = null
+    let annule = false
+
+    void (async () => {
+      const style = await styleDisponible()
+      if (annule || !conteneur.current) return
+      map = new Map({
+        container: conteneur.current,
+        style,
+        center: [-5.5, 7.5], // Côte d'Ivoire
+        zoom: 6,
+      })
+      demarrer(map)
+    })()
+
+    function demarrer(map: Map) {
     mapRef.current = map
     ;(window as unknown as { __carteMap?: Map }).__carteMap = map
     map.addControl(new NavigationControl(), 'top-right')
@@ -279,7 +294,12 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       ;(window as unknown as { __carteReady?: boolean }).__carteReady = true
     })
 
-    return () => map.remove()
+    }
+
+    return () => {
+      annule = true
+      map?.remove()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; router/locale lus via refs, couleurExpression capturée par closure.
   }, [])
 
