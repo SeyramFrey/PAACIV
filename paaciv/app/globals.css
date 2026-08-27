@@ -151,6 +151,35 @@
   --font-sans: var(--font-inter);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DÉGAGEMENT SOUS L'EN-TÊTE
+   ═══════════════════════════════════════════════════════════════════════════
+   L'en-tête est `fixed` : il ne pousse rien, c'est à chaque page de réserver
+   sa hauteur. Elle valait `pt-20` (80 px) partout — quatre pixels de MOINS que
+   l'en-tête réel, mesuré à 84 px de 390 px à 1440 px de large. Toutes les
+   pages de contenu commençaient donc quatre pixels SOUS la barre : sur une
+   fiche architecte, la photo et le titre « Biographie » y étaient rognés.
+
+   Le `py-10` qui suivait n'y changeait rien : Tailwind émet les utilitaires
+   `pt-*` APRÈS les `py-*`, si bien que `pt-20` gagnait et que les 40 px de
+   respiration voulus par l'auteur n'ont jamais existé.
+
+   Une variable et deux utilitaires plutôt que douze nombres recopiés : le jour
+   où le logo change de taille, il n'y a qu'une valeur à corriger. */
+:root { --hauteur-entete: 84px; }
+
+/* Pages de contenu : la hauteur de l'en-tête PLUS une vraie respiration. */
+@utility sous-entete {
+  padding-top: calc(var(--hauteur-entete) + 2.5rem);
+}
+
+/* Pages qui gèrent elles-mêmes leur respiration (carte pleine largeur, page
+   « À propos » et sa section à `py-[clamp(48px,7vw,96px)]`) : on dégage
+   l'en-tête au ras, sans rien ajouter. */
+@utility sous-entete-ras {
+  padding-top: var(--hauteur-entete);
+}
+
 html { scroll-behavior: smooth; background-color: var(--bg); }
 body {
   background-color: var(--bg);
@@ -321,6 +350,73 @@ button:not(:disabled) { cursor: pointer; }
   mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
 }
 
+/* Chevrons — l'autre moitié du procédé.
+   Le commentaire d'en-tête annonce « des losanges ET des chevrons », mais seuls
+   les losanges étaient dessinés. Un chevron n'est pas un losange coupé : c'est
+   une diagonale qui se replie à mi-lé, ce que rend le décalage d'un demi-pas
+   entre les deux moitiés du dégradé. Même règle qu'au-dessus : c'est la
+   géométrie du procédé, aucun motif nommé. */
+.motif-tisse--chevrons {
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    repeating-linear-gradient(90deg, currentColor 0 var(--tisse-trait),
+      transparent var(--tisse-trait) calc(var(--tisse-pas) * 3));
+  background-size: calc(var(--tisse-pas) * 3) 100%, auto;
+}
+
+/* ── Le tissage comme SURFACE, plus seulement comme séparation ───────────────
+   Jusqu'ici la trame ne servait qu'en bande de 54 px entre deux sections. En
+   fond de bloc, très basse, elle donne au bloc sa matière — exactement le rôle
+   que `.surface-papier` joue pour le papier, et les deux se superposent sans se
+   gêner (l'une est une fibre, l'autre un tissu).
+
+   Opacité très faible et `currentColor` : aucune couleur nouvelle n'entre dans
+   la palette, donc rien à repasser par `npm run contraste`. La trame emprunte
+   l'encre du bloc, claire ou sombre, comme la bande le fait déjà. */
+.surface-tissee { position: relative; isolation: isolate; }
+.surface-tissee::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.045;
+  --tisse-pas: 26px;
+  --tisse-trait: 1px;
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    repeating-linear-gradient(-45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    repeating-linear-gradient(90deg, currentColor 0 var(--tisse-trait),
+      transparent var(--tisse-trait) calc(var(--tisse-pas) * 3));
+}
+/* Le tissu s'éteint vers le bas du bloc : une trame qui court jusqu'au bord
+   inférieur se lit comme un fond, pas comme une matière posée. */
+.surface-tissee--fondu-bas::before {
+  -webkit-mask-image: linear-gradient(180deg, #000 0 45%, transparent);
+  mask-image: linear-gradient(180deg, #000 0 45%, transparent);
+}
+
+/* Lisière : le bord fini d'un lé, dans le sens de la chaîne. Verticale, donc,
+   là où la bande de séparation court dans le sens de la trame. */
+.lisiere-tissee {
+  --tisse-pas: 15px;
+  --tisse-trait: 1px;
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    repeating-linear-gradient(-45deg, transparent 0 calc(var(--tisse-pas) - var(--tisse-trait)),
+      currentColor calc(var(--tisse-pas) - var(--tisse-trait)) var(--tisse-pas)),
+    /* coutures HORIZONTALES : perpendiculaires à celles de la bande, puisque
+       la lisière court dans l'autre sens. */
+    repeating-linear-gradient(0deg, currentColor 0 var(--tisse-trait),
+      transparent var(--tisse-trait) calc(var(--tisse-pas) * 3));
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 15%, #000 85%, transparent);
+}
+
 /* Ombres de défilement horizontal.
    Motif classique en quatre couches : deux CACHES posés aux extrémités,
    attachés au CONTENU (`local`), et deux OMBRES attachées au conteneur
@@ -351,4 +447,24 @@ button:not(:disabled) { cursor: pointer; }
      glissaient plus, et ils recouvraient les ombres en permanence. Le motif ne
      marchait tout simplement pas, sans que rien ne le signale. */
   background-attachment: local, local, scroll, scroll;
+}
+
+/* Biographie de la fiche architecte : mise en colonnes et lettrine.
+   Le contenu vient du champ riche de l'admin — on ne peut donc pas envelopper
+   la première lettre dans un balisage, et `::first-letter` est la seule prise.
+   `first-of-type` et non `first-child` : l'assainisseur laisse passer des
+   nœuds qui ne sont pas des paragraphes, et la lettrine doit tomber sur le
+   premier VRAI paragraphe. */
+.bio-fiche {
+  columns: 22em;
+  column-gap: clamp(24px, 3vw, 52px);
+  column-rule: 1px solid var(--line);
+}
+.bio-fiche > p:first-of-type::first-letter {
+  float: left;
+  margin: 6px 12px 0 0;
+  font-family: var(--font-serif);
+  font-size: 62px;
+  line-height: 0.78;
+  color: var(--terra);
 }

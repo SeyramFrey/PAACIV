@@ -14,6 +14,7 @@ import { chargerTextes, libelleOuNull } from '@/lib/data/contenu-site'
 import { cleTexteVille } from '@/lib/villes'
 import { champ } from '@/lib/i18n-champ'
 import { estEtatConservation, ETATS_CONSERVATION } from '@/lib/etats-conservation'
+import { slugParam } from '@/lib/slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +25,8 @@ type Props = { params: Promise<{ locale: string; slug: string }> }
 // site. C'est tout l'intérêt d'avoir des pages de commune plutôt qu'un simple
 // filtre — un filtre n'a ni URL stable, ni titre, ni description.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   const ville = await villeParSlug(slug)
   if (!ville) return {}
   const t = await getTranslations({ locale, namespace: 'villes' })
@@ -35,7 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PageVille({ params }: Props) {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   setRequestLocale(locale)
   const t = await getTranslations('villes')
 
@@ -73,7 +76,7 @@ export default async function PageVille({ params }: Props) {
   const nonRenseignes = ville.items.filter((i) => !estEtatConservation(i.etat_conservation)).length
 
   return (
-    <main className="flex-1 pt-20 py-10">
+    <main className="flex-1 sous-entete pb-10">
       <Container className="space-y-4">
         <p className="text-xs uppercase tracking-[0.18em] text-doux">
           <Link href="/villes" className="underline hover:text-ocre">

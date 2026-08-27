@@ -53,7 +53,7 @@ export default async function APropos({ params }: Props) {
   const intro = lib('apropos_texte') ?? tx('association_texte')
 
   return (
-    <main className="flex-1 pt-20">
+    <main className="flex-1 sous-entete-ras">
       <section className="px-[clamp(20px,5vw,80px)] py-[clamp(48px,7vw,96px)]">
         <div className="mx-auto max-w-[820px] text-center">
           <Logo hauteur={104} className="mb-10 justify-center" />

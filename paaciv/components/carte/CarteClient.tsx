@@ -47,6 +47,11 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   const [filtres, setFiltres] = useState({ type: '', programme: '', district: '', epoque: '', etat: '', q: '' })
   const [nombre, setNombre] = useState(0)
   const [mapPret, setMapPret] = useState(false)
+  // Repli des filtres, PETIT ÉCRAN UNIQUEMENT. L'état de départ est `false`
+  // pour tout le monde et c'est `sm:flex` qui redéploie la barre à partir de
+  // 640 px : lire la largeur de la fenêtre au montage pour choisir l'état
+  // initial ferait diverger le rendu serveur du rendu client.
+  const [filtresOuverts, setFiltresOuverts] = useState(false)
 
   const nomType = (ty: Ref) => (locale === 'en' ? ty.nom_en || ty.nom_fr : ty.nom_fr)
 
@@ -372,57 +377,84 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
           étaient donc illisibles. Surface et texte viennent maintenant tous
           deux des mêmes jetons, donc le contraste tient dans les deux thèmes. */}
       <div
-        className="flex flex-wrap items-end gap-3 border-b px-[clamp(12px,3vw,32px)] py-4"
+        className="flex flex-col gap-3 border-b px-[clamp(12px,3vw,32px)] py-4"
         style={{ background: 'var(--bg2)', color: 'var(--ink)', borderColor: 'var(--line)' }}
       >
-        <FiltresCarte
-          options={options}
-          valeurs={{
-            type: filtres.type,
-            programme: filtres.programme,
-            district: filtres.district,
-            epoque: filtres.epoque,
-            etat: filtres.etat,
-          }}
-          onChange={onChangeFiltre}
-          locale={locale}
-        />
-        {/* Bascule de la clé de lecture. Un groupe de deux boutons plutôt qu'un
-            `<select>` de plus : ce n'est PAS un filtre — il ne retire aucun
-            point — et le ranger parmi les filtres laisserait croire l'inverse.
-            `aria-pressed` porte l'état, faute de quoi les deux boutons sont
-            annoncés à l'identique quel que soit celui qui est actif. */}
-        <div className="flex flex-col text-sm">
-          <span className="mb-1 font-semibold">{t('lecture')}</span>
-          <div
-            role="group"
-            aria-label={t('lecture')}
-            className="flex overflow-hidden rounded-xl border"
-            style={{ borderColor: 'var(--line)' }}
-          >
-            {([['type', t('parType')], ['etat', t('parEtat')]] as const).map(([cle, libelle]) => (
-              <button
-                key={cle}
-                type="button"
-                data-testid={`lecture-${cle}`}
-                aria-pressed={lecture === cle}
-                onClick={() => setLecture(cle)}
-                className="px-3 py-2 text-sm font-semibold transition"
-                style={
-                  lecture === cle
-                    ? { background: 'var(--accent)', color: 'var(--surAccent)' }
-                    : { background: 'var(--bg)', color: 'var(--ink)' }
-                }
-              >
-                {libelle}
-              </button>
-            ))}
-          </div>
+        {/* Les six champs de filtre, dépliés, mesuraient 461 px sous 430 px de
+            large et repoussaient la carte à y=625 — hors de l'écran d'un
+            téléphone. La carte se dessinait pourtant très bien : personne ne
+            la voyait, le visiteur n'ayant sous les yeux qu'un mur de listes
+            déroulantes. Repliés derrière ce bouton, les filtres rendent la
+            carte visible d'emblée là où elle est le sujet de la page, sans
+            rien retirer à personne. Le bouton est `sm:hidden` : au-delà de
+            640 px la barre n'a jamais posé problème et reste dépliée. */}
+        <button
+          type="button"
+          onClick={() => setFiltresOuverts((o) => !o)}
+          aria-expanded={filtresOuverts}
+          aria-controls="filtres-carte"
+          className="self-start rounded-xl border px-3 py-2 text-sm font-semibold sm:hidden"
+          style={{ background: 'var(--bg)', color: 'var(--ink)', borderColor: 'var(--line)' }}
+        >
+          {filtresOuverts ? t('masquerFiltres') : t('filtres')}
+        </button>
+
+        <div
+          id="filtres-carte"
+          className={`${filtresOuverts ? 'flex' : 'hidden'} flex-wrap items-end gap-3 sm:flex`}
+        >
+          <FiltresCarte
+            options={options}
+            valeurs={{
+              type: filtres.type,
+              programme: filtres.programme,
+              district: filtres.district,
+              epoque: filtres.epoque,
+              etat: filtres.etat,
+            }}
+            onChange={onChangeFiltre}
+            locale={locale}
+          />
         </div>
 
-        <span data-testid="compteur-carte" className="pb-2 text-sm opacity-70">
-          {t('compteur', { n: nombre })}
-        </span>
+        <div className="flex flex-wrap items-end gap-3">
+          {/* Bascule de la clé de lecture. Un groupe de deux boutons plutôt qu'un
+              `<select>` de plus : ce n'est PAS un filtre — il ne retire aucun
+              point — et le ranger parmi les filtres laisserait croire l'inverse.
+              `aria-pressed` porte l'état, faute de quoi les deux boutons sont
+              annoncés à l'identique quel que soit celui qui est actif. */}
+          <div className="flex flex-col text-sm">
+            <span className="mb-1 font-semibold">{t('lecture')}</span>
+            <div
+              role="group"
+              aria-label={t('lecture')}
+              className="flex overflow-hidden rounded-xl border"
+              style={{ borderColor: 'var(--line)' }}
+            >
+              {([['type', t('parType')], ['etat', t('parEtat')]] as const).map(([cle, libelle]) => (
+                <button
+                  key={cle}
+                  type="button"
+                  data-testid={`lecture-${cle}`}
+                  aria-pressed={lecture === cle}
+                  onClick={() => setLecture(cle)}
+                  className="px-3 py-2 text-sm font-semibold transition"
+                  style={
+                    lecture === cle
+                      ? { background: 'var(--accent)', color: 'var(--surAccent)' }
+                      : { background: 'var(--bg)', color: 'var(--ink)' }
+                  }
+                >
+                  {libelle}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <span data-testid="compteur-carte" className="pb-2 text-sm opacity-70">
+            {t('compteur', { n: nombre })}
+          </span>
+        </div>
       </div>
 
       <div className="relative h-[calc(100svh-17rem)] min-h-[420px] w-full">

@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { getArticleParSlugCache as getArticle } from '@/lib/data/articles'
 import { champ } from '@/lib/i18n-champ'
+import { slugParam } from '@/lib/slug'
 
 // Segment dynamique ([slug]) : cette page est déjà `ƒ` par construction
 // (aucune donnée dynamique en dehors du paramètre de route). Export explicite
@@ -16,7 +17,8 @@ export const dynamic = 'force-dynamic'
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   const a = await getArticle(slug)
   if (!a) return {}
   const titre = champ(a.titre_fr, a.titre_en, locale)
@@ -40,7 +42,8 @@ function dateLocalisee(iso: string, locale: string): string {
 }
 
 export default async function FicheArticle({ params }: Props) {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   setRequestLocale(locale)
   const t = await getTranslations('ficheArticle')
   const a = await getArticle(slug)
@@ -52,7 +55,7 @@ export default async function FicheArticle({ params }: Props) {
   const categorie = a.categorie ? champ(a.categorie.nom_fr, a.categorie.nom_en, locale) : null
 
   return (
-    <main className="flex-1 pt-20 py-10">
+    <main className="flex-1 sous-entete pb-10">
       <Container className="mx-auto max-w-3xl space-y-6">
         <Link href="/articles" className="text-sm text-ocre underline">
           {t('retour')}

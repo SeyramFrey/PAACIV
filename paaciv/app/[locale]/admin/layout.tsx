@@ -24,7 +24,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <main className="flex-1 pt-20 py-10">
+    <main className="flex-1 sous-entete pb-10">
       <Container>
         {/* Monté dans le gabarit, et non dans chaque écran : l'enregistrement
             s'achève par une navigation, dont la destination varie selon le

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
-import { slugify } from '@/lib/slug'
+import { normaliserSlug } from '@/lib/slug'
 import { texteOuNull, richeOuNull } from '@/lib/admin/champs'
 
 // Deux cas de validation *attendus* (l'utilisateur peut simplement avoir
@@ -25,7 +25,10 @@ export async function enregistrerEvenement(formData: FormData): Promise<Resultat
   const id = texteOuNull(formData.get('id'))
   const titre_fr = (formData.get('titre_fr') ?? '').toString().trim()
   if (!titre_fr) throw new Error('Titre FR requis')
-  const slug = texteOuNull(formData.get('slug')) ?? slugify(titre_fr)
+  // Le champ Slug de l'admin est libre : normalisé ici comme il l'est quand
+  // il est déduit du titre, sinon un « Aka Raymond » tapé à la main part tel
+  // quel en base et fabrique une URL qu'aucune fiche ne résout.
+  const slug = normaliserSlug(texteOuNull(formData.get('slug')), titre_fr)
 
   const date_debut = texteOuNull(formData.get('date_debut'))
   // Colonne NOT NULL et pivot du tri/de la partition « à venir / passés » :

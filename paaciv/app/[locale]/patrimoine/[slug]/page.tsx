@@ -12,13 +12,14 @@ import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
-import { slugify } from '@/lib/slug'
+import { slugify, slugParam } from '@/lib/slug'
 import { COULEUR_DEFAUT } from '@/lib/carte-style'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   const p = await getPatrimoineParSlug(slug)
   if (!p) return {}
   const titre = champ(p.titre_fr, p.titre_en, locale)
@@ -37,7 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function FichePatrimoine({ params }: Props) {
-  const { locale, slug } = await params
+  const { locale, slug: slugBrut } = await params
+  const slug = slugParam(slugBrut)
   setRequestLocale(locale)
   const t = await getTranslations('fiche')
   const tVideo = await getTranslations('video')
@@ -68,7 +70,7 @@ export default async function FichePatrimoine({ params }: Props) {
   // slug brut) ; elle n'a plus à être écrite ici.
 
   return (
-    <main className="flex-1 pt-20 py-10">
+    <main className="flex-1 sous-entete pb-10">
       <Container className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">

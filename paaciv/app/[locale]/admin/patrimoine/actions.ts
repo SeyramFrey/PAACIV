@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
-import { slugify } from '@/lib/slug'
+import { slugify, normaliserSlug } from '@/lib/slug'
 import { texteOuNull, intOuNull, richeOuNull, validerCoordonnee, BORNE_LAT, BORNE_LNG } from '@/lib/admin/champs'
 import { etatOuNull } from '@/lib/etats-conservation'
 
@@ -46,7 +46,11 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
   // qu'un test rouge : tout lien externe vers la fiche tombe en 404.
   // En édition, un slug n'est donc écrit que s'il est explicitement soumis.
   const slugSoumis = texteOuNull(formData.get('slug'))
-  const slug = slugSoumis ?? (id ? null : slugify(titre_fr))
+  const slug = slugSoumis
+    ? normaliserSlug(slugSoumis, titre_fr)
+    : id
+      ? null
+      : slugify(titre_fr)
 
   // Défense en profondeur devant la contrainte `patrimoine_lat_bornes` /
   // `patrimoine_lng_bornes` (0019) : le message de violation de contrainte
