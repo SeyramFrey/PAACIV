@@ -569,7 +569,8 @@
     "contribuerTexte": "La fiche reste ouverte. Chaque document reçu est daté, crédité et versé à l'archive.",
     "contribuerCta": "Envoyer un document",
     "retourArchive": "Retour à l'archive",
-    "citationSurtitre": "Ce qu'il laisse"
+    "citationSurtitre": "Ce qu'il laisse",
+    "releveDetaille": "Relevé détaillé"
   },
   "video": {
     "lire": "Lire la vidéo"

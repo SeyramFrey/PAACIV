@@ -10,6 +10,10 @@ export type ArchitecteListItem = {
   photo: string | null
   annee_naissance: number | null
   periode_texte: string | null
+  // Rendue sous le nom dans la grille de portraits, comme la fonction sous le
+  // nom d'un trombinoscope d'agence. Ajoutée par la migration 0032.
+  profession_fr: string | null
+  profession_en: string | null
   ordre: number
 }
 
@@ -75,7 +79,9 @@ export async function listeArchitectes(): Promise<ArchitecteListItem[]> {
   const sb = createReadClient()
   const { data, error } = await sb
     .from('architectes')
-    .select('id, slug, nom, origine, photo, annee_naissance, periode_texte, ordre')
+    .select(
+      'id, slug, nom, origine, photo, annee_naissance, periode_texte, profession_fr, profession_en, ordre',
+    )
     .eq('statut', 'publie')
     .order('ordre', { ascending: true })
   if (error) throw error

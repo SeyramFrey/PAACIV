@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { PastilleArchitecte } from '@/components/architectes/PastilleArchitecte'
 import type { ArchitecteListItem } from '@/lib/data/architectes'
 
@@ -31,6 +31,7 @@ export function RechercheArchitectes({
   libelleAucun: string
 }) {
   const t = useTranslations('architectes')
+  const locale = useLocale()
   const [requete, setRequete] = useState('')
 
   const { ivoiriensFiltres, etrangersFiltres } = useMemo(() => {
@@ -48,9 +49,12 @@ export function RechercheArchitectes({
       {liste.length === 0 ? (
         <p className="text-doux">{libelleAucun}</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+        // Quatre colonnes au plus, contre six auparavant : à six, un portrait
+        // fait 180 px sur un écran de 1440 et redevient une vignette. La
+        // photographie est le sujet de cette page, elle a besoin de place.
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {liste.map((a) => (
-            <PastilleArchitecte key={a.id} a={a} />
+            <PastilleArchitecte key={a.id} a={a} locale={locale} />
           ))}
         </div>
       )}

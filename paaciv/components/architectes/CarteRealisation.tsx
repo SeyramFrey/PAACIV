@@ -18,9 +18,13 @@ export function CarteRealisation({
   return (
     <Link
       href={`/patrimoine/${realisation.slug}`}
-      className="group block overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-encre/5 transition hover:shadow-md"
+      // Largeur FIXE et `shrink-0` : la carte vit désormais dans un rail
+      // défilant, où un `flex-1` la laisserait se comprimer jusqu'à
+      // l'illisible dès la troisième réalisation.
+      className="group block w-[210px] shrink-0 snap-start overflow-hidden rounded-xl transition hover:shadow-md"
+      style={{ background: 'var(--bg)', boxShadow: '0 0 0 1px var(--line)' }}
     >
-      <div className="aspect-[4/3] overflow-hidden bg-creme2">
+      <div className="aspect-[4/3] overflow-hidden" style={{ background: 'var(--bg2)' }}>
         {realisation.image && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -31,10 +35,17 @@ export function CarteRealisation({
           />
         )}
       </div>
-      <div className="space-y-1 p-4">
-        <h3 className="font-serif text-lg text-brun">{titre}</h3>
+      <div className="space-y-1 p-3">
+        <h3 className="font-serif text-[15px] leading-snug" style={{ color: 'var(--ink)' }}>
+          {titre}
+        </h3>
         {realisation.role && (
-          <p className="text-xs uppercase tracking-wide text-encre/50">{realisation.role}</p>
+          <p
+            className="text-[10px] uppercase tracking-[0.14em]"
+            style={{ color: 'var(--soft)' }}
+          >
+            {realisation.role}
+          </p>
         )}
       </div>
     </Link>

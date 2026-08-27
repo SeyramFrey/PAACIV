@@ -117,3 +117,32 @@ test('sur grand écran, le portrait reste à droite du nom (composition de la ma
   const nom = (await page.locator('#top h1').boundingBox())!
   expect(photo.x).toBeGreaterThan(nom.x)
 })
+
+test.describe('réalisations : rail défilant et relevé replié', () => {
+  test('les cartes gardent leur largeur dans un conteneur défilant', async ({ page }) => {
+    await page.goto('/fr/architectes/Aka%20Raymond')
+    const rail = page.locator('#realisations [role="group"]')
+    await expect(rail).toHaveCSS('overflow-x', 'auto')
+
+    // La largeur fixe ET le `shrink-0` sont le cœur du réglage : sans eux, les
+    // cartes se comprimeraient jusqu'à l'illisible au lieu de sortir du cadre,
+    // et le rail ne défilerait jamais.
+    const carte = rail.locator('a').first()
+    await expect(carte).toHaveCSS('flex-shrink', '0')
+    expect((await carte.boundingBox())!.width).toBe(210)
+  })
+
+  test('le relevé écrit est replié et s’ouvre au clic', async ({ page }) => {
+    await page.goto('/fr/architectes/Aka%20Raymond')
+    const details = page.locator('#realisations details')
+    // Replié par défaut : celui d'Aka Adjo fait plusieurs centaines de lignes
+    // et enterrerait les sections suivantes.
+    await expect(details).not.toHaveAttribute('open', /.*/)
+    const corps = details.locator('div').first()
+    await expect(corps).toBeHidden()
+
+    await details.getByText('Relevé détaillé').click()
+    await expect(details).toHaveAttribute('open', /.*/)
+    await expect(corps).toBeVisible()
+  })
+})

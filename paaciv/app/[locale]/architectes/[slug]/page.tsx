@@ -150,32 +150,75 @@ export default async function FicheArchitecte({ params }: Props) {
               {t('realisations')}
             </h2>
 
+            {/* Rail défilant plutôt que grille : une grille de trois colonnes
+                impose sa hauteur à la page dès six réalisations, alors que ce
+                bloc n'est qu'une étape de la fiche. Le rail garde la section à
+                hauteur constante quel que soit le nombre d'œuvres liées, et les
+                cartes rétrécies laissent voir qu'il y en a d'autres à droite.
+                Pas d'ombres de défilement ici, contrairement à la frise du
+                patrimoine : ce motif suppose un contenu PLUS LARGE que son
+                cadre, et laisse sinon l'ombre de droite à nu — une barre
+                sombre en travers de la section sur une fiche à une seule
+                réalisation. L'indication vient de la coupe des cartes elles-
+                mêmes, qui suffit quand il y a de quoi défiler.
+                `tabIndex` et `role`/`aria-label` : un conteneur défilant doit
+                pouvoir être atteint et parcouru au clavier, sans quoi ses
+                dernières cartes sont hors de portée pour qui n'a pas de
+                souris. */}
             {a.realisations.length > 0 && (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {a.realisations.map((r, i) => (
-                  <div key={r.slug} data-rv="" data-d={String(Math.min(i * 70, 420))}>
-                    <CarteRealisation realisation={r} locale={locale} />
-                  </div>
+              <div
+                data-rv=""
+                tabIndex={0}
+                role="group"
+                aria-label={t('realisations')}
+                className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-2 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+              >
+                {a.realisations.map((r) => (
+                  <CarteRealisation key={r.slug} realisation={r} locale={locale} />
                 ))}
               </div>
             )}
 
-            {/* Le relevé libre COMPLÈTE désormais les fiches liées au lieu de
-                les remplacer : l'ancienne page affichait l'un OU l'autre, si
-                bien qu'un architecte ayant les deux perdait silencieusement
-                son relevé dès qu'une liaison existait. */}
+            {/* Le relevé libre COMPLÈTE les fiches liées au lieu de les
+                remplacer : l'ancienne page affichait l'un OU l'autre, si bien
+                qu'un architecte ayant les deux perdait silencieusement son
+                relevé dès qu'une liaison existait.
+                Il est REPLIÉ par défaut. Celui d'Aka Adjo fait plusieurs
+                centaines de lignes recopiées des pièces d'agence : déplié, il
+                occupe à lui seul plus que tout le reste de la fiche et enterre
+                les sections qui suivent. `<details>` plutôt qu'un état React —
+                il s'ouvre sans JavaScript, se laisse chercher par Ctrl+F dans
+                les navigateurs récents, et s'imprime déplié. */}
             {realisationsTexte && (
-              <div
+              <details
                 data-rv=""
                 className={
                   a.realisations.length > 0
-                    ? 'mt-[clamp(28px,4vw,56px)] max-w-[80ch] border-t pt-[clamp(24px,3vw,44px)]'
-                    : 'max-w-[80ch]'
+                    ? 'group mt-[clamp(28px,4vw,56px)] border-t pt-[clamp(24px,3vw,44px)]'
+                    : 'group'
                 }
                 style={a.realisations.length > 0 ? { borderColor: 'var(--line)' } : undefined}
               >
-                <TexteRiche html={realisationsTexte} />
-              </div>
+                <summary
+                  className="flex cursor-pointer list-none items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors hover:text-terra focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] [&::-webkit-details-marker]:hidden"
+                  style={{ color: 'var(--soft)' }}
+                >
+                  {/* Chevron dessiné plutôt que le marqueur natif, que les
+                      navigateurs rendent chacun à leur façon. Il pivote à
+                      l'ouverture, ce qui dit l'état sans mot supplémentaire. */}
+                  <span
+                    aria-hidden="true"
+                    className="inline-block transition-transform duration-300 group-open:rotate-90"
+                    style={{ color: 'var(--terra)' }}
+                  >
+                    ▸
+                  </span>
+                  {t('releveDetaille')}
+                </summary>
+                <div className="mt-6 max-w-[80ch]">
+                  <TexteRiche html={realisationsTexte} />
+                </div>
+              </details>
             )}
           </div>
         </section>

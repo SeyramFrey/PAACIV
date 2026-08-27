@@ -569,7 +569,8 @@
     "contribuerTexte": "The profile stays open. Every document received is dated, credited and added to the archive.",
     "contribuerCta": "Send a document",
     "retourArchive": "Back to the archive",
-    "citationSurtitre": "What they leave"
+    "citationSurtitre": "What they leave",
+    "releveDetaille": "Detailed list"
   },
   "video": {
     "lire": "Play video"
