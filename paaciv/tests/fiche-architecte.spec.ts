@@ -86,3 +86,34 @@ test.describe('gabarit de fiche', () => {
     await expect(entete).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   })
 })
+
+// L'ordre de lecture de la fiche sur téléphone. Ce n'est pas une préférence
+// d'apparence : une fiche de personne s'ouvre sur son visage, et la maquette —
+// dessinée en deux colonnes — plaçait le portrait après huit lignes d'état
+// civil dès que tout s'empile.
+test.describe('ordre du hero de fiche sur téléphone', () => {
+  test.use({ viewport: { width: 390, height: 664 } })
+
+  test('le portrait précède le nom, et les chiffres le suivent', async ({ page }) => {
+    await page.goto('/fr/architectes/Aka%20Raymond')
+    const y = async (s: string) =>
+      (await page.locator(s).first().boundingBox())!.y
+    const photo = await y('#top img')
+    const nom = await y('#top h1')
+    const chiffres = await y('#top [class*="grid-template-columns"]')
+    expect(photo).toBeLessThan(nom)
+    // Les chiffres-clés SONT de l'information : les laisser entre la photo et
+    // le nom ne respecterait la consigne qu'à moitié.
+    expect(nom).toBeLessThan(chiffres)
+  })
+})
+
+test('sur grand écran, le portrait reste à droite du nom (composition de la maquette)', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/fr/architectes/Aka%20Raymond')
+  const photo = (await page.locator('#top img').first().boundingBox())!
+  const nom = (await page.locator('#top h1').boundingBox())!
+  expect(photo.x).toBeGreaterThan(nom.x)
+})

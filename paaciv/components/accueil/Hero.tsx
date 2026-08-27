@@ -144,15 +144,27 @@ export function Hero({
           borne haute de 180 px s'applique comme avant, donc la maquette est
           intacte là où elle tenait déjà. Le resserrement ne mord que sur les
           écrans courts, ceux où le hero débordait. */}
-      <div className="relative z-[5] grid gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(104px,14vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      {/* `grid-cols-[minmax(0,1fr)]` dès le mobile, et pas seulement à `lg`.
+          Sans piste déclarée, la grille en crée une seule, dimensionnée `auto`
+          — donc au MAX-CONTENT de ses deux enfants. Le rail de vignettes
+          (cinq images de 92 px et quatre gouttières de 10 px, sans repli) en
+          réclamait 500 : la piste passait à 500 px sur un écran de 390, la
+          colonne de texte suivait, et l'`overflow` de la section rognait
+          l'accroche, le titre, le paragraphe et les puces de villes AU MÊME
+          BORD — sans barre de défilement pour le signaler, `scrollWidth`
+          restant égal à `clientWidth`. C'est le débordement invisible qu'on
+          voyait sur téléphone. */}
+      <div className="relative z-[5] grid grid-cols-[minmax(0,1fr)] gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(104px,14vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         {/* Plus de `max-w-[900px]`. La maquette casse son `<h1>` en DEUX lignes
             explicites (« Ce qui tient debout » / « raconte encore ») ; le nôtre
             reçoit un titre unique venu du CMS, qu'un plafond de 900 px faisait
             retomber sur QUATRE lignes — 523 px au lieu de 261 px, mesurés. Le
             hero dépassait alors `100svh` et sa colonne de droite passait sous
             la ligne de flottaison. Sans plafond, la largeur disponible rend le
-            titre sur deux lignes dès 1900 px, comme la maquette. */}
-        <div>
+            titre sur deux lignes dès 1900 px, comme la maquette.
+            `min-w-0` : `minmax(0,…)` borne la PISTE, pas l'élément — dont le
+            `min-width: auto` par défaut le laisserait déborder quand même. */}
+        <div className="min-w-0">
           <p
             data-testid="accroche"
             data-drop=""
@@ -233,14 +245,19 @@ export function Hero({
         {vedettes.length > 0 && (
           <div
             data-drop=""
-            className="flex flex-col items-end gap-4"
+            className="flex min-w-0 flex-col items-end gap-4"
             style={{ animation: 'drop 1.2s 1.1s both cubic-bezier(.16,1,.3,1)' }}
           >
             <div className="flex items-center gap-3.5" style={{ color: 'var(--onDeep)' }}>
               <span className="text-[10px] uppercase tracking-[0.24em] opacity-80">{t('vues')}</span>
               <span className="h-px w-[52px]" style={{ background: 'color-mix(in oklab, var(--onDeep) 50%, transparent)' }} />
             </div>
-            <div className="flex gap-2.5">
+            {/* Le rail DÉFILE au lieu de pousser. Le masquer sous `lg` aurait
+                retiré au visiteur mobile l'accès aux autres vedettes ; le faire
+                se replier aurait empilé cinq vignettes sur la moitié du hero.
+                `shrink-0` sur les boutons : sans lui, le conteneur défilant les
+                comprimerait au lieu de les laisser sortir du cadre. */}
+            <div className="flex max-w-full gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {vedettes.map((v, i) => (
                 <button
                   key={v.slug}
@@ -248,7 +265,7 @@ export function Hero({
                   aria-label={t('voirVedette', { titre: champ(v.titre_fr, v.titre_en, locale) })}
                   aria-pressed={i === actif}
                   onClick={() => setActif(i)}
-                  className="h-[66px] w-[92px] overflow-hidden rounded border p-0 transition"
+                  className="h-[66px] w-[92px] shrink-0 overflow-hidden rounded border p-0 transition"
                   style={{
                     borderColor:
                       i === actif ? 'var(--accent)' : 'color-mix(in oklab, var(--onDeep) 30%, transparent)',

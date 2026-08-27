@@ -131,3 +131,40 @@ test('les motifs tissés de l’accueil sont décoratifs et sans couleur propre'
   )
   expect(couleursEnDur).toBe(0)
 })
+
+// Le hero débordait en silence sur téléphone : la grille n'avait qu'une piste
+// `auto`, dimensionnée au max-content de ses deux enfants, et le rail de
+// vignettes (cinq images de 92 px, sans repli) en réclamait 500. La piste
+// passait donc à 500 px sur un écran de 390, la colonne de texte suivait, et
+// l'`overflow` de la section rognait accroche, titre, paragraphe et puces AU
+// MÊME BORD — sans barre de défilement pour le signaler, `scrollWidth` restant
+// égal à `clientWidth`. Un test qui ne regarderait que `scrollWidth` ne verrait
+// donc rien : il faut mesurer les éléments eux-mêmes.
+test.describe('hero de l’accueil sur téléphone', () => {
+  test.use({ viewport: { width: 360, height: 780 } })
+
+  test('aucun texte du hero n’est rogné hors de l’écran', async ({ page }) => {
+    await page.goto('/fr')
+    const debordent = await page.evaluate(() => {
+      const vp = document.documentElement.clientWidth
+      return [...document.querySelectorAll('#top h1, #top p, #top a')]
+        .filter((e) => {
+          const b = e.getBoundingClientRect()
+          // Le rail de vignettes défile : ce qui en sort est atteignable, donc
+          // légitime. Seul ce qui déborde d'un parent NON défilant est rogné.
+          return b.width > 0 && b.right > vp + 1 &&
+            !['auto', 'scroll'].includes(getComputedStyle(e.parentElement!).overflowX)
+        })
+        .map((e) => (e.textContent || '').trim().slice(0, 30))
+    })
+    expect(debordent).toEqual([])
+  })
+
+  test('les vedettes restent toutes atteignables, par défilement du rail', async ({ page }) => {
+    await page.goto('/fr')
+    const rail = page.locator('#top [class*="overflow-x-auto"]')
+    await expect(rail).toHaveCount(1)
+    const peutDefiler = await rail.evaluate((e) => e.scrollWidth > e.clientWidth)
+    expect(peutDefiler).toBe(true)
+  })
+})

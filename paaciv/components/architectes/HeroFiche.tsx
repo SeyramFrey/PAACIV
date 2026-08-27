@@ -115,7 +115,7 @@ export async function HeroFiche({
       )}
 
       <div className="relative z-[2] mx-auto flex max-w-[1440px] flex-wrap items-start gap-[clamp(28px,4vw,70px)]">
-        <div className="min-w-0 flex-[1_1_520px]">
+        <div className="order-2 min-w-0 flex-[1_1_520px] lg:order-none">
           <div
             data-drop=""
             className="mb-[26px] flex items-center gap-3.5"
@@ -197,16 +197,33 @@ export async function HeroFiche({
           )}
         </div>
 
+        {/* Sur téléphone, le portrait passe AVANT le nom et le tableau : une
+            fiche de personne s'ouvre sur son visage, et le lire après huit
+            lignes d'état civil inverse l'ordre de la rencontre. Les
+            chiffres-clés, eux, sont de l'information — ils descendent APRÈS le
+            nom, faute de quoi la photo ne serait « avant toute information »
+            qu'à moitié.
+            D'où le `contents` : sous `lg`, cette colonne s'efface de la mise en
+            page et ses deux enfants deviennent des éléments flex du parent,
+            ordonnables indépendamment (portrait 1, texte 2, chiffres 3). À
+            partir de `lg` elle redevient une colonne et empile ses enfants
+            comme dans la maquette, sans qu'un seul nœud soit dupliqué.
+            L'animation est portée par les ENFANTS et non par ce conteneur :
+            une boîte en `display: contents` ne génère aucun fragment, donc
+            aucune animation ne s'y applique. */}
         <div
-          data-drop=""
-          className="flex min-w-0 max-w-[420px] flex-[1_1_300px] flex-col gap-[22px]"
-          style={{ animation: 'drop 1.1s .5s both cubic-bezier(.16,1,.3,1)' }}
+          className="contents lg:flex lg:min-w-0 lg:max-w-[420px] lg:flex-[1_1_300px] lg:flex-col lg:gap-[22px]"
         >
           {a.photo && (
             <div
               data-tilt=""
-              className="relative border p-3.5 transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)]"
+              data-drop=""
+              className="relative order-1 border p-3.5 transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)] lg:order-none"
               style={{
+                // Retard ramené de .5s à .2s : premier élément de la page sur
+                // téléphone, le portrait ne peut pas apparaître après le texte
+                // qui le suit.
+                animation: 'drop 1.1s .2s both cubic-bezier(.16,1,.3,1)',
                 background: 'color-mix(in oklab, var(--onDeep) 5%, transparent)',
                 borderColor: 'color-mix(in oklab, var(--accent) 38%, transparent)',
               }}
@@ -246,8 +263,12 @@ export async function HeroFiche({
 
           {chiffres.length > 0 && (
             <div
-              className="grid gap-px [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]"
-              style={{ background: 'color-mix(in oklab, var(--onDeep) 14%, transparent)' }}
+              data-drop=""
+              className="order-3 grid w-full gap-px [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] lg:order-none lg:w-auto"
+              style={{
+                background: 'color-mix(in oklab, var(--onDeep) 14%, transparent)',
+                animation: 'drop 1.1s .95s both cubic-bezier(.16,1,.3,1)',
+              }}
             >
               {chiffres.map((c) => (
                 <div key={c.id} className="px-4 py-[18px]" style={{ background: 'var(--deep)' }}>
