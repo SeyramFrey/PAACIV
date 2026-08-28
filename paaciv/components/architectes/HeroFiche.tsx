@@ -71,15 +71,26 @@ export async function HeroFiche({
     ] as Ligne[]
   ).filter((l) => l.valeur.trim().length > 0)
 
-  const chiffres = a.blocs.chiffre
-
   return (
     // `id="top"` : le repère que SiteHeader mesure pour rester transparent
     // tant que ce hero est derrière lui. Sans lui, l'en-tête serait opaque et
-    // poserait une barre claire en travers du hero sombre.
+    // poserait une barre claire en travers du hero sombre. Un hero plus court
+    // ne change rien à ce mécanisme : la barre redevient simplement opaque plus
+    // tôt, ce qui est le comportement voulu.
+    //
+    // Plus de `min-h-[100svh]`, contrairement à la maquette. Ce plancher tenait
+    // la hauteur d'écran grâce aux chiffres-clés qui remplissaient la colonne
+    // de droite ; ceux-ci retirés, il ne gardait plus qu'un vide sur la moitié
+    // basse — et repoussait la biographie à 1289 px sur un écran de 900,
+    // là où le contenu réel s'arrête à 719. Sans plancher, la biographie
+    // remonte de 181 px et le hero occupe encore les quatre cinquièmes de la
+    // page, en laissant deviner la section suivante.
+    //
+    // Sur téléphone le plancher était de toute façon inerte : le contenu
+    // empilé y mesure 1064 px pour 664 px de `100svh`.
     <section
       id="top"
-      className="relative min-h-[100svh] overflow-hidden px-[clamp(20px,4vw,54px)] pb-[clamp(40px,6vw,90px)] pt-[clamp(110px,14vh,168px)]"
+      className="relative overflow-hidden px-[clamp(20px,4vw,54px)] pb-[clamp(40px,6vw,90px)] pt-[clamp(110px,14vh,168px)]"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       {/* Trame de papier millimétré (maquette : deux dégradés croisés de 64 px). */}
@@ -199,31 +210,27 @@ export async function HeroFiche({
 
         {/* Sur téléphone, le portrait passe AVANT le nom et le tableau : une
             fiche de personne s'ouvre sur son visage, et le lire après huit
-            lignes d'état civil inverse l'ordre de la rencontre. Les
-            chiffres-clés, eux, sont de l'information — ils descendent APRÈS le
-            nom, faute de quoi la photo ne serait « avant toute information »
-            qu'à moitié.
-            D'où le `contents` : sous `lg`, cette colonne s'efface de la mise en
-            page et ses deux enfants deviennent des éléments flex du parent,
-            ordonnables indépendamment (portrait 1, texte 2, chiffres 3). À
-            partir de `lg` elle redevient une colonne et empile ses enfants
-            comme dans la maquette, sans qu'un seul nœud soit dupliqué.
-            L'animation est portée par les ENFANTS et non par ce conteneur :
-            une boîte en `display: contents` ne génère aucun fragment, donc
-            aucune animation ne s'y applique. */}
+            lignes d'état civil inverse l'ordre de la rencontre. À partir de
+            `lg` les deux colonnes sont côte à côte et la question ne se pose
+            plus — `lg:order-none` rend l'ordre du DOM, celui de la maquette.
+            Le `display: contents` qui vivait ici a disparu avec les
+            chiffres-clés : il ne servait qu'à ordonner TROIS éléments
+            (portrait, texte, chiffres) au sein d'une colonne qui n'en compte
+            plus qu'un. L'animation revient donc sur ce conteneur, qui génère
+            de nouveau une boîte.
+            Retard de .2s et non .5s comme dans la maquette : premier élément
+            de la page sur téléphone, le portrait ne peut pas apparaître après
+            le texte qui le suit. */}
         <div
-          className="contents lg:flex lg:min-w-0 lg:max-w-[420px] lg:flex-[1_1_300px] lg:flex-col lg:gap-[22px]"
+          data-drop=""
+          className="order-1 flex min-w-0 max-w-[420px] flex-[1_1_300px] flex-col gap-[22px] lg:order-none"
+          style={{ animation: 'drop 1.1s .2s both cubic-bezier(.16,1,.3,1)' }}
         >
           {a.photo && (
             <div
               data-tilt=""
-              data-drop=""
-              className="relative order-1 border p-3.5 transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)] lg:order-none"
+              className="relative border p-3.5 transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)]"
               style={{
-                // Retard ramené de .5s à .2s : premier élément de la page sur
-                // téléphone, le portrait ne peut pas apparaître après le texte
-                // qui le suit.
-                animation: 'drop 1.1s .2s both cubic-bezier(.16,1,.3,1)',
                 background: 'color-mix(in oklab, var(--onDeep) 5%, transparent)',
                 borderColor: 'color-mix(in oklab, var(--accent) 38%, transparent)',
               }}
@@ -258,31 +265,6 @@ export async function HeroFiche({
                   </span>
                 )}
               </div>
-            </div>
-          )}
-
-          {chiffres.length > 0 && (
-            <div
-              data-drop=""
-              className="order-3 grid w-full gap-px [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] lg:order-none lg:w-auto"
-              style={{
-                background: 'color-mix(in oklab, var(--onDeep) 14%, transparent)',
-                animation: 'drop 1.1s .95s both cubic-bezier(.16,1,.3,1)',
-              }}
-            >
-              {chiffres.map((c) => (
-                <div key={c.id} className="px-4 py-[18px]" style={{ background: 'var(--deep)' }}>
-                  <span
-                    className="block font-serif text-[clamp(26px,3vw,40px)] leading-none"
-                    style={{ color: 'var(--accent)' }}
-                  >
-                    {champ(c.titre_fr, c.titre_en, locale)}
-                  </span>
-                  <span className="text-[9px] font-medium uppercase leading-[1.5] tracking-[0.18em] opacity-60">
-                    {champ(c.texte_fr, c.texte_en, locale)}
-                  </span>
-                </div>
-              ))}
             </div>
           )}
         </div>

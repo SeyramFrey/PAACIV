@@ -51,9 +51,6 @@ test.describe('gabarit de fiche', () => {
     await expect(
       page.locator('#etranger').getByText('Residence ATTA', { exact: true }),
     ).toBeVisible()
-
-    // Chiffres-clés du hero.
-    await expect(page.getByText('2 500+')).toBeVisible()
   })
 
   test('le sommaire ne liste que les sections réellement rendues', async ({ page }) => {
@@ -94,17 +91,19 @@ test.describe('gabarit de fiche', () => {
 test.describe('ordre du hero de fiche sur téléphone', () => {
   test.use({ viewport: { width: 390, height: 664 } })
 
-  test('le portrait précède le nom, et les chiffres le suivent', async ({ page }) => {
+  test('le portrait précède le nom et le tableau', async ({ page }) => {
     await page.goto('/fr/architectes/Aka%20Raymond')
-    const y = async (s: string) =>
-      (await page.locator(s).first().boundingBox())!.y
-    const photo = await y('#top img')
-    const nom = await y('#top h1')
-    const chiffres = await y('#top [class*="grid-template-columns"]')
-    expect(photo).toBeLessThan(nom)
-    // Les chiffres-clés SONT de l'information : les laisser entre la photo et
-    // le nom ne respecterait la consigne qu'à moitié.
-    expect(nom).toBeLessThan(chiffres)
+    const y = async (s: string) => (await page.locator(s).first().boundingBox())!.y
+    expect(await y('#top img')).toBeLessThan(await y('#top h1'))
+    expect(await y('#top h1')).toBeLessThan(await y('#top dl'))
+  })
+
+  test('aucun chiffre-clé ne s’intercale dans le hero', async ({ page }) => {
+    // Le bloc « 7 schémas directeurs / 2 500+ logements » a été retiré pour que
+    // la biographie remonte. Les lignes correspondantes restent en base : ce
+    // test garde le hero débarrassé si quelqu'un les réaffiche par mégarde.
+    await page.goto('/fr/architectes/Aka%20Raymond')
+    await expect(page.locator('#top').getByText('2 500+')).toHaveCount(0)
   })
 })
 
