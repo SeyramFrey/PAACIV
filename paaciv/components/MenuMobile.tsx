@@ -39,13 +39,14 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
     }
   }, [ouvert])
 
-  // Le déclencheur disparaît dès `lg` (`lg:hidden` ci-dessous) : si le
+  // Le déclencheur disparaît dès `xl` (`xl:hidden` ci-dessous) : si le
   // panneau reste ouvert pendant qu'on franchit ce seuil (rotation, fenêtre
   // redimensionnée), plus aucun contrôle visible ne permet de le refermer.
   // On le ferme réellement (close() natif : focus restitué, page réactivée)
-  // dès que la largeur atteint le point de rupture `lg` de Tailwind (1024px).
+  // dès que la largeur atteint le point de rupture `xl` de Tailwind (1280px) :
+  // neuf entrées ne tiennent pas en ligne à côté du logo en dessous.
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
+    const mq = window.matchMedia('(min-width: 1280px)')
     function fermerSiDesktop() {
       if (mq.matches) setOuvert(false)
     }
@@ -60,7 +61,7 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
         onClick={() => setOuvert(true)}
         aria-label={t('ouvrirMenu')}
         aria-expanded={ouvert}
-        className="flex flex-col gap-1.5 p-2 lg:hidden"
+        className="flex flex-col gap-1.5 p-2 xl:hidden"
       >
         <span aria-hidden="true" className="block h-px w-6 bg-current" />
         <span aria-hidden="true" className="block h-px w-6 bg-current" />

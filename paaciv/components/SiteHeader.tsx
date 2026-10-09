@@ -106,15 +106,15 @@ export function SiteHeader() {
         color: opaque ? 'var(--ink)' : 'var(--onDeep)',
       }}
     >
-      <Link href="/" className="flex items-center" style={{ color: 'inherit' }} aria-label="PAACIV">
+      <Link href="/" className="flex shrink-0 items-center" style={{ color: 'inherit' }} aria-label="PAACIV">
         {/* Variante pilotée par `opaque`, pas par le thème : tant que l'en-tête
             est transparent il repose sur le hero, sombre dans les deux thèmes.
             Une fois opaque il est sur `--bg`, qui suit le thème, lui. */}
         <Logo variante={opaque ? 'auto' : 'surSombre'} compact hauteur={52} priorite />
       </Link>
 
-      <nav aria-label={t('principale')} className="hidden lg:block">
-        <ul className="flex items-center gap-7 text-sm">
+      <nav aria-label={t('principale')} className="hidden xl:block">
+        <ul className="flex items-center gap-6 whitespace-nowrap text-sm 2xl:gap-7">
           {ENTREES.map((e) => (
             <li key={e.cle}>
               <Link href={e.href} className="transition hover:text-[var(--accent)]" style={{ color: 'inherit' }}>
@@ -126,7 +126,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="flex items-center gap-3">
-        <div className="hidden lg:flex lg:items-center lg:gap-3">
+        <div className="hidden xl:flex xl:items-center xl:gap-3">
           <LanguageSwitcher />
           <BasculeTheme className="rounded-full border p-2 transition hover:bg-[var(--accent)] hover:text-[var(--surAccent)]" />
           <button
