@@ -60,14 +60,6 @@ export function Hero({
 
   const courante = vedettes[actif] ?? null
 
-  const villes = Array.from(
-    new Set(
-      vedettes
-        .map((v) => (v.ville ?? '').trim())
-        .filter((v) => v.length > 0),
-    ),
-  )
-
   const legende = courante
     ? [champ(courante.titre_fr, courante.titre_en, locale), [courante.ville, courante.date_texte].filter(Boolean).join(', ')]
         .filter(Boolean)
@@ -111,6 +103,7 @@ export function Hero({
     <section
       id="top"
       ref={section}
+      data-hero-intro=""
       className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
       style={{ background: 'var(--deep)' }}
     >
@@ -223,23 +216,6 @@ export function Hero({
               {t('soutenir')}
             </button>
           </div>
-          {villes.length > 0 && (
-            <div
-              data-drop=""
-              className="mt-11 flex flex-wrap gap-2.5"
-              style={{ animation: 'drop 1.1s 1s both cubic-bezier(.16,1,.3,1)' }}
-            >
-              {villes.map((ville) => (
-                <span
-                  key={ville}
-                  className="rounded-full border px-4 py-2 text-[10px] font-medium uppercase tracking-[0.18em]"
-                  style={{ borderColor: 'color-mix(in oklab, var(--onDeep) 28%, transparent)', color: 'var(--onDeep)' }}
-                >
-                  {ville}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         {vedettes.length > 0 && (

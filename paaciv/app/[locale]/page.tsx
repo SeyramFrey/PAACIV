@@ -10,6 +10,7 @@ import { listeArticles } from '@/lib/data/articles'
 import { listeEvenements } from '@/lib/data/evenements'
 import { partitionnerEvenements } from '@/lib/evenements-dates'
 import { Hero } from '@/components/accueil/Hero'
+import { IntroFilm } from '@/components/accueil/IntroFilm'
 import { CarteFilm } from '@/components/accueil/CarteFilm'
 import { BandeauVilles } from '@/components/accueil/BandeauVilles'
 import { Association } from '@/components/accueil/Association'
@@ -65,6 +66,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
 
   return (
     <main className="flex-1">
+      <IntroFilm />
       <Hero
         vedettes={vedettes}
         titre={tx('hero_titre')}

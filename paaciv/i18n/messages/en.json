@@ -29,6 +29,8 @@
     "voirVedette": "View {titre}",
     "vues": "Views",
     "defiler": "Scroll",
+    "passerIntro": "Skip intro",
+    "commencerExperience": "Start the experience",
     "film": "Film",
     "toutArchive": "The whole archive — {n} records",
     "statEdifices": "Geolocated buildings",

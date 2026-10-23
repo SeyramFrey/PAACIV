@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScriptTheme } from "@/components/ScriptTheme";
+import { ScriptIntro } from "@/components/ScriptIntro";
 import { Grain } from "@/components/ui/Grain";
 import { FiltresImage } from "@/components/ui/FiltresImage";
 import { Revelations } from "@/components/ui/Revelations";
@@ -73,6 +74,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     >
       <head>
         <ScriptTheme />
+        <ScriptIntro />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider>

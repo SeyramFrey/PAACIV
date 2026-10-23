@@ -217,6 +217,20 @@ button:not(:disabled) { cursor: pointer; }
 @keyframes drop   { 0% { opacity:0; transform: translateY(26px) } 100% { opacity:1; transform:none } }
 @keyframes spin   { to { transform: rotate(360deg) } }
 
+/* Film d'ouverture de l'accueil (components/accueil/IntroFilm.tsx), en plein
+   écran par-dessus le hero. L'état est posé sur <html data-intro> par
+   ScriptIntro avant le premier rendu. Tant que le film n'est pas fini, les
+   entrées `drop` du hero restent figées à leur première image : jouées
+   dessous, elles seraient terminées quand il s'efface. */
+html:not([data-intro]) [data-hero-intro] [data-drop] { animation-play-state: paused; }
+/* Le film ne se lit pas au scroll : la page reste immobile dessous jusqu'à
+   sa fin ou « Passer l'intro ». Posé en CSS pour valoir dès le premier
+   rendu, avant l'hydratation. */
+html:not([data-intro]):has([data-intro-film]) { overflow: hidden; }
+/* Pas de film (mouvement réduit, connexion faible) : il ne doit même pas
+   apparaître avant l'hydratation. */
+html[data-intro="sans"] [data-intro-film] { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   [data-rv], [data-clip], [data-line] { opacity: 1; transform: none; filter: none; clip-path: none; transition: none; }
