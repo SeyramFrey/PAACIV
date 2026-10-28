@@ -30,7 +30,7 @@ test('un architecte au statut brouillon renvoie 404 en accès direct', async ({ 
 // la mieux documentée du corpus, de valoir pour les six autres.
 test.describe('gabarit de fiche', () => {
   test('la fiche documentée rend le hero, le sommaire et les quatre listes', async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
 
     await expect(page.getByText('Fiche architecte', { exact: true })).toBeVisible()
     await expect(page.getByRole('term').filter({ hasText: 'Profession' })).toBeVisible()
@@ -41,8 +41,11 @@ test.describe('gabarit de fiche', () => {
     await expect(page.getByText('1957-1958', { exact: true })).toBeVisible()
     await expect(page.getByText("grade : sergent dans l'armée française")).toBeVisible()
 
-    await expect(page.getByRole('heading', { name: 'Programmes à son actif' })).toBeVisible()
-    await expect(page.getByText("Domaines d'intervention")).toBeVisible()
+    // Les programmes ne forment plus une section : ils sont la bande de
+    // filtre de la mosaïque « Projets et réalisations ».
+    await expect(page.getByRole('heading', { name: 'Projets et réalisations' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Type de programmes/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: "Domaines d'intervention" })).toBeVisible()
     await expect(page.getByRole('heading', { name: "À l'étranger" })).toBeVisible()
     // Assertion PORTÉE PAR LA SECTION, et non par la page : le relevé libre
     // des réalisations du client cite déjà les mêmes missions à l'étranger.
@@ -54,7 +57,7 @@ test.describe('gabarit de fiche', () => {
   })
 
   test('le sommaire ne liste que les sections réellement rendues', async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
     const sommaire = page.getByRole('navigation', { name: 'Sommaire' })
     await expect(sommaire.getByRole('link')).toHaveCount(5)
     // Chaque lien du sommaire doit atterrir sur une section qui existe.
@@ -76,7 +79,7 @@ test.describe('gabarit de fiche', () => {
   })
 
   test("l'en-tête se fond sur le hero sombre puis redevient opaque", async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
     const entete = page.locator('header').first()
     await expect(entete).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
     await page.evaluate(() => window.scrollTo(0, window.innerHeight * 1.5))
@@ -92,7 +95,7 @@ test.describe('ordre du hero de fiche sur téléphone', () => {
   test.use({ viewport: { width: 390, height: 664 } })
 
   test('le portrait précède le nom et le tableau', async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
     const y = async (s: string) => (await page.locator(s).first().boundingBox())!.y
     expect(await y('#top img')).toBeLessThan(await y('#top h1'))
     expect(await y('#top h1')).toBeLessThan(await y('#top dl'))
@@ -102,7 +105,7 @@ test.describe('ordre du hero de fiche sur téléphone', () => {
     // Le bloc « 7 schémas directeurs / 2 500+ logements » a été retiré pour que
     // la biographie remonte. Les lignes correspondantes restent en base : ce
     // test garde le hero débarrassé si quelqu'un les réaffiche par mégarde.
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
     await expect(page.locator('#top').getByText('2 500+')).toHaveCount(0)
   })
 })
@@ -111,28 +114,34 @@ test('sur grand écran, le portrait reste à droite du nom (composition de la ma
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/fr/architectes/Aka%20Raymond')
+  await page.goto('/fr/architectes/raymond-aka-adjo')
   const photo = (await page.locator('#top img').first().boundingBox())!
   const nom = (await page.locator('#top h1').boundingBox())!
   expect(photo.x).toBeGreaterThan(nom.x)
 })
 
-test.describe('réalisations : rail défilant et relevé replié', () => {
-  test('les cartes gardent leur largeur dans un conteneur défilant', async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
-    const rail = page.locator('#realisations [role="group"]')
-    await expect(rail).toHaveCSS('overflow-x', 'auto')
+test.describe('réalisations : mosaïque filtrée et relevé replié', () => {
+  test('la bande « Type de programmes » se déplie et filtre la mosaïque', async ({ page }) => {
+    await page.goto('/fr/architectes/raymond-aka-adjo')
+    const section = page.locator('#realisations')
+    const bande = section.getByRole('button', { name: /Type de programmes/ })
+    const toutes = await section.locator('h3').count()
 
-    // La largeur fixe ET le `shrink-0` sont le cœur du réglage : sans eux, les
-    // cartes se comprimeraient jusqu'à l'illisible au lieu de sortir du cadre,
-    // et le rail ne défilerait jamais.
-    const carte = rail.locator('a').first()
-    await expect(carte).toHaveCSS('flex-shrink', '0')
-    expect((await carte.boundingBox())!.width).toBe(210)
+    // Repliée par défaut : la liste des programmes ne se montre qu'au clic.
+    await expect(bande).toHaveAttribute('aria-expanded', 'false')
+    await bande.click()
+    await expect(bande).toHaveAttribute('aria-expanded', 'true')
+
+    // Un programme sans œuvre reste listé mais ne se sélectionne pas.
+    await expect(section.getByRole('button', { name: /Concours/ })).toBeDisabled()
+
+    await section.getByRole('button', { name: /Établissements hôteliers/ }).click()
+    await expect(bande).toHaveAttribute('aria-expanded', 'false')
+    expect(await section.locator('h3').count()).toBeLessThan(toutes)
   })
 
   test('le relevé écrit est replié et s’ouvre au clic', async ({ page }) => {
-    await page.goto('/fr/architectes/Aka%20Raymond')
+    await page.goto('/fr/architectes/raymond-aka-adjo')
     const details = page.locator('#realisations details')
     // Replié par défaut : celui d'Aka Adjo fait plusieurs centaines de lignes
     // et enterrerait les sections suivantes.

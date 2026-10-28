@@ -548,7 +548,7 @@
   "ficheArchitecte": {
     "bio": "Biography",
     "parcours": "Career",
-    "realisations": "Works",
+    "realisations": "Projects and works",
     "surtitre": "Architect profile",
     "infos": "General information",
     "nomComplet": "Full name",
@@ -572,7 +572,11 @@
     "contribuerCta": "Send a document",
     "retourArchive": "Back to the archive",
     "citationSurtitre": "What they leave",
-    "releveDetaille": "Detailed list"
+    "releveDetaille": "Detailed list",
+    "typeProgrammes": "Type of programme",
+    "tousProgrammes": "All programmes",
+    "aucunDansProgramme": "No documented project in this programme yet.",
+    "nbProjets": "{n} project(s)"
   },
   "video": {
     "lire": "Play video"

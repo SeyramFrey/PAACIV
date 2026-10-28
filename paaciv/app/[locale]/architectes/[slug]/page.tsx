@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { TexteRiche } from '@/components/patrimoine/TexteRiche'
-import { CarteRealisation } from '@/components/architectes/CarteRealisation'
+import { MosaiqueRealisations } from '@/components/architectes/MosaiqueRealisations'
 import { HeroFiche } from '@/components/architectes/HeroFiche'
 import { SommaireFiche, type EntreeSommaire } from '@/components/architectes/SommaireFiche'
 import { FriseParcours } from '@/components/architectes/FriseParcours'
-import { ProgrammesEtDomaines, MissionsEtranger } from '@/components/architectes/BlocsFiche'
+import { DomainesIntervention, MissionsEtranger } from '@/components/architectes/BlocsFiche'
 import { AppelContribuer } from '@/components/architectes/AppelContribuer'
-import { getArchitecteParSlugCache as getArchitecte } from '@/lib/data/architectes'
+import { getArchitecteParSlugCache as getArchitecte, listeProgrammes } from '@/lib/data/architectes'
 import { champ } from '@/lib/i18n-champ'
 import { slugParam } from '@/lib/slug'
 
@@ -48,7 +48,7 @@ export default async function FicheArchitecte({ params }: Props) {
   const slug = slugParam(slugBrut)
   setRequestLocale(locale)
   const t = await getTranslations('ficheArchitecte')
-  const a = await getArchitecte(slug)
+  const [a, programmes] = await Promise.all([getArchitecte(slug), listeProgrammes()])
   if (!a) notFound()
 
   const bio = champ(a.bio_fr, a.bio_en, locale)
@@ -56,14 +56,14 @@ export default async function FicheArchitecte({ params }: Props) {
   const realisationsTexte = champ(a.realisations_texte_fr, a.realisations_texte_en, locale)
   const distinction = champ(a.distinction_fr, a.distinction_en, locale)
 
-  const aDesProgrammes = a.blocs.programme.length > 0 || a.blocs.domaine.length > 0
+  const aDesDomaines = a.blocs.domaine.length > 0
   const aDesRealisations = a.realisations.length > 0 || realisationsTexte.length > 0
   const aDesMissions = a.blocs.mission.length > 0
 
   const sommaire: EntreeSommaire[] = [
     bio && { id: 'biographie', libelle: t('bio') },
     parcours && { id: 'parcours', libelle: t('parcours') },
-    aDesProgrammes && { id: 'programmes', libelle: t('programmes') },
+    aDesDomaines && { id: 'domaines', libelle: t('domaines') },
     aDesRealisations && { id: 'realisations', libelle: t('realisations') },
     aDesMissions && { id: 'etranger', libelle: t('missions') },
   ].filter((e): e is EntreeSommaire => Boolean(e))
@@ -129,12 +129,7 @@ export default async function FicheArchitecte({ params }: Props) {
 
       {parcours && <FriseParcours html={parcours} id="parcours" />}
 
-      <ProgrammesEtDomaines
-        programmes={a.blocs.programme}
-        domaines={a.blocs.domaine}
-        locale={locale}
-        id="programmes"
-      />
+      <DomainesIntervention domaines={a.blocs.domaine} locale={locale} id="domaines" />
 
       {aDesRealisations && (
         <section
@@ -150,33 +145,15 @@ export default async function FicheArchitecte({ params }: Props) {
               {t('realisations')}
             </h2>
 
-            {/* Rail défilant plutôt que grille : une grille de trois colonnes
-                impose sa hauteur à la page dès six réalisations, alors que ce
-                bloc n'est qu'une étape de la fiche. Le rail garde la section à
-                hauteur constante quel que soit le nombre d'œuvres liées, et les
-                cartes rétrécies laissent voir qu'il y en a d'autres à droite.
-                Pas d'ombres de défilement ici, contrairement à la frise du
-                patrimoine : ce motif suppose un contenu PLUS LARGE que son
-                cadre, et laisse sinon l'ombre de droite à nu — une barre
-                sombre en travers de la section sur une fiche à une seule
-                réalisation. L'indication vient de la coupe des cartes elles-
-                mêmes, qui suffit quand il y a de quoi défiler.
-                `tabIndex` et `role`/`aria-label` : un conteneur défilant doit
-                pouvoir être atteint et parcouru au clavier, sans quoi ses
-                dernières cartes sont hors de portée pour qui n'a pas de
-                souris. */}
+            {/* Mosaïque plutôt que rail défilant, à la demande du client, et
+                la bande « Type de programmes » au-dessus : elle remplace
+                l'ancienne section « Programmes à son actif ». */}
             {a.realisations.length > 0 && (
-              <div
-                data-rv=""
-                tabIndex={0}
-                role="group"
-                aria-label={t('realisations')}
-                className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-2 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-              >
-                {a.realisations.map((r) => (
-                  <CarteRealisation key={r.slug} realisation={r} locale={locale} />
-                ))}
-              </div>
+              <MosaiqueRealisations
+                realisations={a.realisations}
+                programmes={programmes}
+                locale={locale}
+              />
             )}
 
             {/* Le relevé libre COMPLÈTE les fiches liées au lieu de les

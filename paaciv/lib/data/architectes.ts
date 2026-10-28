@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imageUrl, imagePrincipale, type ImageMini } from '@/lib/media'
+import type { Ref } from '@/lib/data/patrimoine'
 
 export type ArchitecteListItem = {
   id: string
@@ -23,6 +24,9 @@ export type RealisationLiee = {
   titre_en: string | null
   image: string | null
   role: string | null
+  // Type de programme de l'œuvre (table de référence `programmes`) : c'est sur
+  // lui que la bande « Type de programmes » de la fiche filtre la mosaïque.
+  programme_id: string | null
 }
 
 // Les quatre listes du gabarit de fiche (programmes, domaines d'intervention,
@@ -97,6 +101,9 @@ export type LiaisonRow = {
     titre_fr: string
     titre_en: string | null
     statut: string
+    // Facultatif dans le type : les jeux d'essai antérieurs à la bande de
+    // filtre n'ont pas à le fournir, et l'absence vaut « non classé ».
+    programme_id?: string | null
     images: ImageMini[]
   } | null
 }
@@ -144,6 +151,7 @@ export function mapRealisationsLiees(
       titre_en: l.patrimoine.titre_en,
       image: imagePrincipale(l.patrimoine.images),
       role: l.role,
+      programme_id: l.patrimoine.programme_id ?? null,
     }))
     .sort((a, b) => a.titre_fr.localeCompare(b.titre_fr))
 }
@@ -153,7 +161,7 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
   const { data, error } = await sb
     .from('architectes')
     .select(
-      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, images(chemin, est_principale, ordre)))' +
+      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, programme_id, images(chemin, est_principale, ordre)))' +
         ', architecte_blocs(id, bloc, surtitre_fr, surtitre_en, titre_fr, titre_en, texte_fr, texte_en, ordre)',
     )
     .eq('slug', slug)
@@ -195,3 +203,13 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
 // page appellent tous deux le chargement de la fiche — sans ce cache, ce
 // serait deux allers-retours BDD identiques par requête.
 export const getArchitecteParSlugCache = cache(getArchitecteParSlug)
+
+// Les types de programme (table de référence `programmes`), pour la bande de
+// filtre des réalisations sur la fiche. Tous, même ceux qu'aucune œuvre de
+// l'architecte ne couvre : la bande les liste tous.
+export async function listeProgrammes(): Promise<Ref[]> {
+  const sb = createReadClient()
+  const { data, error } = await sb.from('programmes').select('*').order('ordre')
+  if (error) throw error
+  return (data ?? []) as Ref[]
+}

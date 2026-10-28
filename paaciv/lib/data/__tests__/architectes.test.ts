@@ -32,8 +32,26 @@ describe('mapRealisationsLiees', () => {
         titre_en: 'Basilica',
         image: null,
         role: 'Architecte principal',
+        programme_id: null,
       },
     ])
+  })
+
+  it('reporte le type de programme du patrimoine', () => {
+    const liaisons: LiaisonRow[] = [
+      {
+        role: null,
+        patrimoine: {
+          slug: 'hotel-ivoire-abidjan',
+          titre_fr: 'Hôtel Ivoire',
+          titre_en: null,
+          statut: 'publie',
+          programme_id: 'etablissements_hoteliers',
+          images: [],
+        },
+      },
+    ]
+    expect(mapRealisationsLiees(liaisons)[0]!.programme_id).toBe('etablissements_hoteliers')
   })
 
   it('conserve un role nul tel quel', () => {

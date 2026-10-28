@@ -548,7 +548,7 @@
   "ficheArchitecte": {
     "bio": "Biographie",
     "parcours": "Parcours",
-    "realisations": "Réalisations",
+    "realisations": "Projets et réalisations",
     "surtitre": "Fiche architecte",
     "infos": "Informations générales",
     "nomComplet": "Nom complet",
@@ -572,7 +572,11 @@
     "contribuerCta": "Envoyer un document",
     "retourArchive": "Retour à l'archive",
     "citationSurtitre": "Ce qu'il laisse",
-    "releveDetaille": "Relevé détaillé"
+    "releveDetaille": "Relevé détaillé",
+    "typeProgrammes": "Type de programmes",
+    "tousProgrammes": "Tous les programmes",
+    "aucunDansProgramme": "Aucun projet documenté dans ce programme pour l'instant.",
+    "nbProjets": "{n} projet(s)"
   },
   "video": {
     "lire": "Lire la vidéo"
