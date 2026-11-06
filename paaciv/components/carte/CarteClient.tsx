@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-// maplibre-gl v4 : imports nommés.
 import { Map, NavigationControl, Popup, LngLatBounds, type GeoJSONSource, type MapGeoJSONFeature } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import '@/components/carte/worker'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import type { Ref } from '@/lib/data/patrimoine'

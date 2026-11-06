@@ -25,6 +25,9 @@
 # production
 /build
 
+# worker MapLibre, recopié de node_modules avant dev et build
+/public/maplibre/
+
 # misc
 .DS_Store
 *.pem

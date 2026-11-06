@@ -6,7 +6,9 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "predev": "node scripts/copie-worker-maplibre.mjs",
     "dev": "next dev -p 3100",
+    "prebuild": "node scripts/copie-worker-maplibre.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -21,7 +23,7 @@
     "@tiptap/react": "^3.29.2",
     "@tiptap/starter-kit": "^3.29.2",
     "clsx": "^2.1.1",
-    "maplibre-gl": "^4.7.1",
+    "maplibre-gl": "^6.4.1",
     "next": "16.4.1",
     "next-intl": "^4.13.5",
     "react": "19.2.8",

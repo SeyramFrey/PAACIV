@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { Map, Marker, Popup, LngLatBounds } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import '@/components/carte/worker'
 import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 
 export type PointVille = {

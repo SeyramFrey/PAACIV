@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 // maplibre-gl@6 n'expose plus d'export par défaut (mapbox-gl-like) : imports nommés.
 import { Map, Marker, Popup } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import '@/components/carte/worker'
 
 const STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 

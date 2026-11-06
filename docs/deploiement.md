@@ -219,6 +219,9 @@ ce qui est sur `main`. Supprimer l'archive après coup : elle contient le
 3. Vérifier en ligne : `/fr`, `/fr/architectes`, `/fr/carte` et
    `/api/carte/points` doivent répondre 200, ainsi qu'un fichier ajouté par le
    déploiement (par exemple une vidéo de `public/videos/`).
+   Sur `/fr/carte`, les points doivent s'afficher, et
+   `/maplibre/maplibre-gl-worker.mjs` répondre 200 avec un type JavaScript
+   (voir « Le worker de la carte »).
 4. `hosting_listNode_jsVulnerabilitiesV1` pour l'état des failles npm.
 
 ### Pièges rencontrés
@@ -229,6 +232,24 @@ ce qui est sur `main`. Supprimer l'archive après coup : elle contient le
 - Une archive faite avec `Compress-Archive` de PowerShell contient des chemins à
   antislashs, que l'extraction Linux ne découpe pas. Passer par `zip`, ou par
   `zipfile` de Python, qui écrivent des séparateurs POSIX.
+
+### Le worker de la carte
+
+Depuis MapLibre 6, le worker qui décode les tuiles n'est plus embarqué dans la
+bibliothèque. Sous Next, il doit être servi depuis `public/` : sans lui, la carte
+reste vide et aucune erreur ne s'affiche. C'est ce qui avait fait revenir le
+projet en v4 en août 2026 (commit `d8a2e24`).
+
+`scripts/copie-worker-maplibre.mjs` copie donc le worker et
+`maplibre-gl-shared.mjs` dans `public/maplibre/`, et `components/carte/worker.ts`
+indique leur adresse à MapLibre.
+
+- **La copie passe par les scripts `predev` et `prebuild`.** Elle tourne chez
+  Hostinger, dont la commande de build est `npm run build`, mais pas avec un
+  `next build` lancé directement.
+- **`public/maplibre/` n'est pas versionné.** Le dossier est recréé à chaque
+  build depuis `node_modules`, donc une archive de sources suffit.
+- **Tout composant qui crée une `Map` doit importer `components/carte/worker`.**
 
 ### Le piège du build Turbopack/PostCSS
 
