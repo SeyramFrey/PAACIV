@@ -256,6 +256,39 @@ html[data-intro="sans"] [data-intro-film] { display: none; }
 [data-theme='light'] .logo-paaciv { background-image: url('/logo.png'); }
 [data-theme='light'] .logo-paaciv--compact { background-image: url('/logo-compact.png'); }
 
+/* Popups de carte : `maplibre-gl.css` écrit leur fond et leur pointe en `#fff`,
+   alors que leur texte hérite de `--ink`. En thème sombre, c'était de la chaux
+   sur du blanc. Fond et texte viennent donc ici d'un même couple de jetons,
+   `--bg2` / `--ink`, que scripts/contraste.mjs tient à 4,5:1 dans les deux
+   thèmes.
+
+   Les sélecteurs sont volontairement plus lourds que ceux de MapLibre : sa
+   feuille est importée par les composants de carte, et son ordre par rapport à
+   celle-ci n'est pas garanti. C'est la spécificité qui doit trancher. */
+.maplibregl-popup .maplibregl-popup-content {
+  background: var(--bg2);
+  color: var(--ink);
+}
+/* La pointe est une bordure : seul le côté tourné vers le contenu est peint, et
+   il dépend de l'ancrage que MapLibre choisit selon la place disponible. */
+.maplibregl-popup:is(.maplibregl-popup-anchor-top, .maplibregl-popup-anchor-top-left, .maplibregl-popup-anchor-top-right) .maplibregl-popup-tip {
+  border-bottom-color: var(--bg2);
+}
+.maplibregl-popup:is(.maplibregl-popup-anchor-bottom, .maplibregl-popup-anchor-bottom-left, .maplibregl-popup-anchor-bottom-right) .maplibregl-popup-tip {
+  border-top-color: var(--bg2);
+}
+.maplibregl-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: var(--bg2);
+}
+.maplibregl-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: var(--bg2);
+}
+/* Le survol du bouton de fermeture est un voile noir à 5 %, invisible sur une
+   surface sombre. */
+.maplibregl-popup .maplibregl-popup-close-button:hover {
+  background-color: var(--bg3);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MATIÈRE : grain, filets, duotone
    ═══════════════════════════════════════════════════════════════════════════
