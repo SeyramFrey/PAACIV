@@ -30,6 +30,27 @@ test('téléverser une image sur un patrimoine existant', async ({ page }) => {
   }).toPass()
 })
 
+test('téléverser une photo de 4 Mo, au-delà de la limite par défaut des Server Actions', async ({ page }) => {
+  await page.goto('/fr/admin/patrimoine')
+  await page
+    .getByRole('row', { name: /Basilique Notre-Dame de la Paix/ })
+    .getByRole('link', { name: 'Éditer' })
+    .click()
+  await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
+  const avant = await page.getByTestId('vignette-image').count()
+
+  await page.getByLabel('Ajouter des images').setInputFiles({
+    name: 'grande-photo.jpg',
+    mimeType: 'image/jpeg',
+    buffer: Buffer.alloc(4 * 1024 * 1024),
+  })
+  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+
+  await expect(async () => {
+    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+  }).toPass()
+})
+
 // Nettoyage : le test ci-dessus téléverse un vrai fichier dans le bucket
 // Storage et insère une vraie ligne `images`. On restaure l'état initial de
 // la Basilique (son unique image seed, une URL http externe) en supprimant

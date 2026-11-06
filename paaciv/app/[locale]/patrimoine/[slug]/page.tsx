@@ -12,6 +12,7 @@ import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
+import { maquette3d } from '@/lib/maquettes'
 import { slugify, slugParam } from '@/lib/slug'
 import { COULEUR_DEFAUT } from '@/lib/carte-style'
 
@@ -48,6 +49,7 @@ export default async function FichePatrimoine({ params }: Props) {
   const { articles, reportages } = await contenusLies(p.id)
 
   const titre = champ(p.titre_fr, p.titre_en, locale)
+  const maquette = maquette3d(p.slug)
   const ligne = (label: string, valeur: string | null | undefined) =>
     valeur ? (
       <div>
@@ -89,6 +91,16 @@ export default async function FichePatrimoine({ params }: Props) {
           </div>
           <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
           <Galerie images={p.images} locale={locale} />
+          {maquette && (
+            // Lien natif : la maquette est une page statique de `public/`,
+            // hors du routage par langue.
+            <a
+              href={maquette}
+              className="inline-block rounded-full bg-or px-4 py-2 text-sm font-semibold text-encre"
+            >
+              {t('maquette3d')}
+            </a>
+          )}
           <TexteRiche html={champ(p.description_fr, p.description_en, locale)} />
           <FacadeVideo url={p.video_url} titre={titre} labelLire={tVideo('lire')} />
           {champ(p.sources_fr, p.sources_en, locale) && (

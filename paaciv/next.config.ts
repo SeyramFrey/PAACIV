@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     // (« node process exited before we could connect to it »). Les worker
     // threads tournent dans le processus de Next, sans socket.
     turbopackPluginRuntimeStrategy: "workerThreads",
+    // L'admin téléverse des photos par Server Action. La limite par défaut
+    // (1 Mo) refuse une photo ordinaire, et le proxy tronque au-delà de 10 Mo.
+    // On garde une marge entre les deux valeurs pour l'enveloppe multipart.
+    serverActions: { bodySizeLimit: "25mb" },
+    proxyClientMaxBodySize: "26mb",
   },
   async rewrites() {
     return [

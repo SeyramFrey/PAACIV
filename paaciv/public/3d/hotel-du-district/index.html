@@ -18,6 +18,7 @@
   header { position: fixed; top: 16px; left: 16px; max-width: calc(100% - 32px); pointer-events: none; background: var(--panel); border: 1px solid var(--trait); border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(8px); }
   h1 { margin: 0; font: 500 clamp(22px, 3vw, 30px)/1.1 Fraunces, Georgia, serif; }
   header p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
+  header a { color: inherit; pointer-events: auto; }
   .bas { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 560px; background: var(--panel); border: 1px solid var(--trait); border-radius: 12px; padding: 14px; backdrop-filter: blur(8px); }
   .vues { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px 10px; padding: 2px; }
   .vues::-webkit-scrollbar { display: none; }
@@ -42,7 +43,7 @@
 <body>
 <header>
   <h1>Hôtel du District</h1>
-  <p>Plateau, Abidjan · maquette à explorer</p>
+  <p>Plateau, Abidjan · maquette à explorer · <a href="/fr/patrimoine/hotel-du-district-d-abidjan">voir la fiche</a></p>
 </header>
 <div id="etat" role="status">Chargement du modèle…</div>
 <section class="bas" aria-label="Commandes de la visite">
