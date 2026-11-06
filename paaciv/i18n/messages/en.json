@@ -102,7 +102,16 @@
     "titre": "Dashboard",
     "bienvenue": "Welcome to the PAACIV administration area.",
     "deconnexion": "Sign out",
-    "enregistre": "Saved."
+    "enregistre": "Saved.",
+    "navigation": "Administration menu",
+    "menu": "Menu",
+    "fermerMenu": "Close",
+    "groupes": {
+      "inventaire": "Inventory",
+      "publications": "Publications",
+      "pages": "Site pages",
+      "contacts": "Contacts"
+    }
   },
   "adminPatrimoine": {
     "titre": "Heritage",

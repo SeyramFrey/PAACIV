@@ -6,7 +6,7 @@ import { createBrowserClient } from '@/lib/supabase/client'
 import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 
-export function LogoutButton() {
+export function LogoutButton({ className }: { className?: string }) {
   const t = useTranslations('admin')
   const router = useRouter()
   const [enCours, setEnCours] = useState(false)
@@ -20,7 +20,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="ghost" onClick={deconnexion} disabled={enCours}>
+    <Button variant="ghost" onClick={deconnexion} disabled={enCours} className={className}>
       {t('deconnexion')}
     </Button>
   )

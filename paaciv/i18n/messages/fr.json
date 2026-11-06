@@ -102,7 +102,16 @@
     "titre": "Tableau de bord",
     "bienvenue": "Bienvenue dans l'espace d'administration de PAACIV.",
     "deconnexion": "Se déconnecter",
-    "enregistre": "Enregistré."
+    "enregistre": "Enregistré.",
+    "navigation": "Navigation de l'administration",
+    "menu": "Menu",
+    "fermerMenu": "Fermer",
+    "groupes": {
+      "inventaire": "Inventaire",
+      "publications": "Publications",
+      "pages": "Pages du site",
+      "contacts": "Contacts"
+    }
   },
   "adminPatrimoine": {
     "titre": "Patrimoine",
