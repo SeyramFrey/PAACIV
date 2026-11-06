@@ -38,8 +38,9 @@ for (const chemin of ECRANS) {
           const f = (v: number) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4 }
           return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
         }
-        const main = document.querySelector('main')!
-        const cibles = [...main.querySelectorAll('h1, h2, h3, p, td, th, label span, a, button, li, input, select, textarea')]
+        // La barre latérale vit hors de <main> mais fait partie de chaque écran.
+        const cibles = [...document.querySelectorAll('main, nav[aria-label^="Navigation de"]')]
+          .flatMap((zone) => [...zone.querySelectorAll('h1, h2, h3, p, td, th, label span, a, button, li, input, select, textarea')])
           .filter((e) => (e.textContent ?? '').trim().length > 1 || ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.tagName))
         return cibles.map((el) => {
           let n: HTMLElement | null = el as HTMLElement
