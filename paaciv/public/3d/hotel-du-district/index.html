@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hôtel du District</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #dfe6ea; --ink: #1f1d1a; --ink-2: #5a564e; --panel: rgb(250 247 240 / .92);
+    --trait: rgb(31 29 26 / .14); --accent: #9a4a26;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+  header { position: fixed; top: 16px; left: 16px; max-width: calc(100% - 32px); pointer-events: none; background: var(--panel); border: 1px solid var(--trait); border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(8px); }
+  h1 { margin: 0; font: 500 clamp(22px, 3vw, 30px)/1.1 Fraunces, Georgia, serif; }
+  header p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
+  .bas { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 560px; background: var(--panel); border: 1px solid var(--trait); border-radius: 12px; padding: 14px; backdrop-filter: blur(8px); }
+  .vues { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px 10px; padding: 2px; }
+  .vues::-webkit-scrollbar { display: none; }
+  button { font: 500 14px/1 Inter, system-ui, sans-serif; color: var(--ink); background: transparent; border: 1px solid var(--trait); border-radius: 8px; padding: 9px 12px; white-space: nowrap; cursor: pointer; min-height: 38px; }
+  button[aria-pressed="true"] { background: var(--ink); color: #faf7f0; border-color: var(--ink); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #legende { margin: 0 0 12px; min-height: 42px; color: var(--ink-2); font-size: 14px; }
+  .heure { display: flex; align-items: center; gap: 12px; }
+  .heure label { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 150px; }
+  input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; height: 28px; }
+  #note { margin: 10px 0 0; font-size: 12px; color: var(--ink-2); }
+  #etat { position: fixed; inset: 0; display: grid; place-items: center; color: var(--ink-2); pointer-events: none; }
+  @media (max-height: 620px) { #legende { display: none; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header>
+  <h1>Hôtel du District</h1>
+  <p>Plateau, Abidjan · maquette à explorer</p>
+</header>
+<div id="etat" role="status">Chargement du modèle…</div>
+<section class="bas" aria-label="Commandes de la visite">
+  <div class="vues" role="group" aria-label="Points de vue" id="vues"></div>
+  <p id="legende" aria-live="polite"></p>
+  <div class="heure">
+    <label for="curseur" id="heure-txt">Plateau, Abidjan</label>
+    <input id="curseur" type="range" min="360" max="1140" step="5" aria-label="Heure du jour à Abidjan">
+  </div>
+  <p id="note">Glisser pour tourner, pincer ou molette pour zoomer. Maquette interprétative : dimensions estimées, végétation et abords stylisés.</p>
+</section>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const VUES = [
+  { id: 'parvis', nom: 'Parvis', pos: [-44, 6, -3], cible: [6, 15, -13],
+    texte: "La façade d'entrée : le mur de pierre, l'horloge et le portique sur colonnes, face au parvis." },
+  { id: 'lames', nom: 'Lames', pos: [-16, 5, 40], cible: [13, 12, -6],
+    texte: "Le côté nord-ouest : des lames triangulaires en béton protègent les baies, au-dessus d'un mur de claustras." },
+  { id: 'pignon', nom: 'Pignon', pos: [-30, 5, -66], cible: [9, 18, -26],
+    texte: 'Le pignon sud de la tour, habillé de pierre et barré de cordons de béton à chaque niveau.' },
+  { id: 'arriere', nom: 'Arrière', pos: [64, 9, 36], cible: [22, 15, -12],
+    texte: "L'arrière : mur de panneaux, briques de verre et persiennes. Le long côté sud n'est pas documenté : il est interprété." },
+  { id: 'oiseau', nom: "Vol d'oiseau", pos: [-80, 64, -48], cible: [6, 14, -14],
+    texte: 'Le bloc bas, la tour de onze niveaux et le parvis, avec ses deux fontaines.' },
+];
+
+const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const etat = document.getElementById('etat');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+} catch {
+  etat.textContent = 'Votre appareil ne peut pas afficher la 3D.';
+  throw new Error('WebGL indisponible');
+}
+const petit = Math.min(innerWidth, innerHeight) < 700;
+renderer.setPixelRatio(Math.min(devicePixelRatio, petit ? 1.5 : 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;
+document.body.prepend(renderer.domElement);
+renderer.domElement.setAttribute('aria-hidden', 'true');
+
+const scene = new THREE.Scene();
+const pm = new THREE.PMREMGenerator(renderer);
+
+// Reflets des vitres : ciel, nuages et masse des arbres sur l'horizon, comme sur la vue aérienne de 2016.
+function environnement() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 256;
+  const g = c.getContext('2d');
+  const d = g.createLinearGradient(0, 0, 0, 256);
+  d.addColorStop(0, '#4d83c2'); d.addColorStop(.4, '#bcd3e6'); d.addColorStop(.5, '#e6edf0');
+  d.addColorStop(.5, '#7b745f'); d.addColorStop(1, '#4e4a3e');
+  g.fillStyle = d; g.fillRect(0, 0, 512, 256);
+  const hasard = (a, b) => a + Math.random() * (b - a);
+  for (let i = 0; i < 40; i++) {
+    g.fillStyle = 'rgba(255,255,255,.55)';
+    g.beginPath(); g.ellipse(hasard(0, 512), hasard(18, 92), hasard(14, 46), hasard(5, 14), 0, 0, 7); g.fill();
+  }
+  const verts = ['#3f5a30', '#54733a', '#2f4726', '#6a8748'];
+  for (let i = 0; i < 260; i++) {
+    g.fillStyle = verts[i % 4];
+    g.beginPath(); g.ellipse(hasard(0, 512), hasard(114, 128), hasard(8, 18), hasard(4, 10), 0, 0, 7); g.fill();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.mapping = THREE.EquirectangularReflectionMapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return pm.fromEquirectangular(t).texture;
+}
+scene.environment = environnement();
+scene.environmentIntensity = 1;
+scene.fog = new THREE.Fog(0xdbe6ee, 170, 760);
+
+const dome = new THREE.Mesh(new THREE.SphereGeometry(1500, 32, 16), new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
+  uniforms: {
+    haut: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, nuage: { value: new THREE.Color() },
+    soleil: { value: new THREE.Vector3(0, 1, 0) }, coul: { value: new THREE.Color() },
+  },
+  vertexShader: `varying vec3 vD; void main() { vD = position; vec4 p = projectionMatrix * mat4(mat3(modelViewMatrix)) * vec4(position, 1.); gl_Position = p.xyww; }`,
+  fragmentShader: `
+    uniform vec3 haut, horizon, nuage, soleil, coul; varying vec3 vD;
+    float h(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float n(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+      return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+    float fbm(vec2 p) { float v = 0., a = .5; for (int i = 0; i < 5; i++) { v += a * n(p); p *= 2.03; a *= .5; } return v; }
+    void main() {
+      vec3 d = normalize(vD);
+      vec3 c = mix(horizon, haut, pow(clamp(d.y, 0., 1.), .55));
+      if (d.y > .005) {
+        vec2 p = d.xz / (d.y + .14) * 1.5;
+        float f = smoothstep(.47, .74, fbm(p + 3.));
+        c = mix(c, nuage, f * smoothstep(.0, .2, d.y) * .9);
+      }
+      float s = max(dot(d, soleil), 0.);
+      c += coul * (pow(s, 900.) * 2. + pow(s, 10.) * .16);
+      gl_FragColor = vec4(c, 1.);
+      #include <colorspace_fragment>
+    }`,
+}));
+dome.frustumCulled = false;
+dome.renderOrder = -1;
+scene.add(dome);
+
+const camera = new THREE.PerspectiveCamera(36, 1, 1, 3000);
+function ajuster() {
+  const cv = renderer.domElement;
+  const w = cv.clientWidth || innerWidth || 800, h = cv.clientHeight || innerHeight || 600;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.fov = camera.aspect < 1 ? 56 : 36;
+  // le bâtiment reste visible au-dessus du panneau de commandes
+  const panneau = document.querySelector('.bas').offsetHeight;
+  if (w < 900) camera.setViewOffset(w, h, 0, panneau * .42, w, h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+}
+ajuster();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = !reduit;
+controls.dampingFactor = .08;
+controls.minDistance = 16;
+controls.maxDistance = 230;
+controls.maxPolarAngle = 1.6;
+controls.enablePan = false;
+
+const soleil = new THREE.DirectionalLight(0xfff2dc, 3);
+soleil.castShadow = true;
+soleil.shadow.mapSize.set(petit ? 1024 : 2048, petit ? 1024 : 2048);
+Object.assign(soleil.shadow.camera, { left: -95, right: 95, top: 95, bottom: -95, near: 10, far: 360 });
+soleil.shadow.bias = -.0006;
+soleil.shadow.normalBias = .04;
+scene.add(soleil, soleil.target);
+soleil.target.position.set(4, 8, -12);
+const ambiance = new THREE.HemisphereLight(0xdfeaff, 0x8c8064, .5);
+scene.add(ambiance);
+
+// Soleil réel : latitude d'Abidjan, déclinaison du jour, heure locale (UTC+0).
+const LAT = 5.32 * Math.PI / 180;
+const NORD = new THREE.Vector2(-.447, -.894); // flèche du plan, dans le repère du modèle (X, Y)
+const EST = new THREE.Vector2(-.894, .447);
+function dirSoleil(minutes) {
+  const j = Math.floor((Date.now() - Date.UTC(new Date().getUTCFullYear(), 0, 0)) / 864e5);
+  const d = -23.44 * Math.PI / 180 * Math.cos(2 * Math.PI * (j + 10) / 365);
+  const H = (minutes / 60 - 12) * 15 * Math.PI / 180;
+  const e = -Math.cos(d) * Math.sin(H);
+  const n = Math.sin(d) * Math.cos(LAT) - Math.cos(d) * Math.cos(H) * Math.sin(LAT);
+  const u = Math.sin(d) * Math.sin(LAT) + Math.cos(d) * Math.cos(H) * Math.cos(LAT);
+  const mx = EST.x * e + NORD.x * n, my = EST.y * e + NORD.y * n;
+  return new THREE.Vector3(mx, u, -my).normalize();
+}
+
+let aigH, aigM, sale = true;
+const texteHeure = document.getElementById('heure-txt');
+const curseur = document.getElementById('curseur');
+const dore = new THREE.Color(0xffb46e), blanc = new THREE.Color(0xfff1da);
+const hautJour = new THREE.Color(0x3f7cc4), hautBas = new THREE.Color(0x6f8db8);
+const horizJour = new THREE.Color(0xdce8f0), horizBas = new THREE.Color(0xf3c79a);
+const nuageJour = new THREE.Color(0xffffff), nuageBas = new THREE.Color(0xf6d3b4);
+function regler(minutes) {
+  const s = dirSoleil(minutes);
+  const haut = Math.max(0, s.y);
+  soleil.position.copy(soleil.target.position).addScaledVector(s, 190);
+  soleil.color.lerpColors(dore, blanc, Math.min(1, haut * 2.2));
+  soleil.intensity = .7 + 2.9 * Math.min(1, haut * 2.5);
+  const jour = Math.min(1, haut * 2.5);
+  ambiance.intensity = .25 + .4 * jour;
+  scene.environmentIntensity = .55 + .5 * jour;
+  const u = dome.material.uniforms;
+  u.haut.value.lerpColors(hautBas, hautJour, jour);
+  u.horizon.value.lerpColors(horizBas, horizJour, jour);
+  u.nuage.value.lerpColors(nuageBas, nuageJour, jour);
+  u.soleil.value.copy(s);
+  u.coul.value.copy(soleil.color);
+  scene.fog.color.copy(u.horizon.value);
+  renderer.shadowMap.needsUpdate = true;
+  sale = true;
+  if (aigM) {
+    aigM.rotation.x = minutes % 60 * Math.PI / 30;
+    aigH.rotation.x = (minutes % 720) * Math.PI / 360;
+  }
+  const h = Math.floor(minutes / 60), m = minutes % 60;
+  const lu = `${h} h ${String(m).padStart(2, '0')}`;
+  texteHeure.textContent = `Plateau, Abidjan · ${lu}`;
+  curseur.setAttribute('aria-valuetext', lu);
+}
+
+// Vues
+const boutons = {};
+const conteneur = document.getElementById('vues');
+const legende = document.getElementById('legende');
+let trajet = null, vueActive = null;
+function aller(v, direct) {
+  for (const k in boutons) boutons[k].setAttribute('aria-pressed', k === v.id);
+  legende.textContent = v.texte;
+  const c = new THREE.Vector3(...v.cible);
+  const recul = Math.max(1, 1.55 / camera.aspect * Math.tan(.314) / Math.tan(camera.fov * Math.PI / 360));
+  const p = new THREE.Vector3(...v.pos).sub(c).multiplyScalar(recul).add(c);
+  p.y = Math.max(p.y, 1.8);
+  vueActive = v;
+  if (direct || reduit) {
+    camera.position.copy(p); controls.target.copy(c); controls.update(); trajet = null;
+  } else {
+    trajet = { t0: performance.now(), p0: camera.position.clone(), c0: controls.target.clone(), p, c };
+  }
+}
+for (const v of VUES) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = v.nom; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => aller(v));
+  conteneur.append(b); boutons[v.id] = b;
+}
+controls.addEventListener('start', () => { trajet = null; });
+controls.addEventListener('change', () => { sale = true; });
+
+const maintenant = new Date();
+const minutesAbidjan = maintenant.getUTCHours() * 60 + maintenant.getUTCMinutes();
+const depart = minutesAbidjan >= 390 && minutesAbidjan <= 1110 ? minutesAbidjan : 600;
+curseur.value = depart;
+curseur.addEventListener('input', () => regler(+curseur.value));
+
+const loader = new GLTFLoader();
+loader.setDRACOLoader(new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/'));
+function charger(url) {
+  return new Promise((ok, ko) => loader.load(url, ok, e => {
+    if (e.total) etat.textContent = `Chargement du modèle… ${Math.round(e.loaded / e.total * 100)} %`;
+  }, ko));
+}
+const debut = performance.now();
+const gltf = await charger('/3d/hotel-du-district/hotel-du-district.glb');
+
+const racine = gltf.scene;
+racine.traverse(o => {
+  if (!o.isMesh) return;
+  const lointain = /Arbres_lointains|Rue/.test(o.name) || /Arbres_lointains|Rue/.test(o.parent?.name ?? '');
+  o.castShadow = !lointain;
+  o.receiveShadow = true;
+  o.material.envMapIntensity = 1;
+  if (o.material.map) o.material.map.anisotropy = 4;
+  if (o.material.name === 'palme' || o.material.name === 'horizon') {
+    o.material.alphaTest = .38;
+    o.material.transparent = false;
+    o.material.side = THREE.DoubleSide;
+    o.material.needsUpdate = true;
+  }
+});
+scene.add(racine);
+aigH = racine.getObjectByName('Aiguille_heures');
+aigM = racine.getObjectByName('Aiguille_minutes');
+regler(depart);
+aller(VUES[0], true);
+etat.remove();
+window.__mesure = { chargementMs: Math.round(performance.now() - debut) };
+
+const lisse = t => t * t * (3 - 2 * t);
+renderer.setAnimationLoop(now => {
+  if (trajet) {
+    const t = Math.min(1, (now - trajet.t0) / 1100), k = lisse(t);
+    camera.position.lerpVectors(trajet.p0, trajet.p, k);
+    controls.target.lerpVectors(trajet.c0, trajet.c, k);
+    sale = true;
+    if (t === 1) trajet = null;
+  }
+  controls.update();
+  if (camera.position.y < 1.6) camera.position.y = 1.6;
+  const cv = renderer.domElement, pr = renderer.getPixelRatio();
+  if (cv.clientWidth && Math.abs(cv.width - cv.clientWidth * pr) > 2) { ajuster(); sale = true; }
+  // rendu à la demande : rien n'est calculé quand rien ne bouge
+  if (sale) { renderer.render(scene, camera); sale = false; }
+});
+
+addEventListener('resize', () => {
+  const avant = camera.aspect;
+  ajuster();
+  sale = true;
+  if (vueActive && Math.abs(avant - camera.aspect) > .01) aller(vueActive, true);
+});
+</script>
+</body>
+</html>

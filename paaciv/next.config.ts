@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
     // threads tournent dans le processus de Next, sans socket.
     turbopackPluginRuntimeStrategy: "workerThreads",
   },
+  async rewrites() {
+    return [
+      {
+        source: "/3d/hotel-du-district",
+        destination: "/3d/hotel-du-district/index.html",
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
