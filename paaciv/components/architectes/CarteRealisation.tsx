@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import type { RealisationLiee } from '@/lib/data/architectes'
+import { srcsetImage } from '@/lib/media'
 
 // Carte dédiée aux réalisations liées à un architecte : `RealisationLiee`
 // expose déjà une `image` résolue (URL complète) et un `role` optionnel, deux
@@ -26,8 +27,10 @@ export function CarteRealisation({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={realisation.image}
+            srcSet={srcsetImage(realisation.image)}
+            sizes="(min-width: 768px) 33vw, 100vw"
             alt=""
-            className="h-full w-full object-cover transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.03]"
+            className="h-full w-full object-cover transition-transform duration-500 [transition-timing-function:var(--courbe-plan)] group-hover:scale-[1.03]"
             loading="lazy"
           />
         )}

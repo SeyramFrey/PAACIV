@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { texteOuNull } from '@/lib/admin/champs'
+import { televerserImage } from '@/lib/images/televerser'
 
 export type ResultatMedia = { ok: true } | { ok: false; erreur: 'echec' }
 
@@ -29,10 +30,7 @@ export async function enregistrerMedia(formData: FormData): Promise<ResultatMedi
   if (fichier instanceof File && fichier.size > 0) {
     const ext = fichier.name.split('.').pop() ?? 'jpg'
     const chemin = `medias/${emplacement}/${Date.now()}.${ext}`
-    const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, fichier, {
-      contentType: fichier.type || 'image/jpeg',
-      upsert: false,
-    })
+    const { error: upErr } = await televerserImage(sb, chemin, fichier)
     if (upErr) {
       console.error('medias_site upload', emplacement, upErr)
       return { ok: false, erreur: 'echec' }

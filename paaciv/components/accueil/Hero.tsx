@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 import type { VedetteHero } from '@/lib/data/accueil'
+import { srcsetImage } from '@/lib/media'
 
 const INTERVALLE = 6500
 
@@ -104,7 +105,7 @@ export function Hero({
       id="top"
       ref={section}
       data-hero-intro=""
-      className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
+      className="bande-tole relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
       style={{ background: 'var(--deep)' }}
     >
       <div aria-hidden="true" className="absolute -inset-x-[2%] -bottom-[2%] -top-[6%] z-0">
@@ -112,6 +113,8 @@ export function Hero({
           <img
             key={v.slug}
             src={v.image}
+            srcSet={srcsetImage(v.image)}
+            sizes="100vw"
             alt=""
             // Seule la première (contenu du premier écran) charge
             // immédiatement ; les autres, empilées derrière elle en attente
@@ -162,7 +165,7 @@ export function Hero({
             data-testid="accroche"
             data-drop=""
             className="mb-[22px] text-[11px] font-medium uppercase tracking-[0.3em]"
-            style={{ color: 'var(--accent)', animation: 'drop 1s .2s both cubic-bezier(.16,1,.3,1)' }}
+            style={{ color: 'var(--accent)', animation: 'drop 1s .2s both var(--courbe-plan)' }}
           >
             {accroche ?? t('accroche')}
           </p>
@@ -180,7 +183,7 @@ export function Hero({
           <h1
             data-drop=""
             className="m-0 font-serif text-[clamp(46px,min(8.4vw,10.5vh),142px)] leading-[0.92] tracking-[-0.02em] text-balance"
-            style={{ color: 'var(--onDeep)', animation: 'drop 1.1s .35s both cubic-bezier(.16,1,.3,1)' }}
+            style={{ color: 'var(--onDeep)', animation: 'drop 1.1s .35s both var(--courbe-plan)' }}
           >
             {titre}
           </h1>
@@ -189,7 +192,7 @@ export function Hero({
             className="mt-6 max-w-[560px] text-[17px] font-light leading-[1.75]"
             style={{
               color: 'color-mix(in oklab, var(--onDeep) 82%, transparent)',
-              animation: 'drop 1.1s .7s both cubic-bezier(.16,1,.3,1)',
+              animation: 'drop 1.1s .7s both var(--courbe-plan)',
             }}
           >
             {intro}
@@ -197,7 +200,7 @@ export function Hero({
           <div
             data-drop=""
             className="mt-9 flex flex-wrap gap-3.5"
-            style={{ animation: 'drop 1.1s .85s both cubic-bezier(.16,1,.3,1)' }}
+            style={{ animation: 'drop 1.1s .85s both var(--courbe-plan)' }}
           >
             <Link
               href="/archives"
@@ -222,7 +225,7 @@ export function Hero({
           <div
             data-drop=""
             className="flex min-w-0 flex-col items-end gap-4"
-            style={{ animation: 'drop 1.2s 1.1s both cubic-bezier(.16,1,.3,1)' }}
+            style={{ animation: 'drop 1.2s 1.1s both var(--courbe-plan)' }}
           >
             <div className="flex items-center gap-3.5" style={{ color: 'var(--onDeep)' }}>
               <span className="text-[10px] uppercase tracking-[0.24em] opacity-80">{t('vues')}</span>
@@ -247,7 +250,7 @@ export function Hero({
                       i === actif ? 'var(--accent)' : 'color-mix(in oklab, var(--onDeep) 30%, transparent)',
                   }}
                 >
-                  <img src={v.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={v.image} srcSet={srcsetImage(v.image)} sizes="64px" alt="" loading="lazy" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>

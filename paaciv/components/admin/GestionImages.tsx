@@ -47,7 +47,7 @@ export async function GestionImages({
           {triees.map((img) => (
             <li key={img.id} data-testid="vignette-image" className="space-y-2 rounded-xl bg-fond p-2 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl(img.chemin)} alt={champ(img.legende_fr, img.legende_en, locale)} className="aspect-square w-full rounded object-cover" />
+              <img src={imageUrl(img.chemin, 480)} alt={champ(img.legende_fr, img.legende_en, locale)} className="aspect-square w-full rounded object-cover" />
               {img.est_principale && <span className="text-xs font-semibold text-foret">{t('principale')}</span>}
               <div className="flex justify-between text-xs">
                 {!img.est_principale && (

@@ -1,6 +1,6 @@
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
-import { imageUrl } from '@/lib/media'
+import { imageUrl, srcsetImage } from '@/lib/media'
 import { anneeEdifice } from '@/lib/frise'
 import { PictoType } from '@/components/ui/PictoType'
 import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
@@ -15,14 +15,10 @@ import type { PatrimoineListItem, Ref } from '@/lib/data/patrimoine'
 // CONSERVATION. Ces trois informations étaient déjà en base ; il fallait
 // seulement les faire remonter jusqu'ici.
 //
-// TRAITEMENT DUOTONE AU REPOS, couleur au survol. Les photographies du fonds
-// sont hétérogènes — tirages anciens virés, captures récentes en plein soleil,
-// scans de presse — et leur juxtaposition en grille donne un patchwork. Le
-// duotone les ramène toutes sur les deux mêmes bornes et la grille se lit alors
-// comme une planche d'un même fonds. La couleur n'est pas perdue pour autant :
-// elle revient au survol et au focus clavier, sur la vignette regardée. Pour
-// revenir à des vignettes en couleur permanente, il suffit de retirer la classe
-// `duotone` ci-dessous — le filtre reste défini pour la frise et les communes.
+// PHOTOS EN COULEUR. Elles étaient en duotone au repos et ne retrouvaient leur
+// couleur qu'au survol, donc jamais sur un téléphone, qui n'a pas de survol :
+// le site paraissait éteint (décision du 7 novembre 2026). Le filtre `.duotone`
+// reste défini dans globals.css pour un usage ponctuel.
 export function CartePatrimoine({
   item,
   locale,
@@ -54,8 +50,10 @@ export function CartePatrimoine({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl(principale.chemin)}
+            srcSet={srcsetImage(imageUrl(principale.chemin))}
+            sizes="(min-width: 768px) 33vw, 100vw"
             alt={titre}
-            className="duotone h-full w-full object-cover transition-[filter,transform] duration-500 group-hover:scale-105 group-hover:[filter:var(--imgf)] group-focus-visible:[filter:var(--imgf)]"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (

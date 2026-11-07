@@ -187,7 +187,7 @@ export function FormulaireArchitecte({
         </label>
         {initial?.photo && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl(initial.photo)} alt="" className="h-24 w-24 rounded-xl object-cover" />
+          <img src={imageUrl(initial.photo, 480)} alt="" className="h-24 w-24 rounded-xl object-cover" />
         )}
       </div>
 

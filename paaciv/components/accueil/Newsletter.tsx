@@ -42,7 +42,7 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
     // superposent sans se gêner — l'une graine, l'autre trame.
     <section
       id="adherer"
-      className="surface-papier surface-tissee relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center"
+      className="bande-laterite surface-papier surface-tissee relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,120px)] text-center"
       style={{ background: 'var(--bg3)' }}
     >
       <LisiereTissee cote="gauche" />
@@ -88,7 +88,7 @@ export function Newsletter({ titre, texte }: { titre: string; texte: string }) {
             <button
               type="submit"
               disabled={enCours}
-              className="rounded-full bg-[var(--ink)] px-8 py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[var(--bg)] transition-colors duration-[0.4s] hover:bg-[var(--terra)] hover:text-[oklch(0.98_0.01_84)] disabled:opacity-60"
+              className="rounded-full bg-[var(--ink)] px-8 py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[var(--bg)] transition-colors duration-[0.4s] hover:bg-[var(--accent)] hover:text-[var(--surAccent)] disabled:opacity-60"
             >
               {t('sInscrire')}
             </button>

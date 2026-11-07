@@ -7,6 +7,7 @@ import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { getArticleParSlugCache as getArticle } from '@/lib/data/articles'
 import { champ } from '@/lib/i18n-champ'
 import { slugParam } from '@/lib/slug'
+import { srcsetImage } from '@/lib/media'
 
 // Segment dynamique ([slug]) : cette page est déjà `ƒ` par construction
 // (aucune donnée dynamique en dehors du paramètre de route). Export explicite
@@ -72,7 +73,7 @@ export default async function FicheArticle({ params }: Props) {
 
         {a.image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={a.image} alt={titre} className="w-full rounded-2xl object-cover" />
+          <img src={a.image} srcSet={srcsetImage(a.image)} sizes="(min-width: 1024px) 900px, 100vw" alt={titre} className="w-full rounded-2xl object-cover" />
         )}
 
         <TexteRiche html={corps} />

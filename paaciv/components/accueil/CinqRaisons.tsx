@@ -4,6 +4,7 @@ import { texte, libelleOuNull, type Textes } from '@/lib/data/contenu-site'
 import { visuel, type Medias } from '@/lib/data/medias'
 import { champ } from '@/lib/i18n-champ'
 import type { PointCle } from '@/lib/data/accueil'
+import { srcsetImage } from '@/lib/media'
 
 // Cinq photographies décoratives en collage (losanges), reprises telles
 // quelles de la référence de design (lignes 334-338) : aucune n'est liée à
@@ -65,7 +66,7 @@ export async function CinqRaisons({
 
   return (
     <section
-      className="relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]"
+      className="bande-chaux relative overflow-hidden px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       {/* Halo décoratif. `oklch(0.79 0.14 74/.16)` de la maquette est une
@@ -112,6 +113,8 @@ export async function CinqRaisons({
                 >
                   <img
                     src={v.src}
+                    srcSet={srcsetImage(v.src)}
+                    sizes="(min-width: 768px) 25vw, 60vw"
                     alt={v.alt}
                     loading="lazy"
                     className="-m-[25%] h-[150%] w-[150%] -rotate-45 object-cover"

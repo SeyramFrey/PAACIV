@@ -149,7 +149,7 @@ export function FormulaireEvenement({ initial }: { initial?: Partial<EvenementAd
         </label>
         {initial?.image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl(initial.image)} alt="" className="h-24 w-24 rounded-xl object-cover" />
+          <img src={imageUrl(initial.image, 480)} alt="" className="h-24 w-24 rounded-xl object-cover" />
         )}
       </div>
 

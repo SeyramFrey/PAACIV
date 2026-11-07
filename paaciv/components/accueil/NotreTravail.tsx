@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { texte, type Textes } from '@/lib/data/contenu-site'
 import { visuel, type Medias } from '@/lib/data/medias'
+import { srcsetImage } from '@/lib/media'
 
 // Visuels de SECOURS : la base les recouvre (`medias_site`), le code garde de
 // quoi s'afficher si la ligne est supprimée depuis l'admin — ce bloc est bâti
@@ -50,6 +51,8 @@ export async function NotreTravail({ textes, medias }: { textes: Textes; medias:
         <div data-clip="" data-par="0.06" className="h-[clamp(320px,36vw,520px)] overflow-hidden rounded-[6px]">
           <img
             src={image1.src}
+            srcSet={srcsetImage(image1.src)}
+            sizes="(min-width: 1024px) 50vw, 100vw"
             alt={image1.alt}
             loading="lazy"
             className="h-full w-full object-cover"
@@ -113,6 +116,8 @@ export async function NotreTravail({ textes, medias }: { textes: Textes; medias:
         <div data-clip="" data-d="120" data-par="-0.05" className="h-[clamp(320px,36vw,520px)] overflow-hidden rounded-[6px]">
           <img
             src={image2.src}
+            srcSet={srcsetImage(image2.src)}
+            sizes="(min-width: 1024px) 50vw, 100vw"
             alt={image2.alt}
             loading="lazy"
             className="h-full w-full object-cover"

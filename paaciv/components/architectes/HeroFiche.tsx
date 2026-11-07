@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { champ } from '@/lib/i18n-champ'
 import type { ArchitecteDetail } from '@/lib/data/architectes'
+import { srcsetImage } from '@/lib/media'
 
 // Transposition de la section `#fiche` de la maquette « Architecte Aka Adjo ».
 //
@@ -130,7 +131,7 @@ export async function HeroFiche({
           <div
             data-drop=""
             className="mb-[26px] flex items-center gap-3.5"
-            style={{ animation: 'drop .9s .1s both cubic-bezier(.16,1,.3,1)' }}
+            style={{ animation: 'drop .9s .1s both var(--courbe-plan)' }}
           >
             <span
               className="rounded-full border px-3.5 py-[7px] text-[10px] font-semibold uppercase tracking-[0.22em]"
@@ -159,7 +160,7 @@ export async function HeroFiche({
                   className="block"
                   style={{
                     color: i === 1 ? 'var(--accent)' : undefined,
-                    animation: `drop 1.05s ${0.25 + i * 0.15}s both cubic-bezier(.16,1,.3,1)`,
+                    animation: `drop 1.05s ${0.25 + i * 0.15}s both var(--courbe-plan)`,
                   }}
                 >
                   {mot}
@@ -172,7 +173,7 @@ export async function HeroFiche({
             <div
               data-drop=""
               className="mt-[clamp(34px,4vw,58px)]"
-              style={{ animation: 'drop 1.05s .8s both cubic-bezier(.16,1,.3,1)' }}
+              style={{ animation: 'drop 1.05s .8s both var(--courbe-plan)' }}
             >
               <div className="mb-5 flex items-center gap-3.5">
                 <h2
@@ -224,12 +225,12 @@ export async function HeroFiche({
         <div
           data-drop=""
           className="order-1 flex min-w-0 max-w-[420px] flex-[1_1_300px] flex-col gap-[22px] lg:order-none"
-          style={{ animation: 'drop 1.1s .2s both cubic-bezier(.16,1,.3,1)' }}
+          style={{ animation: 'drop 1.1s .2s both var(--courbe-plan)' }}
         >
           {a.photo && (
             <div
               data-tilt=""
-              className="relative border p-3.5 transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)]"
+              className="relative border p-3.5 transition-transform duration-500 [transition-timing-function:var(--courbe-plan)]"
               style={{
                 background: 'color-mix(in oklab, var(--onDeep) 5%, transparent)',
                 borderColor: 'color-mix(in oklab, var(--accent) 38%, transparent)',
@@ -250,6 +251,8 @@ export async function HeroFiche({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={a.photo}
+                srcSet={srcsetImage(a.photo)}
+                sizes="(min-width: 768px) 320px, 100vw"
                 alt={a.nom}
                 className="aspect-square w-full object-cover [object-position:50%_27%]"
                 style={{ filter: 'grayscale(1) contrast(1.08)' }}

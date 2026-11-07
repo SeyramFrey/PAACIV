@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation'
+import { srcsetImage } from '@/lib/media'
 
 export function CarteContenu({
   href,
@@ -34,6 +35,8 @@ export function CarteContenu({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
+            srcSet={srcsetImage(image)}
+            sizes="(min-width: 768px) 33vw, 100vw"
             alt=""
             className="h-full w-full object-cover transition group-hover:scale-105"
             loading="lazy"

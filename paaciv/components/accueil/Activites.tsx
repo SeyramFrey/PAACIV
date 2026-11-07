@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import type { Activite } from '@/lib/data/accueil'
+import { srcsetImage } from '@/lib/media'
 
 // Transposition des lignes 269-323 de la référence de design en motif
 // d'onglets accessible (role="tab"/"tabpanel") : la maquette empile ses
@@ -119,8 +120,8 @@ export function Activites({
                   // survol de la maquette (279-281) serait mort à l'arrivée.
                   className={
                     estActif
-                      ? 'rounded border border-transparent text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[cubic-bezier(.16,1,.3,1)]'
-                      : 'rounded border border-[var(--line)] text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[cubic-bezier(.16,1,.3,1)] hover:border-[var(--ocre)]'
+                      ? 'rounded border border-transparent text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[var(--courbe-plan)]'
+                      : 'rounded border border-[var(--line)] text-left text-sm font-medium leading-none transition-colors duration-[0.4s] ease-[var(--courbe-plan)] hover:border-[var(--ocre)]'
                   }
                   style={
                     estActif
@@ -153,6 +154,8 @@ export function Activites({
                       (même raisonnement que CartesSoutien.tsx). */}
                   <img
                     src={courante.image}
+                    srcSet={srcsetImage(courante.image)}
+                    sizes="(min-width: 1024px) 50vw, 100vw"
                     alt=""
                     loading="lazy"
                     className="h-full w-full object-cover"

@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import type { ArchitecteListItem } from '@/lib/data/architectes'
+import { srcsetImage } from '@/lib/media'
 
 // Grille de portraits, façon trombinoscope d'agence : le visage d'abord, le nom
 // dessous, la fonction en dessous encore.
@@ -49,9 +50,11 @@ export function PastilleArchitecte({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={a.photo}
+            srcSet={srcsetImage(a.photo)}
+            sizes="(min-width: 768px) 25vw, 50vw"
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover object-[50%_25%] transition-transform duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.03]"
+            className="h-full w-full object-cover object-[50%_25%] transition-transform duration-500 [transition-timing-function:var(--courbe-plan)] group-hover:scale-[1.03]"
             style={{ filter: 'grayscale(1) contrast(1.06)' }}
           />
         ) : (

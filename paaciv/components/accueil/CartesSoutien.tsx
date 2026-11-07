@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 import type { EtatConservation } from '@/lib/etats-conservation'
 import type { Visuel } from '@/lib/data/medias'
+import { srcsetImage } from '@/lib/media'
 
 const CLASSE_CARTE =
   'group relative flex h-[clamp(340px,34vw,440px)] flex-col justify-end overflow-hidden rounded-[6px] border-0 bg-transparent p-[34px] text-left'
@@ -47,6 +48,8 @@ function Carte({
       {image ? (
         <img
           src={image.src}
+          srcSet={srcsetImage(image.src)}
+          sizes="(min-width: 768px) 33vw, 100vw"
           alt={image.alt}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"

@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation'
 import { listeReportages, miniatureReportage } from '@/lib/data/reportages'
 import { champ } from '@/lib/i18n-champ'
 import { libelleOuNull, type Textes } from '@/lib/data/contenu-site'
+import { srcsetImage } from '@/lib/media'
 
 export async function CarteFilm({ textes }: { textes: Textes }) {
   const t = await getTranslations('accueil')
@@ -38,6 +39,8 @@ export async function CarteFilm({ textes }: { textes: Textes }) {
             // dans le nom accessible du lien.
             <img
               src={vignette}
+              srcSet={srcsetImage(vignette)}
+              sizes="(min-width: 768px) 33vw, 100vw"
               alt=""
               loading="lazy"
               className="h-full w-full object-cover"

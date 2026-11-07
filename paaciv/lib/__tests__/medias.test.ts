@@ -19,7 +19,7 @@ describe('visuel', () => {
 
   it('résout un chemin relatif contre le bucket', () => {
     const t = table(media({ emplacement: 'a', chemin: 'medias/a/1.jpg' }))
-    expect(visuel(t, 'a', 'fr', 'SECOURS').src).toContain('/storage/v1/object/public/patrimoine/medias/a/1.jpg')
+    expect(visuel(t, 'a', 'fr', 'SECOURS').src).toContain('/storage/v1/object/public/patrimoine/medias/a/1.jpg.1600.webp')
   })
 
   // La base RECOUVRE le code, elle ne le remplace pas : supprimer une ligne

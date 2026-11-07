@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { imageUrl } from '@/lib/media'
+import { imageUrl, srcsetImage } from '@/lib/media'
 import { champ } from '@/lib/i18n-champ'
 import type { ImageRow } from '@/lib/data/patrimoine'
 
@@ -16,6 +16,8 @@ export function Galerie({ images, locale }: { images: ImageRow[]; locale: string
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl(courante.chemin)}
+          srcSet={srcsetImage(imageUrl(courante.chemin))}
+          sizes="(min-width: 1024px) 1100px, 100vw"
           alt={champ(courante.legende_fr, courante.legende_en, locale) || ''}
           className="h-full w-full object-cover"
         />
@@ -39,7 +41,7 @@ export function Galerie({ images, locale }: { images: ImageRow[]; locale: string
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl(img.chemin)} alt="" className="h-full w-full object-cover" />
+              <img src={imageUrl(img.chemin, 480)} alt="" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>

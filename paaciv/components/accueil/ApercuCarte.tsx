@@ -42,7 +42,7 @@ export async function ApercuCarte({
 
   return (
     <section
-      className="px-[clamp(20px,5vw,80px)] py-20 lg:py-32"
+      className="bande-lagune px-[clamp(20px,5vw,80px)] py-20 lg:py-32"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       <div className="mx-auto max-w-3xl text-center">

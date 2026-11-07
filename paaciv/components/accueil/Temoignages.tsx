@@ -99,7 +99,7 @@ export function Temoignages({
               onClick={() => setIndex((i) => Math.min(dernier, i + 1))}
               disabled={index === dernier}
               aria-label={t('suivant')}
-              className="grid h-[46px] w-[46px] place-items-center rounded-full border border-[var(--terra)] bg-[var(--terra)] text-[15px] text-[oklch(0.98_0.01_84)] transition-colors duration-[0.4s] hover:bg-[var(--accent)] hover:text-[oklch(0.16_0.02_48)] disabled:opacity-40"
+              className="grid h-[46px] w-[46px] place-items-center rounded-full border border-[var(--terra)] bg-[var(--terra)] text-[15px] text-[oklch(0.98_0.01_84)] transition-colors duration-[0.4s] hover:bg-[var(--accent)] hover:text-[var(--surAccent)] disabled:opacity-40"
             >
               →
             </button>
@@ -110,7 +110,7 @@ export function Temoignages({
           <div
             ref={piste}
             className="flex gap-6"
-            style={{ transform: `translateX(-${decalage}px)`, transition: 'transform .8s cubic-bezier(.16,1,.3,1)', willChange: 'transform' }}
+            style={{ transform: `translateX(-${decalage}px)`, transition: 'transform .8s var(--courbe-plan)', willChange: 'transform' }}
           >
             {temoignages.map((tm, i) => {
               const role = champ(tm.role_fr, tm.role_en, locale)

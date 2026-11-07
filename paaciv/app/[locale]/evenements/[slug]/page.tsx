@@ -7,6 +7,7 @@ import { TexteRiche } from '@/components/patrimoine/TexteRiche'
 import { getEvenementParSlugCache as getEvenement } from '@/lib/data/evenements'
 import { champ } from '@/lib/i18n-champ'
 import { slugParam } from '@/lib/slug'
+import { srcsetImage } from '@/lib/media'
 
 // Segment dynamique ([slug]) : cette page est déjà `ƒ` par construction
 // (aucune donnée dynamique en dehors du paramètre de route). Export explicite
@@ -76,7 +77,7 @@ export default async function FicheEvenement({ params }: Props) {
 
         {e.image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={e.image} alt={titre} className="w-full rounded-2xl object-cover" />
+          <img src={e.image} srcSet={srcsetImage(e.image)} sizes="(min-width: 1024px) 900px, 100vw" alt={titre} className="w-full rounded-2xl object-cover" />
         )}
 
         <TexteRiche html={description} />

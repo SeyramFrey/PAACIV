@@ -5,6 +5,8 @@ import { createServerClient } from '@/lib/supabase/server'
 import { slugify, normaliserSlug } from '@/lib/slug'
 import { texteOuNull, intOuNull, richeOuNull, validerCoordonnee, BORNE_LAT, BORNE_LNG } from '@/lib/admin/champs'
 import { etatOuNull } from '@/lib/etats-conservation'
+import { televerserImage } from '@/lib/images/televerser'
+import { cheminsStockes } from '@/lib/media'
 
 export async function supprimerPatrimoine(id: string) {
   const sb = await createServerClient()
@@ -164,10 +166,7 @@ export async function ajouterImage(formData: FormData): Promise<void> {
   for (const fichier of fichiers) {
     const ext = fichier.name.split('.').pop() ?? 'jpg'
     const chemin = `${patrimoineId}/${ordre}-${Date.now()}.${ext}`
-    const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, fichier, {
-      contentType: fichier.type || 'image/jpeg',
-      upsert: false,
-    })
+    const { error: upErr } = await televerserImage(sb, chemin, fichier)
     if (upErr) throw upErr
     const { error } = await sb.from('images').insert({
       patrimoine_id: patrimoineId,
@@ -187,7 +186,7 @@ export async function supprimerImage(id: string): Promise<void> {
   const sb = await createServerClient()
   const { data: img } = await sb.from('images').select('chemin').eq('id', id).maybeSingle()
   if (img && !/^https?:\/\//i.test(img.chemin)) {
-    await sb.storage.from('patrimoine').remove([img.chemin])
+    await sb.storage.from('patrimoine').remove(cheminsStockes(img.chemin))
   }
   const { error } = await sb.from('images').delete().eq('id', id)
   if (error) throw error

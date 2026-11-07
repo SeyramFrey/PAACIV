@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { texteOuNull, intOuNull } from '@/lib/admin/champs'
+import { televerserImage } from '@/lib/images/televerser'
 
 // `echec` couvre le cas d'un UPDATE bloqué par RLS (voir plus bas) en plus
 // des échecs d'upload inattendus.
@@ -62,10 +63,7 @@ export async function enregistrerActivite(formData: FormData): Promise<ResultatA
     try {
       const ext = image.name.split('.').pop() ?? 'jpg'
       const chemin = `activites/${resultId}/${Date.now()}.${ext}`
-      const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, image, {
-        contentType: image.type || 'image/jpeg',
-        upsert: false,
-      })
+      const { error: upErr } = await televerserImage(sb, chemin, image)
       if (upErr) {
         console.error('activites image upload', resultId, upErr)
         throw upErr

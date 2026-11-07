@@ -76,7 +76,7 @@ export function FormulaireMedia({
             encore des liens Wikimedia. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl(chemin)}
+          src={imageUrl(chemin, 480)}
           alt=""
           data-testid="apercu-media"
           className="h-28 w-40 rounded-xl border border-filet object-cover"

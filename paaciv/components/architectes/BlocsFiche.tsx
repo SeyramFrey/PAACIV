@@ -121,7 +121,7 @@ export async function MissionsEtranger({
               data-rv=""
               data-d={String(Math.min(i * 90, 450))}
               data-tilt=""
-              className="flex min-h-[250px] flex-col gap-[18px] border p-[clamp(22px,2.6vw,34px)] transition-[transform,border-color] duration-500 [transition-timing-function:cubic-bezier(.16,1,.3,1)] hover:border-ocre"
+              className="flex min-h-[250px] flex-col gap-[18px] border p-[clamp(22px,2.6vw,34px)] transition-[transform,border-color] duration-500 [transition-timing-function:var(--courbe-plan)] hover:border-ocre"
               style={{ background: 'var(--bg)', borderColor: 'var(--line)' }}
             >
               {champ(m.surtitre_fr, m.surtitre_en, locale) && (

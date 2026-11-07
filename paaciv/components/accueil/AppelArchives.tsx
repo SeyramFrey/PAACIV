@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import type { Visuel } from '@/lib/data/medias'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
+import { srcsetImage } from '@/lib/media'
 
 // Transposition des lignes 389-398 de la référence de design.
 //
@@ -40,10 +41,12 @@ export function AppelArchives({
   const { ouvrir } = useSoutien()
 
   return (
-    <section className="relative grid h-[clamp(360px,42vw,540px)] place-items-center overflow-hidden text-center">
+    <section className="bande-banco relative grid h-[clamp(360px,42vw,540px)] place-items-center overflow-hidden text-center">
       <img
         data-par="0.14"
         src={image.src}
+        srcSet={srcsetImage(image.src)}
+        sizes="100vw"
         alt={image.alt}
         loading="lazy"
         className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
@@ -68,7 +71,9 @@ export function AppelArchives({
         style={{ background: 'var(--bg)', borderRadius: '50% 50% 0 0' }}
       />
 
-      <div className="relative px-6" style={{ color: 'var(--onDeep)' }}>
+      {/* Chaux, pas `--onDeep` : le texte est sur la photo assombrie, pas sur
+          la bande banco qui l'entoure. */}
+      <div className="relative px-6" style={{ color: 'var(--chaux)' }}>
         <h2
           data-rv=""
           className="m-0 text-balance font-serif text-[clamp(30px,4.4vw,66px)] leading-[1.1] tracking-[0.01em]"
@@ -91,7 +96,7 @@ export function AppelArchives({
           onClick={() => ouvrir('archive')}
           data-rv=""
           data-d="120"
-          className="mt-8 inline-block rounded-full bg-[var(--terra)] px-[34px] py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[oklch(0.98_0.01_84)] transition-[translate,background-color,color] duration-[0.4s] hover:-translate-y-[3px] hover:bg-[var(--accent)] hover:text-[oklch(0.16_0.02_48)]"
+          className="mt-8 inline-block rounded-full bg-[var(--terra)] px-[34px] py-4 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-[oklch(0.98_0.01_84)] transition-[translate,background-color,color] duration-[0.4s] hover:-translate-y-[3px] hover:bg-[var(--accent)] hover:text-[var(--surAccent)]"
         >
           {cta ?? t('confierArchive')}
         </button>

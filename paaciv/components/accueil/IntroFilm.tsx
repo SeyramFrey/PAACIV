@@ -17,15 +17,13 @@ const sAbonner = () => () => {}
 // Mêmes tests que ScriptIntro, refaits ici pour l'arrivée par navigation
 // interne, où ce script n'a pas été rejoué. Le film rejoue à CHAQUE arrivée
 // sur l'accueil, même déjà vu : c'est « Passer l'intro » qui permet de
-// l'éviter (choix de Sey). Seuls le mouvement réduit et une connexion faible
-// le suppriment. "fin" (film fini ou passé lors d'une visite précédente de
+// l'éviter (choix de Sey). Seuls le mouvement réduit et le mode léger le
+// suppriment. "fin" (film fini ou passé lors d'une visite précédente de
 // l'accueil) ne compte donc pas.
 function sansFilm() {
-  if (document.documentElement.getAttribute('data-intro') === 'sans') return true
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
-  const connexion = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
-    .connection
-  return Boolean(connexion && (connexion.saveData || /2g|3g/.test(connexion.effectiveType ?? '')))
+  const racine = document.documentElement
+  if (racine.getAttribute('data-intro') === 'sans' || racine.hasAttribute('data-leger')) return true
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 type Etape = 'intro' | 'attente' | 'galerie' | 'sortie'
@@ -67,15 +65,12 @@ export function IntroFilm() {
     // et les entrées du hero attendent de nouveau sa fin.
     racine.removeAttribute('data-intro')
     const i = intro.current
-    const g = galerie.current
-    if (!i || !g) return
+    if (!i) return
 
     // Les sources ne sont posées qu'ici, jamais dans le HTML du serveur :
     // sinon le navigateur téléchargerait les films même pour les visiteurs
-    // sans film. La galerie se charge pendant l'intro, pour partir sans
-    // attente au clic.
+    // sans film.
     if (i.getAttribute('src') !== SOURCE_INTRO) i.src = SOURCE_INTRO
-    if (g.getAttribute('src') !== SOURCE_GALERIE) g.src = SOURCE_GALERIE
     let annule = false
     // Lecture automatique refusée (économie d'énergie d'iOS…) : on saute
     // l'intro et on montre tout de suite le bouton, dont le clic autorise
@@ -89,6 +84,13 @@ export function IntroFilm() {
       annule = true
     }
   }, [sans])
+
+  // La galerie pèse 2,9 Mo : elle ne se charge qu'à l'apparition du bouton
+  // qui la lance. Qui passe l'intro ne la paie pas sur ses données.
+  useEffect(() => {
+    const g = galerie.current
+    if (etape === 'attente' && g && g.getAttribute('src') !== SOURCE_GALERIE) g.src = SOURCE_GALERIE
+  }, [etape])
 
   if (!monte || sans) return null
 

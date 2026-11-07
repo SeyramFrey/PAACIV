@@ -1,7 +1,9 @@
 // Applique le thème mémorisé AVANT le premier rendu. Sans ce script inline,
-// le document part en clair puis bascule en sombre à l'hydratation : un flash
-// blanc plein écran très visible sur une page dont le hero est sombre.
+// le document part dans un thème puis bascule à l'hydratation : un flash plein
+// écran très visible.
+// Le site s'ouvre en plein jour (décision du 7 novembre 2026) : la nuit n'est
+// plus qu'un choix du visiteur, mémorisé par la bascule.
 export function ScriptTheme() {
-  const code = `(function(){try{var t=localStorage.getItem('paaciv-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})()`
+  const code = `(function(){try{var t=localStorage.getItem('paaciv-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light')}catch(e){document.documentElement.setAttribute('data-theme','light')}})()`
   return <script dangerouslySetInnerHTML={{ __html: code }} />
 }

@@ -7,7 +7,7 @@ import { PictoType } from '@/components/ui/PictoType'
 import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
 import { listeVilles } from '@/lib/data/villes'
 import { chargerReferences } from '@/lib/data/references'
-import { imagePrincipale } from '@/lib/media'
+import { imagePrincipale, srcsetImage } from '@/lib/media'
 import { champ } from '@/lib/i18n-champ'
 
 // Route sans segment dynamique mais qui lit Supabase : sans ce drapeau, Next la
@@ -81,10 +81,12 @@ export default async function VillesPage({ params }: { params: Promise<{ locale:
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={couverture}
+                          srcSet={srcsetImage(couverture)}
+                          sizes="(min-width: 768px) 33vw, 100vw"
                           alt=""
                           aria-hidden="true"
                           loading="lazy"
-                          className="duotone h-full w-full object-cover transition-[filter,transform] duration-500 group-hover:scale-105 group-hover:[filter:var(--imgf)]"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
                         <VisuelAbsent />

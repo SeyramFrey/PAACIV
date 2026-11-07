@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { normaliserSlug } from '@/lib/slug'
 import { texteOuNull, richeOuNull } from '@/lib/admin/champs'
+import { televerserImage } from '@/lib/images/televerser'
 
 // Deux cas de validation *attendus* (l'utilisateur peut simplement avoir
 // oublié un champ ou inversé les dates) : modélisés en valeur de retour
@@ -76,10 +77,7 @@ export async function enregistrerEvenement(formData: FormData): Promise<Resultat
     try {
       const ext = image.name.split('.').pop() ?? 'jpg'
       const chemin = `evenements/${resultId}/${Date.now()}.${ext}`
-      const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, image, {
-        contentType: image.type || 'image/jpeg',
-        upsert: false,
-      })
+      const { error: upErr } = await televerserImage(sb, chemin, image)
       if (upErr) throw upErr
       const { error } = await sb.from('evenements').update({ image: chemin }).eq('id', resultId)
       if (error) throw error

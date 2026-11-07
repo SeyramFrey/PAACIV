@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
 import type { ArticleListItem } from '@/lib/data/articles'
+import { srcsetImage } from '@/lib/media'
 
 // `date_publication` est une colonne `date` (YYYY-MM-DD) : `timeZone: 'UTC'`
 // évite qu'un fuseau local ne décale l'affichage d'un jour, comme partout
@@ -69,6 +70,8 @@ export function Journal({
       <img
         data-par="0.08"
         src={image.src}
+        srcSet={srcsetImage(image.src)}
+        sizes="100vw"
         alt={image.alt}
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover"
@@ -109,7 +112,7 @@ export function Journal({
             <div
               ref={piste}
               className="flex"
-              style={{ transform: `translateX(-${decalage}px)`, transition: 'transform .8s cubic-bezier(.16,1,.3,1)' }}
+              style={{ transform: `translateX(-${decalage}px)`, transition: 'transform .8s var(--courbe-plan)' }}
             >
               {articles.map((a, i) => {
                 const categorie = a.categorie ? champ(a.categorie.nom_fr, a.categorie.nom_en, locale) : ''
@@ -138,6 +141,8 @@ export function Journal({
                       {a.image ? (
                         <img
                           src={a.image}
+                          srcSet={srcsetImage(a.image)}
+                          sizes="(min-width: 768px) 33vw, 100vw"
                           alt=""
                           loading="lazy"
                           className="h-full w-full object-cover"

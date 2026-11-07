@@ -5,6 +5,7 @@ import { texte, type Textes } from '@/lib/data/contenu-site'
 import { partitionnerEvenements } from '@/lib/evenements-dates'
 import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
 import type { EvenementListItem } from '@/lib/data/evenements'
+import { srcsetImage } from '@/lib/media'
 
 // `date_debut` est une colonne `date` (« 2026-09-12 »), sans heure ni fuseau.
 // `timeZone: 'UTC'` est indispensable : un fuseau local décalerait
@@ -42,7 +43,7 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
   return (
     <section
       id="agenda"
-      className="px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]"
+      className="bande-chaux2 px-[clamp(20px,5vw,80px)] py-[clamp(90px,10vw,150px)]"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       <div className="mx-auto max-w-[1440px]">
@@ -79,11 +80,15 @@ export async function Agenda({ evenements, textes }: { evenements: EvenementList
                 className={`relative flex min-h-[clamp(340px,34vw,480px)] flex-col justify-end overflow-hidden rounded p-8 ${
                   suite.length === 0 ? 'mx-auto w-full max-w-[720px]' : ''
                 }`}
-                style={{ color: 'var(--onDeep)' }}
+                // Chaux, pas `--onDeep` : le texte est posé sur la photo
+                // assombrie, quelle que soit la couleur de la bande autour.
+                style={{ color: 'var(--chaux)' }}
               >
                 {vedette.image ? (
                   <img
                     src={vedette.image}
+                    srcSet={srcsetImage(vedette.image)}
+                    sizes="(min-width: 1024px) 50vw, 100vw"
                     alt=""
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover"

@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
 
+// Le film d'ouverture rejoue à chaque arrivée sur l'accueil et recouvre la
+// page : les clics des tests tomberaient sur lui. Le mouvement réduit le
+// supprime, comme pour un visiteur qui l'a demandé.
+test.use({ contextOptions: { reducedMotion: 'reduce' } })
+
 test('la page affiche ses blocs dans l’ordre du design', async ({ page }) => {
   await page.goto('/fr')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

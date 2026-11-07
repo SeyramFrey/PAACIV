@@ -107,6 +107,31 @@ for (const [avant, arriere, seuil, quoi] of COUPLES) {
   )
 }
 
+// Bandes de matières (plein jour seulement) : chaque bande redéfinit les rôles
+// pour son contenu, donc chacune doit tenir ses propres couples.
+const BANDES = ['chaux', 'chaux2', 'banco', 'tole', 'lagune', 'laterite']
+const COUPLES_BANDE = [
+  ['--ink', '--bg', 4.5, 'texte courant'],
+  ['--ink', '--bg2', 4.5, 'texte sur carte'],
+  ['--soft', '--bg', 4.5, 'texte secondaire'],
+  ['--accent', '--bg', 4.5, 'accent en texte'],
+  ['--surAccent', '--accent', 4.5, 'texte des boutons pleins'],
+  ['--ocre', '--bg', 3, 'titres'],
+]
+console.log('\nbande / couple                          contraste  seuil')
+for (const b of BANDES) {
+  const table = { ...CLAIR, ...jetons(`:root:not([data-theme="dark"]) .bande-${b}`) }
+  for (const [avant, arriere, seuil, quoi] of COUPLES_BANDE) {
+    const c = contraste(oklch(avant, table), oklch(arriere, table))
+    const ko = c < seuil
+    if (ko) echecs++
+    console.log(
+      `${(b + ' : ' + avant + ' / ' + arriere).padEnd(40)} ${c.toFixed(2).padStart(6)} ${String(seuil).padStart(6)}` +
+        (ko ? `   ✗ ${quoi}` : ''),
+    )
+  }
+}
+
 if (echecs > 0) {
   console.error(`\n${echecs} couple(s) sous le seuil.`)
   process.exit(1)

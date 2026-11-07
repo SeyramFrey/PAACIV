@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { normaliserSlug } from '@/lib/slug'
 import { texteOuNull, richeOuNull } from '@/lib/admin/champs'
+import { televerserImage } from '@/lib/images/televerser'
 
 // Deux cas de validation *attendus* : modélisés en valeur de retour plutôt
 // qu'en exception (même raisonnement et même pattern que
@@ -70,10 +71,7 @@ export async function enregistrerArticle(formData: FormData): Promise<ResultatAr
     try {
       const ext = image.name.split('.').pop() ?? 'jpg'
       const chemin = `articles/${resultId}/${Date.now()}.${ext}`
-      const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, image, {
-        contentType: image.type || 'image/jpeg',
-        upsert: false,
-      })
+      const { error: upErr } = await televerserImage(sb, chemin, image)
       if (upErr) throw upErr
       const { error } = await sb.from('articles').update({ image_couverture: chemin }).eq('id', resultId)
       if (error) throw error

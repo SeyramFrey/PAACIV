@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import type { VignetteArchive } from '@/lib/data/accueil'
 import type { Ref } from '@/lib/data/patrimoine'
+import { srcsetImage } from '@/lib/media'
 
 // Transposition des lignes 400-473 de la référence de design, EN REMPLAÇANT
 // la mosaïque éclatée (colonnes 2/3/4, hauteurs et décalages verticaux
@@ -51,7 +52,7 @@ export function GrilleArchive({
   return (
     <section
       id="archive"
-      className="px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,130px)] pb-[clamp(60px,7vw,110px)]"
+      className="bande-banco px-[clamp(20px,5vw,80px)] py-[clamp(70px,8vw,130px)] pb-[clamp(60px,7vw,110px)]"
     >
       <div className="mx-auto max-w-[1440px]">
         <div className="text-center">
@@ -145,10 +146,12 @@ export function GrilleArchive({
               <Link key={v.slug} href={`/patrimoine/${v.slug}`}>
                 <figure className="m-0">
                   <div
-                    className="aspect-[4/3] overflow-hidden rounded-[4px] transition-[translate,filter] duration-[0.6s] ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-2"
+                    className="aspect-[4/3] overflow-hidden rounded-[4px] transition-[translate,filter] duration-[0.6s] ease-[var(--courbe-plan)] hover:-translate-y-2"
                   >
                     <img
                       src={v.image}
+                      srcSet={srcsetImage(v.image)}
+                      sizes="(min-width: 768px) 25vw, 50vw"
                       alt=""
                       loading="lazy"
                       className="h-full w-full object-cover"

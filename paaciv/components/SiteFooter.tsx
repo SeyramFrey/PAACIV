@@ -4,6 +4,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Link } from '@/i18n/navigation'
 import { chargerTextes, texte, renseigne } from '@/lib/data/contenu-site'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { InterrupteurLeger } from '@/components/InterrupteurLeger'
 
 const ENTREES = [
   { href: '/carte', cle: 'carte' },
@@ -39,7 +40,7 @@ export async function SiteFooter() {
   return (
     <footer
       id="contact"
-      className="px-5 pb-10 pt-16 sm:px-8 lg:px-14 lg:pt-24"
+      className="bande-tole px-5 pb-10 pt-16 sm:px-8 lg:px-14 lg:pt-24"
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
     >
       <div className="mx-auto grid max-w-7xl gap-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -111,6 +112,12 @@ export async function SiteFooter() {
             <h2 className="text-[10px] uppercase tracking-[0.24em] opacity-60">{tf('langue')}</h2>
             <div className="mt-4">
               <LanguageSwitcher />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-[10px] uppercase tracking-[0.24em] opacity-60">{tf('donnees')}</h2>
+            <div className="mt-4">
+              <InterrupteurLeger />
             </div>
           </div>
         </div>

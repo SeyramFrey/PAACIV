@@ -5,18 +5,20 @@ import { useTranslations } from 'next-intl'
 
 export function BasculeTheme({ className }: { className?: string }) {
   const t = useTranslations('theme')
-  const [sombre, setSombre] = useState(true)
+  const [sombre, setSombre] = useState(false)
 
   // L'attribut est déjà posé par ScriptTheme au chargement : on se contente
   // de lire l'état réel du document pour synchroniser le bouton, sans jamais
   // réécrire l'attribut au montage (ce qui écraserait la préférence).
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronisation post-montage avec l'attribut DOM posé par ScriptTheme avant l'hydratation (SSR toujours "sombre" par défaut) ; lire cette valeur pendant le rendu casserait l'hydratation.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronisation post-montage avec l'attribut DOM posé par ScriptTheme avant l'hydratation (SSR toujours "clair" par défaut) ; lire cette valeur pendant le rendu casserait l'hydratation.
     setSombre(document.documentElement.getAttribute('data-theme') !== 'light')
   }, [])
 
   function basculer() {
-    const suivant = sombre ? 'light' : 'dark'
+    // On part du document, pas de l'état React : un clic arrivé avant la
+    // synchronisation ci-dessus basculait sinon dans le mauvais sens.
+    const suivant = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
     document.documentElement.setAttribute('data-theme', suivant)
     try {
       localStorage.setItem('paaciv-theme', suivant)
@@ -24,7 +26,7 @@ export function BasculeTheme({ className }: { className?: string }) {
       // Navigation privée ou stockage plein : la bascule reste effective pour
       // la session, seule la mémorisation est perdue.
     }
-    setSombre(!sombre)
+    setSombre(suivant === 'dark')
   }
 
   return (

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { normaliserSlug } from '@/lib/slug'
 import { texteOuNull, intOuNull, richeOuNull } from '@/lib/admin/champs'
+import { televerserImage } from '@/lib/images/televerser'
 
 export async function enregistrerArchitecte(formData: FormData): Promise<{ id: string }> {
   const sb = await createServerClient()
@@ -54,10 +55,7 @@ export async function enregistrerArchitecte(formData: FormData): Promise<{ id: s
   if (photo instanceof File && photo.size > 0) {
     const ext = photo.name.split('.').pop() ?? 'jpg'
     const chemin = `architectes/${resultId}/${Date.now()}.${ext}`
-    const { error: upErr } = await sb.storage.from('patrimoine').upload(chemin, photo, {
-      contentType: photo.type || 'image/jpeg',
-      upsert: false,
-    })
+    const { error: upErr } = await televerserImage(sb, chemin, photo)
     if (upErr) throw upErr
     const { error } = await sb.from('architectes').update({ photo: chemin }).eq('id', resultId)
     if (error) throw error

@@ -111,7 +111,7 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
               <li
                 key={e.cle}
                 style={{
-                  animation: ouvert ? `drop .5s cubic-bezier(.16,1,.3,1) ${i * 60}ms both` : undefined,
+                  animation: ouvert ? `drop .5s var(--courbe-plan) ${i * 60}ms both` : undefined,
                 }}
               >
                 <Link
