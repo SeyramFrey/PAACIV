@@ -4,7 +4,7 @@ import { chargerMedias, visuel } from '@/lib/data/medias'
 import {
   chiffresCles, listeActivites, listePointsCles, listeTemoignages, listeTypes,
   statistiquesTerritoire,
-  vedettesHero, vignettesArchive, villesArchive,
+  vignettesArchive, villesArchive,
 } from '@/lib/data/accueil'
 import { listeArticles } from '@/lib/data/articles'
 import { listeEvenements } from '@/lib/data/evenements'
@@ -39,13 +39,12 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
   // Un seul palier d'attente : ces lectures sont indépendantes, les
   // enchaîner en série multiplierait le temps de rendu par dix.
   const [
-    textes, medias, statsTerritoire, vedettes, villes, chiffres, pourquoi, raisons,
+    textes, medias, statsTerritoire, villes, chiffres, pourquoi, raisons,
     activites, types, evenements, vignettes, temoignages, articles,
   ] = await Promise.all([
     chargerTextes(),
     chargerMedias(),
     statistiquesTerritoire(),
-    vedettesHero(5),
     villesArchive(),
     chiffresCles(),
     listePointsCles('pourquoi'),
@@ -68,7 +67,6 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
     <main className="flex-1">
       <IntroFilm />
       <Hero
-        vedettes={vedettes}
         titre={tx('hero_titre')}
         intro={tx('hero_intro')}
         accroche={lib('hero_accroche')}

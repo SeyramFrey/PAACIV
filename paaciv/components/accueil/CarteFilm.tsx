@@ -20,11 +20,15 @@ export async function CarteFilm({ textes }: { textes: Textes }) {
   const description = champ(dernier.description_fr, dernier.description_en, locale)
 
   return (
-    <div className="relative z-[8] -mt-[88px] flex justify-end px-[clamp(20px,4vw,54px)]">
+    // `pointer-events-none` sur l'enveloppe : elle prend toute la largeur et
+    // remonte de 88 px sur le hero ; sa partie vide, à gauche de la carte,
+    // interceptait les clics sur les boutons du hero. Seule la carte reste
+    // cliquable.
+    <div className="pointer-events-none relative z-[8] -mt-[88px] flex justify-end px-[clamp(20px,4vw,54px)]">
       <Link
         href={`/reportages/${dernier.slug}`}
         data-rv=""
-        className="flex w-[min(430px,100%)] items-center gap-4 rounded-[6px] border p-3.5 transition hover:-translate-y-1"
+        className="pointer-events-auto flex w-[min(430px,100%)] items-center gap-4 rounded-[6px] border p-3.5 transition hover:-translate-y-1"
         style={{
           background: 'var(--bg2)',
           borderColor: 'var(--line)',

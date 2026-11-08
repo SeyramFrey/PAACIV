@@ -1,22 +1,38 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { champ } from '@/lib/i18n-champ'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
-import type { VedetteHero } from '@/lib/data/accueil'
-import { srcsetImage } from '@/lib/media'
 
-const INTERVALLE = 6500
+// Haut de page : un survol filmé en fond, en boucle et sans son.
+//
+// Il remplace le diaporama des vedettes (décision du 7 novembre 2026). Les
+// fiches restent présentées plus bas ; ici, le film pose le lieu, et le petit
+// emblème annonce l'éléphant, dont l'animation commence à la section suivante.
+//
+// Vidéo PROVISOIRE, à remplacer par une prise de vue réelle : seuls les
+// fichiers de `public/videos/hero/` changeront, pas ce composant.
+//
+// Poids : l'affiche (WebP, 86 à 160 Ko) est l'image du premier écran ; la
+// vidéo (1,1 Mo en 720p, 2 Mo en 1080p) n'est ajoutée qu'après hydratation,
+// et jamais en mode léger ni en mouvement réduit. Ces visiteurs gardent
+// l'affiche, qui est la première image du film : rien ne saute à l'arrivée.
+const AFFICHE = '/videos/hero/survol-affiche.webp'
+const AFFICHE_960 = '/videos/hero/survol-affiche-960.webp'
+const VIDEO_1080 = '/videos/hero/survol-1080.mp4'
+const VIDEO_720 = '/videos/hero/survol-720.mp4'
+
+function filmPermis() {
+  if (document.documentElement.hasAttribute('data-leger')) return false
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
 
 export function Hero({
-  vedettes,
   titre,
   intro,
   accroche,
 }: {
-  vedettes: VedetteHero[]
   titre: string
   intro: string
   // `null` : rien à substituer en base — on retombe sur le libellé du code.
@@ -25,21 +41,34 @@ export function Hero({
   accroche: string | null
 }) {
   const t = useTranslations('accueil')
-  const locale = useLocale()
   const { ouvrir } = useSoutien()
-  const [actif, setActif] = useState(0)
   const section = useRef<HTMLElement>(null)
   const lampe = useRef<HTMLDivElement>(null)
+  const film = useRef<HTMLVideoElement>(null)
+  const [avecFilm, setAvecFilm] = useState(false)
+  const [filmPret, setFilmPret] = useState(false)
 
-  // Rotation automatique. La dépendance sur `actif` remet le minuteur à zéro
-  // après un clic manuel : sans cela, l'image choisie pourrait sauter au bout
-  // de quelques centaines de millisecondes.
+  // Le film n'existe pas au rendu serveur : il est monté ici, une fois sûr
+  // que le visiteur n'est ni en mode léger ni en mouvement réduit. Le monter
+  // dès le HTML lancerait son téléchargement avant que l'on puisse vérifier.
   useEffect(() => {
-    if (vedettes.length < 2) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const id = window.setInterval(() => setActif((i) => (i + 1) % vedettes.length), INTERVALLE)
-    return () => window.clearInterval(id)
-  }, [actif, vedettes.length])
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- décision prise côté client seulement
+    if (filmPermis()) setAvecFilm(true)
+  }, [])
+
+  // Lecture seulement quand le haut de page est visible : un film qui tourne
+  // hors de l'écran use la batterie d'un téléphone pour rien.
+  useEffect(() => {
+    const s = section.current
+    const v = film.current
+    if (!avecFilm || !s || !v) return
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) v.play()?.catch(() => {})
+      else v.pause()
+    })
+    obs.observe(s)
+    return () => obs.disconnect()
+  }, [avecFilm])
 
   // Halo suivant le curseur. Écrit directement dans le style plutôt que via
   // un état React : à 60 images par seconde, un setState par mouvement de
@@ -59,47 +88,6 @@ export function Hero({
     return () => s.removeEventListener('mousemove', auMouvement)
   }, [])
 
-  const courante = vedettes[actif] ?? null
-
-  const legende = courante
-    ? [champ(courante.titre_fr, courante.titre_en, locale), [courante.ville, courante.date_texte].filter(Boolean).join(', ')]
-        .filter(Boolean)
-        .join(' — ')
-    : ''
-
-  // Fondu de la légende, comme la maquette : fondu sortant, texte remplacé
-  // au creux du fondu (260 ms — le texte affiché est donc `legendeAffichee`,
-  // qui traîne délibérément derrière `actif`/`legende`, pas la même chose),
-  // puis fondu entrant — le tout sous une seule `transition: opacity`. Le
-  // texte n'est jamais visible en train de changer : contrairement à une
-  // dérivation synchrone de `actif`, l'échange a lieu pendant que
-  // `legendeVisible` vaut déjà `false`.
-  const [legendeAffichee, setLegendeAffichee] = useState(legende)
-  const [legendeVisible, setLegendeVisible] = useState(true)
-  // Distingue « la vedette a changé » (creux de fondu à respecter) de
-  // « le texte a changé sans elle » (bascule FR/EN sur la même vedette) :
-  // ce second cas n'est pas la rotation que la maquette anime, il se
-  // resynchronise donc immédiatement plutôt que d'attendre 260 ms.
-  const actifPrecedent = useRef(actif)
-  useEffect(() => {
-    if (actifPrecedent.current === actif) {
-      setLegendeAffichee(legende)
-      return
-    }
-    actifPrecedent.current = actif
-    setLegendeVisible(false)
-    const id = window.setTimeout(() => {
-      setLegendeAffichee(legende)
-      setLegendeVisible(true)
-    }, 260)
-    // Nettoyage symétrique à celui du minuteur de rotation ci-dessus : sans
-    // lui, un clic sur une autre vignette pendant le creux du fondu (ou un
-    // démontage à ce moment précis) laisserait ce minuteur en vol et
-    // écrirait, 260 ms plus tard, une légende déjà périmée — ou une mise à
-    // jour d'état sur un composant démonté.
-    return () => window.clearTimeout(id)
-  }, [actif, legende])
-
   return (
     <section
       id="top"
@@ -108,33 +96,52 @@ export function Hero({
       className="bande-tole relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
       style={{ background: 'var(--deep)' }}
     >
-      <div aria-hidden="true" className="absolute -inset-x-[2%] -bottom-[2%] -top-[6%] z-0">
-        {vedettes.map((v, i) => (
-          <img
-            key={v.slug}
-            src={v.image}
-            srcSet={srcsetImage(v.image)}
-            sizes="100vw"
-            alt=""
-            // Seule la première (contenu du premier écran) charge
-            // immédiatement ; les autres, empilées derrière elle en attente
-            // de leur tour de rotation, n'ont pas à concurrencer le premier
-            // rendu pour la bande passante.
-            loading={i === 0 ? undefined : 'lazy'}
+      <div aria-hidden="true" className="absolute inset-0 z-0">
+        {/* L'affiche est l'image du premier écran (LCP) : chargée tout de
+            suite, en priorité haute, jamais en différé. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          data-testid="hero-affiche"
+          src={AFFICHE}
+          srcSet={`${AFFICHE_960} 960w, ${AFFICHE} 1600w`}
+          sizes="100vw"
+          alt=""
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ filter: 'var(--imgf)' }}
+        />
+        {avecFilm && (
+          // Les deux sources ont la même image de départ que l'affiche ; le
+          // fondu d'entrée ne fait donc qu'animer ce qui était déjà là.
+          // `media` sur <source> : le 720p suffit en dessous de 1280 px, et
+          // c'est presque tout le trafic mobile.
+          <video
+            ref={film}
+            data-testid="hero-film"
+            muted
+            loop
+            playsInline
+            autoPlay
+            preload="auto"
+            poster={AFFICHE}
+            onPlaying={() => setFilmPret(true)}
             className="absolute inset-0 h-full w-full object-cover"
-            style={{
-              filter: 'var(--imgf)',
-              opacity: i === actif ? 1 : 0,
-              transform: i === actif ? 'scale(1.04)' : 'scale(1)',
-              transition: 'opacity 1.2s ease, transform 1.6s ease',
-            }}
-          />
-        ))}
+            style={{ filter: 'var(--imgf)', opacity: filmPret ? 1 : 0, transition: 'opacity .8s ease' }}
+          >
+            <source src={VIDEO_1080} type="video/mp4" media="(min-width: 1280px)" />
+            <source src={VIDEO_720} type="video/mp4" />
+          </video>
+        )}
       </div>
 
       <div aria-hidden="true" className="absolute inset-0 z-[1]" style={{ background: 'var(--veil)' }} />
       <div ref={lampe} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2]" />
 
+      {/* Retrait bas de 112 px sous `lg` : la carte « Film » remonte de
+          88 px sur le bas du hero et, sur téléphone, prend toute la largeur.
+          Le rail de vignettes, empilé sous les boutons, absorbait ce
+          recouvrement ; sans lui, c'est le bouton « Soutenir » qui passait
+          dessous. Sur grand écran la carte est à droite, le texte à gauche. */}
       {/* Retrait haut ramené de `clamp(120px,16vh,180px)` à
           `clamp(104px,14vh,180px)` : au-delà de 1285 px de hauteur d'écran la
           borne haute de 180 px s'applique comme avant, donc la maquette est
@@ -150,7 +157,7 @@ export function Hero({
           BORD — sans barre de défilement pour le signaler, `scrollWidth`
           restant égal à `clientWidth`. C'est le débordement invisible qu'on
           voyait sur téléphone. */}
-      <div className="relative z-[5] grid grid-cols-[minmax(0,1fr)] gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[clamp(28px,4vw,54px)] pt-[clamp(104px,14vh,180px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <div className="relative z-[5] grid grid-cols-[minmax(0,1fr)] gap-10 pl-[clamp(56px,9vw,140px)] pr-[clamp(20px,4vw,54px)] pb-[112px] pt-[clamp(104px,14vh,180px)] lg:pb-[clamp(28px,4vw,54px)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         {/* Plus de `max-w-[900px]`. La maquette casse son `<h1>` en DEUX lignes
             explicites (« Ce qui tient debout » / « raconte encore ») ; le nôtre
             reçoit un titre unique venu du CMS, qu'un plafond de 900 px faisait
@@ -161,6 +168,27 @@ export function Hero({
             `min-w-0` : `minmax(0,…)` borne la PISTE, pas l'élément — dont le
             `min-width: auto` par défaut le laisserait déborder quand même. */}
         <div className="min-w-0">
+          {/* Emblème en petit, au-dessus de l'accroche : il annonce
+              l'éléphant, qui ne s'anime qu'à la section suivante. Image plate
+              en attendant le modèle 3D, qui prendra cette place à la même
+              taille. Pas à droite : la carte « Film » remonte sur le bas du
+              hero et l'y recouvrait. Décoratif, le nom de l'association est
+              déjà dans l'en-tête. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            data-drop=""
+            data-testid="hero-embleme"
+            src="/embleme-fond.png"
+            alt=""
+            aria-hidden="true"
+            width={880}
+            height={898}
+            className="mb-6 h-auto w-[clamp(52px,5vw,76px)]"
+            style={{
+              filter: 'drop-shadow(0 10px 24px oklch(0.1 0.018 252 / 0.55))',
+              animation: 'drop 1s .05s both var(--courbe-plan)',
+            }}
+          />
           <p
             data-testid="accroche"
             data-drop=""
@@ -221,48 +249,6 @@ export function Hero({
           </div>
         </div>
 
-        {vedettes.length > 0 && (
-          <div
-            data-drop=""
-            className="flex min-w-0 flex-col items-end gap-4"
-            style={{ animation: 'drop 1.2s 1.1s both var(--courbe-plan)' }}
-          >
-            <div className="flex items-center gap-3.5" style={{ color: 'var(--onDeep)' }}>
-              <span className="text-[10px] uppercase tracking-[0.24em] opacity-80">{t('vues')}</span>
-              <span className="h-px w-[52px]" style={{ background: 'color-mix(in oklab, var(--onDeep) 50%, transparent)' }} />
-            </div>
-            {/* Le rail DÉFILE au lieu de pousser. Le masquer sous `lg` aurait
-                retiré au visiteur mobile l'accès aux autres vedettes ; le faire
-                se replier aurait empilé cinq vignettes sur la moitié du hero.
-                `shrink-0` sur les boutons : sans lui, le conteneur défilant les
-                comprimerait au lieu de les laisser sortir du cadre. */}
-            <div className="flex max-w-full gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {vedettes.map((v, i) => (
-                <button
-                  key={v.slug}
-                  type="button"
-                  aria-label={t('voirVedette', { titre: champ(v.titre_fr, v.titre_en, locale) })}
-                  aria-pressed={i === actif}
-                  onClick={() => setActif(i)}
-                  className="h-[66px] w-[92px] shrink-0 overflow-hidden rounded border p-0 transition"
-                  style={{
-                    borderColor:
-                      i === actif ? 'var(--accent)' : 'color-mix(in oklab, var(--onDeep) 30%, transparent)',
-                  }}
-                >
-                  <img src={v.image} srcSet={srcsetImage(v.image)} sizes="64px" alt="" loading="lazy" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-            <p
-              data-testid="hero-legende"
-              className="mt-1 max-w-[300px] text-right text-xs"
-              style={{ color: 'var(--onDeep)', opacity: legendeVisible ? 0.72 : 0, transition: 'opacity .4s ease' }}
-            >
-              {legendeAffichee}
-            </p>
-          </div>
-        )}
       </div>
 
       <a

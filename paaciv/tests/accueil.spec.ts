@@ -164,12 +164,4 @@ test.describe('hero de l’accueil sur téléphone', () => {
     })
     expect(debordent).toEqual([])
   })
-
-  test('les vedettes restent toutes atteignables, par défilement du rail', async ({ page }) => {
-    await page.goto('/fr')
-    const rail = page.locator('#top [class*="overflow-x-auto"]')
-    await expect(rail).toHaveCount(1)
-    const peutDefiler = await rail.evaluate((e) => e.scrollWidth > e.clientWidth)
-    expect(peutDefiler).toBe(true)
-  })
 })
