@@ -28,6 +28,9 @@
 # worker MapLibre, recopié de node_modules avant dev et build
 /public/maplibre/
 
+# décodeur Draco de three.js, recopié de node_modules avant dev et build
+/public/draco/
+
 # misc
 .DS_Store
 *.pem

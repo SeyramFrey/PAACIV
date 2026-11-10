@@ -64,7 +64,31 @@
     "votreEmail": "Votre adresse e-mail",
     "merciNewsletter": "Merci, vous êtes inscrit.",
     "aucunEvenement": "Aucun événement à venir pour le moment.",
-    "noteSur": "{note} sur 5"
+    "noteSur": "{note} sur 5",
+    "embleme": {
+      "surtitre": "L'emblème",
+      "titre": "Quatre lieux font corps avec l'éléphant",
+      "texte": "La basilique, la mosquée, la Pyramide et la carte du pays ne sont pas posées sur lui : ce sont des éclats de son corps. Chacun ouvre sa fiche.",
+      "navigation": "Les patrimoines de l'emblème",
+      "alt": "L'éléphant de l'emblème de PAACIV, aux couleurs de la Côte d'Ivoire, portant la basilique, la mosquée, la Pyramide et la carte du pays",
+      "credit": "Modèle 3D d'après l'emblème de PAACIV",
+      "basilique": {
+        "titre": "Basilique Notre-Dame de la Paix",
+        "lieu": "Yamoussoukro"
+      },
+      "pyramide": {
+        "titre": "La Pyramide",
+        "lieu": "Abidjan, Plateau"
+      },
+      "carte": {
+        "titre": "La carte du patrimoine",
+        "lieu": "Toute la Côte d'Ivoire"
+      },
+      "mosquee": {
+        "titre": "Mosquées de style soudanais",
+        "lieu": "Nord ivoirien · fiche à venir"
+      }
+    }
   },
   "nav": {
     "carte": "La carte",

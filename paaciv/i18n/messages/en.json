@@ -64,7 +64,31 @@
     "votreEmail": "Your email address",
     "merciNewsletter": "Thank you, you are subscribed.",
     "aucunEvenement": "No upcoming events at the moment.",
-    "noteSur": "{note} out of 5"
+    "noteSur": "{note} out of 5",
+    "embleme": {
+      "surtitre": "The emblem",
+      "titre": "Four places are part of the elephant",
+      "texte": "The basilica, the mosque, the Pyramid and the map of the country are not placed on it: they are fragments of its body. Each one opens its page.",
+      "navigation": "The heritage of the emblem",
+      "alt": "The PAACIV emblem elephant, in the colours of Côte d'Ivoire, bearing the basilica, the mosque, the Pyramid and the map of the country",
+      "credit": "3D model after the PAACIV emblem",
+      "basilique": {
+        "titre": "Basilica of Our Lady of Peace",
+        "lieu": "Yamoussoukro"
+      },
+      "pyramide": {
+        "titre": "La Pyramide",
+        "lieu": "Abidjan, Plateau"
+      },
+      "carte": {
+        "titre": "The heritage map",
+        "lieu": "All of Côte d'Ivoire"
+      },
+      "mosquee": {
+        "titre": "Sudanese-style mosques",
+        "lieu": "Northern Côte d'Ivoire · page coming soon"
+      }
+    }
   },
   "nav": {
     "carte": "The map",

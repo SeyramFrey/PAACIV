@@ -12,6 +12,7 @@ import { partitionnerEvenements } from '@/lib/evenements-dates'
 import { Hero } from '@/components/accueil/Hero'
 import { IntroFilm } from '@/components/accueil/IntroFilm'
 import { CarteFilm } from '@/components/accueil/CarteFilm'
+import { EmblemeElephant } from '@/components/accueil/EmblemeElephant'
 import { BandeauVilles } from '@/components/accueil/BandeauVilles'
 import { Association } from '@/components/accueil/Association'
 import { NotreTravail } from '@/components/accueil/NotreTravail'
@@ -72,6 +73,7 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
         accroche={lib('hero_accroche')}
       />
       <CarteFilm textes={textes} />
+      <EmblemeElephant />
       <BandeauVilles villes={villes} />
       <Association
         textes={textes}
