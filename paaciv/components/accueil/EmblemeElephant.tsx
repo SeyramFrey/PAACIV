@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/navigation'
 import type { Groupe, SceneElephant } from './scene-elephant'
+import { DEBUT, partEclat } from './demontage'
 
 // L'éléphant de l'emblème, en volume : la section qui suit le haut de page
 // (décision du 7 novembre 2026 : le haut garde son film, l'éléphant prend la
@@ -34,6 +35,14 @@ const PIECES: { groupe: Groupe; href: string | null }[] = [
   { groupe: 'mosquee', href: null },
 ]
 const ACTIFS = new Set(PIECES.filter((p) => p.href).map((p) => p.groupe))
+// Ordre de démontage au défilement : celui de la légende, sans la mosquée.
+const ORDRE = PIECES.filter((p) => p.href).map((p) => p.groupe)
+
+// Le démontage épingle la section le temps de trois éclats. Seulement sur
+// grand écran, avec la 3D chargée et sans préférence de mouvement réduit :
+// ailleurs, la section garde sa hauteur normale et l'éléphant reste entier,
+// avec le survol et la légende.
+const REQUETE_DEMONTAGE = '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 
 function appareilCapable() {
   if (document.documentElement.hasAttribute('data-leger')) return false
@@ -55,6 +64,51 @@ export function EmblemeElephant() {
   const api = useRef<SceneElephant | null>(null)
   const [pret, setPret] = useState(false)
   const [actif, setActif] = useState<Groupe | null>(null)
+  const [ecranLarge, setEcranLarge] = useState(false)
+  // Éclats sortis, pour que la légende suive le démontage. Mis à jour
+  // seulement quand un éclat franchit la moitié de sa course, pas à chaque
+  // pixel de défilement.
+  // `null` : le démontage n'a pas commencé, la légende reste entière.
+  const [sortis, setSortis] = useState<number | null>(null)
+  const demontage = pret && ecranLarge
+
+  useEffect(() => {
+    const mq = window.matchMedia(REQUETE_DEMONTAGE)
+    const maj = () => setEcranLarge(mq.matches)
+    maj()
+    mq.addEventListener('change', maj)
+    return () => mq.removeEventListener('change', maj)
+  }, [])
+
+  // Avancement lu sur la position de la section : 0 quand son haut touche le
+  // haut de l'écran, 1 quand son bas touche le bas. Un seul calcul par image.
+  useEffect(() => {
+    const s = section.current
+    if (!demontage || !s) {
+      api.current?.progression(0)
+      return
+    }
+    let demande = 0
+    function lire() {
+      demande = 0
+      const r = s!.getBoundingClientRect()
+      const course = r.height - window.innerHeight
+      const p = course > 0 ? Math.min(1, Math.max(0, -r.top / course)) : 0
+      api.current?.progression(p)
+      setSortis(p < DEBUT ? null : ORDRE.filter((_, i) => partEclat(p, i, ORDRE.length) >= 0.5).length)
+    }
+    function auDefilement() {
+      if (!demande) demande = requestAnimationFrame(lire)
+    }
+    lire()
+    window.addEventListener('scroll', auDefilement, { passive: true })
+    window.addEventListener('resize', auDefilement)
+    return () => {
+      cancelAnimationFrame(demande)
+      window.removeEventListener('scroll', auDefilement)
+      window.removeEventListener('resize', auDefilement)
+    }
+  }, [demontage])
   // Le routeur n'est pas garanti stable d'un rendu à l'autre : en dépendance
   // de l'effet, il détruisait la scène à chaque survol (le survol change un
   // état, donc provoque un rendu). Il est lu au moment du clic.
@@ -80,6 +134,7 @@ export function EmblemeElephant() {
             modele: MODELE,
             decodeur: DECODEUR,
             actifs: ACTIFS,
+            ordre: ORDRE,
             mouvementReduit: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             auSurvol: setActif,
             auClic: (g) => {
@@ -118,10 +173,21 @@ export function EmblemeElephant() {
       id="embleme"
       ref={section}
       aria-labelledby="embleme-titre"
-      className="bande-tole relative overflow-hidden px-[clamp(20px,6vw,96px)] py-[clamp(72px,10vw,140px)]"
+      // `overflow-x: clip` et non `overflow: hidden` : ce dernier ferait de la
+      // section un conteneur de défilement, et l'épinglage (`sticky`) de son
+      // contenu ne fonctionnerait plus.
+      className={`bande-tole relative [overflow-x:clip] ${demontage ? 'h-[280svh]' : ''}`}
       style={{ background: 'var(--deep)', color: 'var(--onDeep)' }}
+      data-demontage={demontage ? '' : undefined}
     >
-      <div className="mx-auto grid max-w-[1400px] grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div
+        className={
+          demontage
+            ? 'sticky top-0 flex h-[100svh] items-center px-[clamp(20px,6vw,96px)] pt-[84px]'
+            : 'px-[clamp(20px,6vw,96px)] py-[clamp(72px,10vw,140px)]'
+        }
+      >
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div className="min-w-0">
           <p
             className="mb-5 text-[11px] font-medium uppercase tracking-[0.3em]"
@@ -162,9 +228,15 @@ export function EmblemeElephant() {
                     </span>
                   </>
                 )
+                // Pendant le démontage, la légende devient le sommaire : une
+                // ligne s'allume quand son éclat sort de l'éléphant.
+                const rang = ORDRE.indexOf(p.groupe)
+                const enAttente = demontage && sortis !== null && (rang < 0 || rang >= sortis)
                 const style = {
                   borderColor: 'color-mix(in oklab, var(--onDeep) 18%, transparent)',
                   color: actif === p.groupe ? 'var(--accent)' : 'inherit',
+                  opacity: enAttente ? 0.42 : undefined,
+                  transition: 'opacity .5s ease, color .2s ease',
                 }
                 return (
                   <li key={p.groupe}>
@@ -197,7 +269,7 @@ export function EmblemeElephant() {
           </nav>
         </div>
 
-        <div className="relative order-first mx-auto -my-[8%] aspect-square w-full max-w-[760px] lg:order-none lg:my-0">
+        <div className={`relative order-first mx-auto -my-[8%] aspect-square w-full max-w-[760px] lg:order-none lg:my-0 ${demontage ? 'lg:w-[min(100%,calc(100svh-140px))]' : ''}`}>
           {/* Image fixe au même cadrage que la caméra 3D : sous la 3D pendant
               le chargement, seule en mode léger ou sans WebGL. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -221,6 +293,7 @@ export function EmblemeElephant() {
           />
           <p className="absolute bottom-0 right-0 m-0 text-[11px] opacity-55">{t('credit')}</p>
         </div>
+      </div>
       </div>
     </section>
   )

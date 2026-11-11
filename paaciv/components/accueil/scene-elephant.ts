@@ -32,13 +32,18 @@ import {
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import { FIN, partEclat } from './demontage'
 
 export type Groupe = 'basilique' | 'mosquee' | 'pyramide' | 'carte'
 
 export type SceneElephant = {
   surligner: (groupe: Groupe | null) => void
+  // Avancement du démontage, de 0 (éléphant entier) à 1 (vue éclatée), lu
+  // sur le défilement de la section.
+  progression: (p: number) => void
   detruire: () => void
 }
+
 
 type Options = {
   hote: HTMLElement
@@ -47,6 +52,8 @@ type Options = {
   // Éclats qui ouvrent une fiche. Un éclat sans fiche ne bouge pas : un
   // patrimoine qui se soulève sans rien ouvrir serait un gadget.
   actifs: ReadonlySet<Groupe>
+  // Ordre de démontage au défilement (les seuls éclats actifs).
+  ordre: readonly Groupe[]
   mouvementReduit: boolean
   auSurvol: (groupe: Groupe | null) => void
   auClic: (groupe: Groupe) => void
@@ -99,7 +106,12 @@ export function monterSceneElephant(o: Options): SceneElephant {
   const pivot = new Group()
   scene.add(pivot)
 
-  const eclats = new Map<Groupe, { noeud: Object3D; z0: number; cible: number }>()
+  // `base` : position d'origine du nœud ; `sortie` : déplacement en vue
+  // éclatée, calculé au chargement à partir de la place de l'éclat sur le corps
+  // (les oreilles s'écartent sur les côtés, le front avance).
+  const eclats = new Map<Groupe, { noeud: Object3D; base: Vector3; sortie: Vector3; penche: number }>()
+  const cible = new Vector3()
+  let avancement = 0
 
   let survol: Groupe | null = null
   let demandeExterne: Groupe | null = null
@@ -135,22 +147,28 @@ export function monterSceneElephant(o: Options): SceneElephant {
     let encore = false
 
     for (const [groupe, e] of eclats) {
+      const part = partEclat(avancement, o.ordre.indexOf(groupe), o.ordre.length)
       const actif = (demandeExterne ?? survol) === groupe
-      e.cible = actif ? e.z0 + AVANCEE : e.z0
-      const z = MathUtils.lerp(e.noeud.position.z, e.cible, k)
-      e.noeud.position.z = Math.abs(z - e.cible) < 1e-4 ? e.cible : z
-      if (e.noeud.position.z !== e.cible) encore = true
+      cible.copy(e.base).addScaledVector(e.sortie, part)
+      if (actif) cible.z += AVANCEE
+      e.noeud.position.lerp(cible, k)
+      if (e.noeud.position.distanceToSquared(cible) < 1e-8) e.noeud.position.copy(cible)
+      else encore = true
+      const angle = e.penche * part
+      e.noeud.rotation.y = MathUtils.lerp(e.noeud.rotation.y, angle, k)
+      if (Math.abs(e.noeud.rotation.y - angle) > 1e-4) encore = true
+      else e.noeud.rotation.y = angle
     }
 
-    if (!o.mouvementReduit) {
-      const kr = 1 - Math.exp(-dt * 4)
-      pivot.rotation.y = MathUtils.lerp(pivot.rotation.y, inclinaisonVisee.x, kr)
-      pivot.rotation.x = MathUtils.lerp(pivot.rotation.x, inclinaisonVisee.y, kr)
-      if (
-        Math.abs(pivot.rotation.y - inclinaisonVisee.x) > 1e-4 ||
-        Math.abs(pivot.rotation.x - inclinaisonVisee.y) > 1e-4
-      ) encore = true
-    }
+    // En se démontant, l'éléphant tourne un peu de trois quarts : une vue
+    // éclatée de face ne montrerait pas l'épaisseur des éclats.
+    const lacet = 0.3 * MathUtils.clamp(avancement / FIN, 0, 1)
+    const viseY = lacet + (o.mouvementReduit ? 0 : inclinaisonVisee.x)
+    const viseX = o.mouvementReduit ? 0 : inclinaisonVisee.y
+    const kr = o.mouvementReduit ? 1 : 1 - Math.exp(-dt * 4)
+    pivot.rotation.y = MathUtils.lerp(pivot.rotation.y, viseY, kr)
+    pivot.rotation.x = MathUtils.lerp(pivot.rotation.x, viseX, kr)
+    if (Math.abs(pivot.rotation.y - viseY) > 1e-4 || Math.abs(pivot.rotation.x - viseX) > 1e-4) encore = true
 
     renderer.render(scene, camera)
     if (encore) demander()
@@ -246,10 +264,16 @@ export function monterSceneElephant(o: Options): SceneElephant {
       const boite = new Box3().setFromObject(racine)
       const centre = boite.getCenter(new Vector3())
       racine.position.x -= centre.x
+      racine.updateMatrixWorld(true)
       racine.traverse((n) => {
         if (n.userData?.cliquable && n.userData.groupe) {
           const g = n.userData.groupe as Groupe
-          eclats.set(g, { noeud: n, z0: n.position.z, cible: n.position.z })
+          const c = new Box3().setFromObject(n).getCenter(new Vector3())
+          // Les oreilles (|x| > 0,3 m) partent sur le côté ; le front avance
+          // davantage, la carte monte, la Pyramide descend un peu.
+          const cote = Math.abs(c.x) > 0.3 ? Math.sign(c.x) : 0
+          const sortie = new Vector3(cote * 0.2, (c.y - 0.1) * 0.35, cote ? 0.26 : 0.36)
+          eclats.set(g, { noeud: n, base: n.position.clone(), sortie, penche: cote * 0.22 })
         }
       })
       pivot.add(racine)
@@ -266,6 +290,12 @@ export function monterSceneElephant(o: Options): SceneElephant {
   return {
     surligner(groupe) {
       demandeExterne = groupe && o.actifs.has(groupe) ? groupe : null
+      demander()
+    },
+    progression(p) {
+      const v = MathUtils.clamp(p, 0, 1)
+      if (Math.abs(v - avancement) < 1e-4) return
+      avancement = v
       demander()
     },
     detruire() {
