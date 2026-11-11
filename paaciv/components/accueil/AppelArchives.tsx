@@ -23,7 +23,7 @@ import { srcsetImage } from '@/lib/media'
 // pas laisser ce bloc sans fond. Résolu côté serveur par `page.tsx`, qui
 // seul peut lire la table.
 export const SECOURS_PARALLAXE =
-  'https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20notre%20Dame%20de%20la%20Paix%20de%20Yamoussoukro%2020.jpg?width=1800'
+  'https://commons.wikimedia.org/wiki/Special:FilePath/C%C3%B4te_d%27Ivoire._52%2C_Une_mosqu%C3%A9e_%28Kong%29_-_%28mission%29_Binger_%3B_%28photogr.%29_Monnier_%3B_%28photogr._reprod._par%29_Molteni_%28pour_la_conf%C3%A9rence_donn%C3%A9e_par%29_Monnier_-_btv1b53231423q.jpg?width=1800'
 
 export function AppelArchives({
   texte,

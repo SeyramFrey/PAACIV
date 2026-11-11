@@ -109,10 +109,10 @@ function Carte({
 // `Association.tsx`, qui seul peut lire la table.
 export const SECOURS_CARTES = {
   enDanger:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/L'hopital%20colonial%20europeen%20(construit%20en%201905%2C%20il%20a%20ete%20le%201er%20hopital%20moderne%20en%20CI).jpg?width=900",
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Historic_town_of_Grand-Bassam_24092023_039.jpg?width=900",
   adhesion:
-    "https://commons.wikimedia.org/wiki/Special:FilePath/WikiConvFr23%20en%20Cote%20d'Ivoire%20visite%20B%C3%A2timents%20sites%20historiques%20de%20Grand-Bassam%2002.jpg?width=900",
-  don: 'https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=900',
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Historic_town_of_Grand-Bassam_24092023_034.jpg?width=900",
+  don: 'https://commons.wikimedia.org/wiki/Special:FilePath/Basilique_notre_Dame_de_la_Paix_de_Yamoussoukro_16.jpg?width=900',
 } as const
 
 export function CartesSoutien({

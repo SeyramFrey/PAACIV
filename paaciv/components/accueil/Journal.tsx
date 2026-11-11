@@ -22,7 +22,7 @@ function dateLocalisee(iso: string, locale: string): string {
 // pas laisser ce bloc sans fond. Résolu côté serveur par `page.tsx`, qui
 // seul peut lire la table.
 export const SECOURS_JOURNAL =
-  'https://commons.wikimedia.org/wiki/Special:FilePath/Cathedrale%20St%20Paul%20Abidjan%201.jpg?width=1800'
+  'https://commons.wikimedia.org/wiki/Special:FilePath/La_cath%C3%A9drale_Saint-Paul_Abidjan_03.jpg?width=1800'
 
 export function Journal({
   articles,

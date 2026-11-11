@@ -12,27 +12,27 @@ import { srcsetImage } from '@/lib/media'
 // les images fixes de NotreTravail.tsx et CartesSoutien.tsx.
 const PHOTOS = [
   {
-    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Maison%20des%20artistes%20plasticiens%20de%20Grand-Bassam.jpg?width=700",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Historic_town_of_Grand-Bassam_24092023_043.jpg?width=700",
     par: '0.12',
     style: { top: '6%', left: '6%', width: '38%' },
   },
   {
-    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Le%20Puits%20de%20la%20Mosqu%C3%A9e%20Dieng%201.jpg?width=700",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Mosqu%C3%A9e_Samory_Tour%C3%A9.JPG?width=700",
     par: '-0.16',
     style: { top: '32%', left: '38%', width: '26%' },
   },
   {
-    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Cath%C3%A9drale%20Saint-Paul%203.jpg?width=700",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Historic_town_of_Grand-Bassam_24092023_049.jpg?width=700",
     par: '0.2',
     style: { top: '8%', right: '2%', width: '30%' },
   },
   {
-    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20notre%20Dame%20de%20la%20Paix%20de%20Yamoussoukro%204.jpg?width=700",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Cath%C3%A9drale_Saint-Paul_d%27Abidjan_en_vue_panoramique.jpg?width=700",
     par: '-0.1',
     style: { bottom: '4%', left: '16%', width: '30%' },
   },
   {
-    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Maison%20du%20Resident%20(c'etait%20le%20logement%20du%20directeur%20de%20l'ecole%20regionale%20a%20l'epoque%20coloniale).jpg?width=700",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Historic_town_of_Grand-Bassam_24092023_036.jpg?width=700",
     par: '0.08',
     style: { bottom: '10%', right: '8%', width: '22%' },
   },
@@ -79,7 +79,9 @@ export async function CinqRaisons({
       />
 
       <div className="relative mx-auto max-w-[1440px]">
-        <div className="mx-auto mb-[clamp(40px,6vw,80px)] max-w-[820px] text-center">
+        {/* `relative z-10` : les losanges glissent au défilement (parallaxe
+            `data-par`) et remontaient par-dessus le titre. */}
+        <div className="relative z-10 mx-auto mb-[clamp(40px,6vw,80px)] max-w-[820px] text-center">
           <p
             data-rv=""
             className="m-0 mb-4 text-[11px] font-medium uppercase leading-none tracking-[0.3em]"
