@@ -3,7 +3,8 @@ import { imageUrl } from '@/lib/media'
 import { champ } from '@/lib/i18n-champ'
 import type { ImageRow } from '@/lib/data/patrimoine'
 import { BoutonSupprimer } from '@/components/admin/BoutonSupprimer'
-import { ajouterImage, supprimerImage, definirPrincipale } from '@/app/[locale]/admin/patrimoine/actions'
+import { supprimerImage, definirPrincipale } from '@/app/[locale]/admin/patrimoine/actions'
+import { FormulaireAjoutImages } from '@/components/admin/FormulaireAjoutImages'
 
 export async function GestionImages({
   patrimoineId,
@@ -21,24 +22,7 @@ export async function GestionImages({
     <section className="space-y-4">
       <h2 className="font-serif text-2xl text-ocre">{t('titre')}</h2>
 
-      <form action={ajouterImage} className="flex flex-wrap items-end gap-3 rounded-2xl bg-fond2/50 p-4">
-        <input type="hidden" name="patrimoine_id" value={patrimoineId} />
-        <label className="flex flex-col text-sm">
-          <span className="mb-1 font-semibold">{t('ajouter')}</span>
-          <input name="fichiers" aria-label={t('ajouter')} type="file" accept="image/*" multiple />
-        </label>
-        <label className="flex flex-col text-sm">
-          <span className="mb-1 font-semibold">{t('legende')}</span>
-          <input name="legende_fr" className="rounded border border-filet px-2 py-1" />
-        </label>
-        <label className="flex flex-col text-sm">
-          <span className="mb-1 font-semibold">{t('credit')}</span>
-          <input name="credit" className="rounded border border-filet px-2 py-1" />
-        </label>
-        <button type="submit" className="rounded-full bg-or px-4 py-2 text-sm font-semibold text-encre">
-          {t('ajouter')}
-        </button>
-      </form>
+      <FormulaireAjoutImages patrimoineId={patrimoineId} />
 
       {triees.length === 0 ? (
         <p className="text-doux">{t('aucune')}</p>

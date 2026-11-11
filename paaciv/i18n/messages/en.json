@@ -465,7 +465,11 @@
     "definirPrincipale": "Set as main",
     "supprimer": "Delete",
     "aucune": "No images.",
-    "confirmerSuppression": "Delete this image?"
+    "confirmerSuppression": "Delete this image?",
+    "envoiEnCours": "Uploading…",
+    "ajoutees": "{n, plural, =0 {No image added.} one {# image added.} other {# images added.}}",
+    "erreurIllisible": "“{fichier}” could not be read: it is not an image, or its format is not supported. {n, plural, =0 {} one {# image was added before it.} other {# images were added before it.}}",
+    "erreurEnvoi": "The upload failed. Check the connection and try again."
   },
   "formArchitecte": {
     "nom": "Name",

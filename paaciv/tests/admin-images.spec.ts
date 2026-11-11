@@ -66,6 +66,44 @@ test('une photo de 4 Mo est acceptée, et seule sa version réduite est servie',
   expect((await reponse.body()).length).toBeLessThan(photo.length / 10)
 })
 
+// Bug du 11 novembre 2026 : une photo HEIC (iPhone, Samsung « haute
+// efficacité ») faisait tomber la page de l'admin.
+test('une photo HEIC de téléphone est acceptée et servie en WebP', async ({ page }) => {
+  await page.goto('/fr/admin/patrimoine')
+  await page
+    .getByRole('row', { name: /Basilique Notre-Dame de la Paix/ })
+    .getByRole('link', { name: 'Éditer' })
+    .click()
+  await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
+  const avant = await page.getByTestId('vignette-image').count()
+
+  await page.getByLabel('Ajouter des images').setInputFiles(path.join(__dirname, 'fixtures', 'exemple.heic'))
+  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+
+  await expect(page.getByRole('status')).toHaveText('1 image ajoutée.')
+  await expect(async () => {
+    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+  }).toPass()
+  const src = await page.getByTestId('vignette-image').last().locator('img').getAttribute('src')
+  const reponse = await page.request.get(src!)
+  expect(reponse.headers()['content-type']).toBe('image/webp')
+})
+
+test('un fichier illisible est signalé, sans faire tomber la page', async ({ page }) => {
+  await page.goto('/fr/admin/patrimoine')
+  await page
+    .getByRole('row', { name: /Basilique Notre-Dame de la Paix/ })
+    .getByRole('link', { name: 'Éditer' })
+    .click()
+  await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
+
+  await page.getByLabel('Ajouter des images').setInputFiles({ name: 'pas-une-photo.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('ceci n’est pas une image') })
+  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+
+  await expect(page.getByRole('status')).toContainText('« pas-une-photo.jpg » n\'a pas pu être lu')
+  await expect(page.getByRole('heading', { name: 'Images' })).toBeVisible()
+})
+
 // Nettoyage : les tests ci-dessus téléversent de vrais fichiers dans le bucket
 // Storage et insèrent de vraies lignes `images`. On restaure l'état initial de
 // la Basilique (son unique image seed, une URL http externe) en supprimant

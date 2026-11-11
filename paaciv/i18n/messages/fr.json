@@ -465,7 +465,11 @@
     "definirPrincipale": "Définir comme principale",
     "supprimer": "Supprimer",
     "aucune": "Aucune image.",
-    "confirmerSuppression": "Supprimer cette image ?"
+    "confirmerSuppression": "Supprimer cette image ?",
+    "envoiEnCours": "Envoi en cours…",
+    "ajoutees": "{n, plural, =0 {Aucune image ajoutée.} one {# image ajoutée.} other {# images ajoutées.}}",
+    "erreurIllisible": "« {fichier} » n'a pas pu être lu : ce n'est pas une image, ou son format n'est pas pris en charge. {n, plural, =0 {} one {# image a été ajoutée avant elle.} other {# images ont été ajoutées avant elle.}}",
+    "erreurEnvoi": "L'envoi a échoué. Vérifiez la connexion, puis réessayez."
   },
   "formArchitecte": {
     "nom": "Nom",

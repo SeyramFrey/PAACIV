@@ -149,7 +149,15 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
   return { ok: true, id: resultId }
 }
 
-export async function ajouterImage(formData: FormData): Promise<void> {
+// Un fichier que le serveur ne sait pas lire est une erreur *attendue* : on
+// choisit vite une photo sur un téléphone. Elle revient donc en valeur, avec
+// le nom du fichier, au lieu de faire tomber la page (même raisonnement que
+// `ResultatPatrimoine` plus haut).
+export type ResultatImages =
+  | { ok: true; ajoutees: number }
+  | { ok: false; erreur: 'imageIllisible'; fichier: string; ajoutees: number }
+
+export async function ajouterImage(formData: FormData): Promise<ResultatImages> {
   const sb = await createServerClient()
   const patrimoineId = formData.get('patrimoine_id')!.toString()
   const credit = texteOuNull(formData.get('credit'))
@@ -162,11 +170,17 @@ export async function ajouterImage(formData: FormData): Promise<void> {
     .select('id', { count: 'exact', head: true })
     .eq('patrimoine_id', patrimoineId)
   let ordre = count ?? 0
+  let ajoutees = 0
 
   for (const fichier of fichiers) {
     const ext = fichier.name.split('.').pop() ?? 'jpg'
     const chemin = `${patrimoineId}/${ordre}-${Date.now()}.${ext}`
-    const { error: upErr } = await televerserImage(sb, chemin, fichier)
+    const { error: upErr, illisible } = await televerserImage(sb, chemin, fichier)
+    if (illisible) {
+      // Les photos précédentes de la sélection sont gardées : on le dit.
+      revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
+      return { ok: false, erreur: 'imageIllisible', fichier: fichier.name, ajoutees }
+    }
     if (upErr) throw upErr
     const { error } = await sb.from('images').insert({
       patrimoine_id: patrimoineId,
@@ -178,8 +192,10 @@ export async function ajouterImage(formData: FormData): Promise<void> {
     })
     if (error) throw error
     ordre += 1
+    ajoutees += 1
   }
   revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
+  return { ok: true, ajoutees }
 }
 
 export async function supprimerImage(id: string): Promise<void> {

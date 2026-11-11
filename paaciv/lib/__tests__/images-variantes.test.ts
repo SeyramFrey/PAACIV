@@ -2,7 +2,9 @@
 import { describe, expect, it } from 'vitest'
 import sharp from 'sharp'
 import { cheminsStockes, imageUrl, srcsetImage } from '@/lib/media'
-import { variantesImage } from '@/lib/images/televerser'
+import { normaliserImage, variantesImage } from '@/lib/images/televerser'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 describe('srcsetImage', () => {
   it('liste les trois versions d’une image du bucket', () => {
@@ -55,6 +57,31 @@ describe('variantesImage', () => {
     expect([meta.width, meta.height]).toEqual([480, 960])
     expect(meta.exif).toBeUndefined()
     expect(meta.orientation).toBeUndefined()
+  })
+
+  // Les iPhone et beaucoup d'Android (Samsung en « photos haute efficacité »)
+  // enregistrent en HEIC. Le sharp précompilé ne lit pas le HEVC : sans
+  // décodeur à part, l'envoi depuis un téléphone échouait (bug du 11/11/2026).
+  it('lit une photo HEIC de téléphone', async () => {
+    const heic = readFileSync(path.join(__dirname, '..', '..', 'tests', 'fixtures', 'exemple.heic'))
+    const variantes = await variantesImage(heic)
+    const meta = await sharp(variantes[0].contenu).metadata()
+    expect([meta.format, meta.width, meta.height]).toEqual(['webp', 480, 360])
+  })
+
+  it('normaliserImage : un HEIC devient un JPEG lisible par tous les navigateurs', async () => {
+    const heic = readFileSync(path.join(__dirname, '..', '..', 'tests', 'fixtures', 'exemple.heic'))
+    const { contenu, type } = await normaliserImage(heic, 'image/heic')
+    expect(type).toBe('image/jpeg')
+    const meta = await sharp(contenu).metadata()
+    expect([meta.format, meta.width, meta.height]).toEqual(['jpeg', 1200, 900])
+  })
+
+  it('normaliserImage : un JPEG passe tel quel', async () => {
+    const jpeg = await sharp({ create: { width: 10, height: 10, channels: 3, background: '#000' } }).jpeg().toBuffer()
+    const { contenu, type } = await normaliserImage(jpeg, 'image/jpeg')
+    expect(type).toBe('image/jpeg')
+    expect(contenu).toBe(jpeg)
   })
 
   it('refuse un fichier qui n’est pas une image', async () => {

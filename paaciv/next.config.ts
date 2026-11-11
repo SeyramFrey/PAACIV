@@ -4,6 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Décodeur HEIC des photos de téléphone (lib/images/televerser.ts) : un
+  // module WebAssembly de plusieurs Mo, laissé dans node_modules et chargé tel
+  // quel par Node plutôt que recopié dans le bundle serveur.
+  serverExternalPackages: ["heic-decode", "libheif-js"],
   experimental: {
     // Sur l'hébergement Hostinger, les processus enfants que Turbopack lance
     // pour PostCSS n'arrivent pas à ouvrir leur socket : le build échoue
