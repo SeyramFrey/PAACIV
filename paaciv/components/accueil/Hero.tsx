@@ -252,7 +252,7 @@ export function Hero({
       </div>
 
       <a
-        href="#association"
+        href="#embleme"
         className="absolute bottom-6 left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-2"
         style={{ color: 'var(--onDeep)' }}
       >

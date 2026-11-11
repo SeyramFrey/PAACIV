@@ -5,7 +5,11 @@ import { Link } from '@/i18n/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { Compteurs } from '@/components/accueil/Compteurs'
 import { chargerTextes, texte, libelleOuNull } from '@/lib/data/contenu-site'
-import { chiffresCles, listePointsCles, listeActivites, statistiquesTerritoire } from '@/lib/data/accueil'
+import { chiffresCles, listePointsCles, listeActivites, listeTemoignages, statistiquesTerritoire } from '@/lib/data/accueil'
+import { chargerMedias } from '@/lib/data/medias'
+import { CinqRaisons } from '@/components/accueil/CinqRaisons'
+import { Temoignages } from '@/components/accueil/Temoignages'
+import { Association } from '@/components/accueil/Association'
 import { champ } from '@/lib/i18n-champ'
 
 // Lit Supabase sans segment dynamique : sans ce drapeau, Next prérendrait la
@@ -34,11 +38,14 @@ export default async function APropos({ params }: Props) {
   const t = await getTranslations('accueil')
   const tNav = await getTranslations('nav')
 
-  const [textes, chiffres, pourquoi, activites, stats] = await Promise.all([
+  const [textes, medias, chiffres, pourquoi, raisons, activites, temoignages, stats] = await Promise.all([
     chargerTextes(),
+    chargerMedias(),
     chiffresCles(),
     listePointsCles('pourquoi'),
+    listePointsCles('raisons'),
     listeActivites(),
+    listeTemoignages(),
     statistiquesTerritoire(),
   ])
 
@@ -133,6 +140,10 @@ export default async function APropos({ params }: Props) {
         </section>
       )}
 
+      {/* Venus de la page d'accueil le 12 novembre 2026 : l'accueil devient
+          une visite des lieux, et c'est ici qu'on présente l'association. */}
+      <CinqRaisons points={raisons} textes={textes} medias={medias} />
+
       {activites.length > 0 && (
         <section className="px-[clamp(20px,5vw,80px)] py-[clamp(40px,6vw,80px)]" style={{ background: 'var(--bg2)' }}>
           <Container className="max-w-[900px]">
@@ -160,6 +171,22 @@ export default async function APropos({ params }: Props) {
           </Container>
         </section>
       )}
+
+      <Temoignages
+        temoignages={temoignages}
+        surtitre={tx('temoignages_surtitre')}
+        titre={tx('temoignages_titre')}
+      />
+
+      {/* Adhérer, donner, les lieux en danger : les cartes de soutien, sans
+          l'en-tête du bloc d'accueil, déjà dit en haut de cette page. */}
+      <Association
+        textes={textes}
+        medias={medias}
+        chiffres={chiffres}
+        montant={tx('soutien_adhesion_montant')}
+        entete={false}
+      />
 
       <section className="px-[clamp(20px,5vw,80px)] py-[clamp(48px,7vw,96px)]">
         <Container className="max-w-[900px] text-center">

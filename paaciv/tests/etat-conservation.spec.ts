@@ -110,8 +110,9 @@ test('la barre de filtres reflète l’état porté par l’URL', async ({ page 
 // de son scénario, sur une suite à deux workers. L'invariant testé est la
 // DESTINATION — les cartes menaient auparavant vers `/articles`, qui n'a jamais
 // rien eu à voir avec l'état du bâti.
-test('les cartes d’état de l’accueil mènent vers l’archive filtrée', async ({ page }) => {
-  await page.goto('/fr')
+// Les cartes de soutien ont quitté l'accueil pour « À propos » le 12/11/2026.
+test('les cartes d’état de « À propos » mènent vers l’archive filtrée', async ({ page }) => {
+  await page.goto('/fr/a-propos')
   const liens = await page
     .locator('#association a[href*="/archives"]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('href')))

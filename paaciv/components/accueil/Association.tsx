@@ -11,11 +11,15 @@ export async function Association({
   medias,
   chiffres,
   montant,
+  entete = true,
 }: {
   textes: Textes
   medias: Medias
   chiffres: Chiffres
   montant: string
+  // Sans en-tête : sur « À propos », qui présente déjà l'association et ses
+  // chiffres juste au-dessus, seules les cartes de soutien restent.
+  entete?: boolean
 }) {
   const locale = await getLocale()
   // Décidé côté SERVEUR, comme les gardes `renseigne()` ci-dessous : les deux
@@ -46,9 +50,10 @@ export async function Association({
   return (
     <section
       id="association"
-      className="pt-[clamp(90px,10vw,160px)] pr-[clamp(20px,5vw,80px)] pb-[clamp(50px,6vw,90px)] pl-[clamp(20px,5vw,80px)]"
+      className={`${entete ? 'pt-[clamp(90px,10vw,160px)]' : 'pt-[clamp(40px,6vw,80px)]'} pr-[clamp(20px,5vw,80px)] pb-[clamp(50px,6vw,90px)] pl-[clamp(20px,5vw,80px)]`}
     >
       <div className="mx-auto max-w-[1440px]">
+        {entete && (
         <div className="mx-auto max-w-[860px] text-center">
           <p
             data-rv=""
@@ -85,6 +90,7 @@ export async function Association({
             />
           </div>
         </div>
+        )}
 
         <CartesSoutien
           montant={montantSur}

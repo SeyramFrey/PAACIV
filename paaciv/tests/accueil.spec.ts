@@ -16,7 +16,9 @@ test('la page affiche ses blocs dans l’ordre du design', async ({ page }) => {
   // avant « agenda »). Compare les positions verticales, pas seulement la
   // présence des ancres : la seule présence des six `id` sur la page ne
   // dirait rien de leur ordre, la propriété que seul l'assemblage révèle.
-  const ordre = ['top', 'association', 'agenda', 'archive', 'journal', 'contact']
+  // Depuis le 12 novembre 2026, le bloc « association » est sur « À propos » :
+  // l'éléphant de l'emblème (#embleme) suit le haut de page.
+  const ordre = ['top', 'embleme', 'agenda', 'archive', 'journal', 'contact']
   const positions: number[] = []
   for (const id of ordre) {
     const ancre = page.locator(`#${id}`)
