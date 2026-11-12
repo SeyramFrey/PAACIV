@@ -52,13 +52,14 @@ page (CLS 0) et avec une interaction rapide (INP 16 ms).
 
 | Avant | Après correction |
 |---|---|
-| 6 Mo environ | 1,5 Mo environ |
+| 6 Mo environ | 2,4 Mo, dont 1,1 Mo pour la vidéo du haut de page |
 
 Deux causes, corrigées le jour même :
 
 - **La galerie du film d'intro** (2,9 Mo) se téléchargeait en entier dès
   l'apparition du bouton « Commencer l'expérience », même sans clic. Elle ne
-  lit plus que ses métadonnées (68 Ko) avant le clic, puis se lit pendant son
+  lit plus que son début avant le clic (68 Ko en local, environ 500 Ko sur le
+  staging, où Chrome met davantage en mémoire tampon), puis se lit pendant son
   téléchargement.
 - **L'éléphant 3D** (1,2 Mo) partait dès l'arrivée sur la page, sa section
   étant juste sous le premier écran. Il ne se charge plus de lui-même que sur
