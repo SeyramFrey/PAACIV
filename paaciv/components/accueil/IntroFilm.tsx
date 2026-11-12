@@ -85,8 +85,12 @@ export function IntroFilm() {
     }
   }, [sans])
 
-  // La galerie pèse 2,9 Mo : elle ne se charge qu'à l'apparition du bouton
-  // qui la lance. Qui passe l'intro ne la paie pas sur ses données.
+  // La galerie pèse 2,9 Mo. Sa source n'est posée qu'à l'apparition du bouton
+  // qui la lance, et seulement ses métadonnées sont lues alors (`preload`
+  // plus bas) : mesuré le 12/11/2026, un `preload="auto"` la téléchargeait en
+  // entier pour tout visiteur qui voyait le bouton, même sans cliquer. Le
+  // fichier est « faststart » (atome `moov` en tête) : au clic, la lecture
+  // démarre pendant le téléchargement.
   useEffect(() => {
     const g = galerie.current
     if (etape === 'attente' && g && g.getAttribute('src') !== SOURCE_GALERIE) g.src = SOURCE_GALERIE
@@ -126,7 +130,7 @@ export function IntroFilm() {
         ref={galerie}
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-contain"
         style={{ opacity: surGalerie ? 1 : 0 }}

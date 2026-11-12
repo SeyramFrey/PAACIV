@@ -223,6 +223,9 @@ ce qui est sur `main`. Supprimer l'archive après coup : elle contient le
    `/maplibre/maplibre-gl-worker.mjs` répondre 200 avec un type JavaScript
    (voir « Le worker de la carte »).
 4. `hosting_listNode_jsVulnerabilitiesV1` pour l'état des failles npm.
+5. Les budgets de poids : `node scripts/mesure-poids.mjs --budgets https://staging.paaciv.com`,
+   depuis `paaciv/`. Le script sort en erreur si une page dépasse son plafond
+   (`scripts/budgets-poids.json`). Voir `docs/performance.md`.
 
 ### Pièges rencontrés
 

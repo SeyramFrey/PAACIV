@@ -1,0 +1,9 @@
+{
+  "_lisez-moi": "Poids maximal chargé d'emblée par page, en Ko gzip, vérifié par `node scripts/mesure-poids.mjs --budgets <origine>`. Ce sont des CLIQUETS : les valeurs mesurées le 12/11/2026, plus une petite marge, pour qu'aucune page n'empire. La cible reste 170 Ko de JS par page (exploration immersive, § 4) ; chaque gain fait baisser le cliquet.",
+  "/fr": { "html": 45, "js": 285, "css": 20 },
+  "/fr/a-propos": { "html": 30, "js": 270, "css": 20 },
+  "/fr/archives": { "html": 30, "js": 270, "css": 20 },
+  "/fr/architectes": { "html": 30, "js": 270, "css": 20 },
+  "/fr/carte": { "html": 25, "js": 515, "css": 30 },
+  "/fr/patrimoine/la-pyramide-abidjan": { "html": 25, "js": 515, "css": 30 }
+}

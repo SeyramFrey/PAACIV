@@ -44,6 +44,13 @@ const ORDRE = PIECES.filter((p) => p.href).map((p) => p.groupe)
 // avec le survol et la légende.
 const REQUETE_DEMONTAGE = '(min-width: 1024px) and (prefers-reduced-motion: no-preference)'
 
+// La 3D (1,2 Mo) ne se charge d'elle-même que sur un grand écran à souris. Sur
+// un téléphone, mesuré le 12/11/2026 en 4G lente, elle partait dès l'arrivée
+// sur la page (la section commence juste sous le premier écran), sans rien
+// apporter que l'image et la légende ne donnent déjà : pas de démontage, pas
+// de survol. Le visiteur peut la demander d'un bouton.
+const REQUETE_AUTO_3D = '(min-width: 1024px) and (pointer: fine)'
+
 function appareilCapable() {
   if (document.documentElement.hasAttribute('data-leger')) return false
   const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
@@ -71,6 +78,14 @@ export function EmblemeElephant() {
   // `null` : le démontage n'a pas commencé, la légende reste entière.
   const [sortis, setSortis] = useState<number | null>(null)
   const demontage = pret && ecranLarge
+  // `null` tant que le client n'a pas décidé (rendu serveur), puis : charger
+  // seul, proposer le bouton, ou rien (appareil incapable, mode léger).
+  const [chargement, setChargement] = useState<'auto' | 'bouton' | 'demande' | 'aucun' | null>(null)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- décision prise côté client seulement
+    setChargement(!appareilCapable() ? 'aucun' : window.matchMedia(REQUETE_AUTO_3D).matches ? 'auto' : 'bouton')
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia(REQUETE_DEMONTAGE)
@@ -120,7 +135,7 @@ export function EmblemeElephant() {
   useEffect(() => {
     const s = section.current
     const hote = scene.current
-    if (!s || !hote || !appareilCapable()) return
+    if (!s || !hote || (chargement !== 'auto' && chargement !== 'demande')) return
     let annule = false
     const obs = new IntersectionObserver(
       async ([e]) => {
@@ -152,7 +167,7 @@ export function EmblemeElephant() {
         }
       },
       // Commence le chargement un peu avant l'arrivée de la section.
-      { rootMargin: '400px 0px' },
+      { rootMargin: '200px 0px' },
     )
     obs.observe(s)
     return () => {
@@ -161,7 +176,7 @@ export function EmblemeElephant() {
       api.current?.detruire()
       api.current = null
     }
-  }, [])
+  }, [chargement])
 
   function surligner(g: Groupe | null) {
     setActif(g)
@@ -292,6 +307,25 @@ export function EmblemeElephant() {
             style={{ opacity: pret ? 1 : 0, transition: 'opacity .6s ease' }}
           />
           <p className="absolute bottom-0 right-0 m-0 text-[11px] opacity-55">{t('credit')}</p>
+          {chargement === 'bouton' && (
+            <button
+              type="button"
+              onClick={() => setChargement('demande')}
+              data-testid="embleme-voir-3d"
+              className="absolute bottom-[12%] left-1/2 -translate-x-1/2 rounded-full border px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.14em]"
+              style={{
+                borderColor: 'color-mix(in oklab, var(--onDeep) 45%, transparent)',
+                background: 'color-mix(in oklab, var(--deep) 70%, transparent)',
+              }}
+            >
+              {t('voir3d')}
+            </button>
+          )}
+          {chargement === 'demande' && !pret && (
+            <p role="status" className="absolute bottom-[12%] left-1/2 m-0 -translate-x-1/2 text-[12px] opacity-75">
+              {t('chargement3d')}
+            </p>
+          )}
         </div>
       </div>
       </div>
