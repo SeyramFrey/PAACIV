@@ -57,6 +57,9 @@ type Options = {
   mouvementReduit: boolean
   auSurvol: (groupe: Groupe | null) => void
   auClic: (groupe: Groupe) => void
+  // Premier geste du visiteur sur la scène (glisser pour tourner) : la
+  // section retire alors son indication « Faites-le tourner ».
+  auGeste?: () => void
   pret: () => void
   echec: () => void
 }
@@ -69,8 +72,20 @@ const AVANCEE = 0.035
 const CHAMP = 39.6
 const POSITION_CAMERA = new Vector3(0.55, 0.25, 2.9)
 const CIBLE = new Vector3(0, 0.05, 0)
-// Inclinaison maximale qui suit le pointeur, en radians.
-const INCLINAISON = 0.12
+// Inclinaison maximale qui suit le pointeur, en radians. Doublée le 12/11/2026 :
+// à 0,12, on ne voyait pas que l'éléphant était en volume.
+const INCLINAISON = 0.24
+// Balancement au repos : amplitude (radians) et période (secondes). C'est lui
+// qui montre le relief quand personne ne touche à rien.
+const BALANCEMENT = 0.2
+const PERIODE = 9
+// Entrée : depuis la vue de face de l'image fixe (pas de saut au fondu),
+// l'éléphant tourne la tête d'un côté puis revient vers le visiteur.
+const ENTREE_ANGLE = 0.6
+const ENTREE_DUREE = 2.4
+// Rotation au glisser : radians par largeur de scène, et butée.
+const GLISSER_GAIN = 3
+const GLISSER_MAX = 1.1
 
 export function monterSceneElephant(o: Options): SceneElephant {
   const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' })
@@ -122,6 +137,13 @@ export function monterSceneElephant(o: Options): SceneElephant {
   let enVue = true
   let boucle = 0
   let detruit = false
+  // Temps écoulé depuis l'apparition du modèle, et état du glisser.
+  let temps = 0
+  let charge = false
+  let lacetVisiteur = 0
+  let glisse: { x: number; depart: number; bouge: boolean } | null = null
+  let pointeurDedans = false
+  let repos = 1
 
   function dimensionner() {
     const { clientWidth: l, clientHeight: h } = o.hote
@@ -162,10 +184,28 @@ export function monterSceneElephant(o: Options): SceneElephant {
 
     // En se démontant, l'éléphant tourne un peu de trois quarts : une vue
     // éclatée de face ne montrerait pas l'épaisseur des éclats.
-    const lacet = 0.3 * MathUtils.clamp(avancement / FIN, 0, 1)
-    const viseY = lacet + (o.mouvementReduit ? 0 : inclinaisonVisee.x)
+    const demonte = MathUtils.clamp(avancement / FIN, 0, 1)
+    const lacet = 0.3 * demonte
+    let anime = 0
+    if (!o.mouvementReduit && charge) {
+      temps += dt
+      // Entrée : aller-retour de 0 à ENTREE_ANGLE, doux aux deux bouts.
+      const e = Math.min(1, temps / ENTREE_DUREE)
+      anime += ENTREE_ANGLE * Math.pow(Math.sin(Math.PI * e), 2)
+      // Balancement : s'efface quand le pointeur prend la main, quand le
+      // visiteur fait tourner l'éléphant, et pendant le démontage.
+      const viseRepos = pointeurDedans || glisse ? 0 : 1
+      repos = MathUtils.lerp(repos, viseRepos, 1 - Math.exp(-dt * 2))
+      // Le balancement prend le relais après l'entrée, sans à-coup.
+      const apres = Math.max(0, temps - ENTREE_DUREE)
+      anime += BALANCEMENT * repos * (1 - demonte) * Math.min(1, apres / 2) * Math.sin((apres / PERIODE) * Math.PI * 2)
+      // Hors glisser, la rotation du visiteur revient doucement à zéro.
+      if (!glisse) lacetVisiteur = MathUtils.lerp(lacetVisiteur, 0, 1 - Math.exp(-dt * 0.8))
+      if (e < 1 || repos > 0.001 || Math.abs(lacetVisiteur) > 1e-3) encore = true
+    }
+    const viseY = lacet + anime + lacetVisiteur + (o.mouvementReduit ? 0 : inclinaisonVisee.x)
     const viseX = o.mouvementReduit ? 0 : inclinaisonVisee.y
-    const kr = o.mouvementReduit ? 1 : 1 - Math.exp(-dt * 4)
+    const kr = o.mouvementReduit ? 1 : glisse ? 1 - Math.exp(-dt * 20) : 1 - Math.exp(-dt * 4)
     pivot.rotation.y = MathUtils.lerp(pivot.rotation.y, viseY, kr)
     pivot.rotation.x = MathUtils.lerp(pivot.rotation.x, viseX, kr)
     if (Math.abs(pivot.rotation.y - viseY) > 1e-4 || Math.abs(pivot.rotation.x - viseX) > 1e-4) encore = true
@@ -190,6 +230,20 @@ export function monterSceneElephant(o: Options): SceneElephant {
 
   function auMouvement(e: PointerEvent) {
     const r = renderer.domElement.getBoundingClientRect()
+    pointeurDedans = e.pointerType !== 'touch'
+    if (glisse) {
+      const dx = e.clientX - glisse.x
+      if (Math.abs(dx) > 6 && !glisse.bouge) {
+        glisse.bouge = true
+        o.auGeste?.()
+      }
+      if (glisse.bouge) {
+        lacetVisiteur = MathUtils.clamp(glisse.depart + (dx / r.width) * GLISSER_GAIN, -GLISSER_MAX, GLISSER_MAX)
+        renderer.domElement.style.cursor = 'grabbing'
+        demander()
+        return
+      }
+    }
     if (!o.mouvementReduit) {
       const nx = ((e.clientX - r.left) / r.width) * 2 - 1
       const ny = ((e.clientY - r.top) / r.height) * 2 - 1
@@ -199,14 +253,21 @@ export function monterSceneElephant(o: Options): SceneElephant {
     const g = e.pointerType === 'touch' ? null : eclatSous(e.clientX, e.clientY)
     if (g !== survol) {
       survol = g
-      renderer.domElement.style.cursor = g ? 'pointer' : ''
       o.auSurvol(g)
     }
+    renderer.domElement.style.cursor = g ? 'pointer' : 'grab'
     demander()
+  }
+
+  function auAppui(e: PointerEvent) {
+    if (o.mouvementReduit) return
+    glisse = { x: e.clientX, depart: lacetVisiteur, bouge: false }
   }
 
   function auDepart() {
     inclinaisonVisee.set(0, 0)
+    pointeurDedans = false
+    glisse = null
     if (survol) {
       survol = null
       renderer.domElement.style.cursor = ''
@@ -219,6 +280,14 @@ export function monterSceneElephant(o: Options): SceneElephant {
   // Ouvrir dès le premier toucher, sans avoir vu ce qu'on touche, surprendrait.
   let armeTactile: Groupe | null = null
   function auClic(e: PointerEvent) {
+    // Fin d'un glisser : ce n'était pas un clic, rien ne s'ouvre.
+    const aGlisse = glisse?.bouge
+    glisse = null
+    if (aGlisse) {
+      renderer.domElement.style.cursor = 'grab'
+      demander()
+      return
+    }
     const g = eclatSous(e.clientX, e.clientY)
     if (!g) {
       armeTactile = null
@@ -249,6 +318,11 @@ export function monterSceneElephant(o: Options): SceneElephant {
   renderer.domElement.addEventListener('pointermove', auMouvement)
   renderer.domElement.addEventListener('pointerleave', auDepart)
   renderer.domElement.addEventListener('pointerup', auClic)
+  renderer.domElement.addEventListener('pointerdown', auAppui)
+  // Le doigt peut glisser à l'horizontale pour tourner, le défilement
+  // vertical de la page reste au navigateur.
+  renderer.domElement.style.touchAction = 'pan-y'
+  renderer.domElement.style.cursor = 'grab'
 
   const draco = new DRACOLoader()
   draco.setDecoderPath(o.decodeur)
@@ -278,8 +352,10 @@ export function monterSceneElephant(o: Options): SceneElephant {
       })
       pivot.add(racine)
       dimensionner()
+      charge = true
       renderer.render(scene, camera)
       o.pret()
+      demander()
     },
     undefined,
     () => {
@@ -306,6 +382,7 @@ export function monterSceneElephant(o: Options): SceneElephant {
       renderer.domElement.removeEventListener('pointermove', auMouvement)
       renderer.domElement.removeEventListener('pointerleave', auDepart)
       renderer.domElement.removeEventListener('pointerup', auClic)
+      renderer.domElement.removeEventListener('pointerdown', auAppui)
       draco.dispose()
       scene.traverse((n) => {
         const m = n as Object3D & { geometry?: { dispose(): void }; material?: unknown }

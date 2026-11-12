@@ -71,6 +71,8 @@ export function EmblemeElephant() {
   const api = useRef<SceneElephant | null>(null)
   const [pret, setPret] = useState(false)
   const [actif, setActif] = useState<Groupe | null>(null)
+  // L'indication « Glissez pour le faire tourner » s'efface au premier geste.
+  const [geste, setGeste] = useState(false)
   const [ecranLarge, setEcranLarge] = useState(false)
   // Éclats sortis, pour que la légende suive le démontage. Mis à jour
   // seulement quand un éclat franchit la moitié de sa course, pas à chaque
@@ -152,6 +154,7 @@ export function EmblemeElephant() {
             ordre: ORDRE,
             mouvementReduit: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             auSurvol: setActif,
+            auGeste: () => setGeste(true),
             auClic: (g) => {
               const href = PIECES.find((p) => p.groupe === g)?.href
               if (href) routeur.current.push(href)
@@ -307,6 +310,16 @@ export function EmblemeElephant() {
             style={{ opacity: pret ? 1 : 0, transition: 'opacity .6s ease' }}
           />
           <p className="absolute bottom-0 right-0 m-0 text-[11px] opacity-55">{t('credit')}</p>
+          {pret && !geste && (
+            <p
+              aria-hidden="true"
+              data-testid="embleme-indication"
+              className="pointer-events-none absolute bottom-0 left-0 m-0 flex items-center gap-2 text-[12px] uppercase tracking-[0.14em] opacity-70 motion-reduce:hidden"
+            >
+              <span aria-hidden="true" className="text-[16px]">↻</span>
+              {t('tourner')}
+            </p>
+          )}
           {chargement === 'bouton' && (
             <button
               type="button"
