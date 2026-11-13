@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/navigation'
 import type { Groupe, SceneElephant } from './scene-elephant'
 import { DEBUT, partEclat } from './demontage'
+import { useCarnet } from '@/components/carnet/useCarnet'
 
 // L'éléphant de l'emblème, en volume : la section qui suit le haut de page
 // (décision du 7 novembre 2026 : le haut garde son film, l'éléphant prend la
@@ -65,6 +66,12 @@ function appareilCapable() {
 
 export function EmblemeElephant() {
   const t = useTranslations('accueil.embleme')
+  const tc = useTranslations('carnet')
+  // Les fiches déjà ouvertes par ce visiteur : leur ligne de légende porte une
+  // marque « Dans votre carnet ». L'éléphant, lui, garde toujours les couleurs
+  // exactes de l'emblème (décisions des 7 et 13/11/2026).
+  const carnet = useCarnet()
+  const vus = new Set(carnet.map((c) => c.slug))
   const router = useRouter()
   const section = useRef<HTMLElement>(null)
   const scene = useRef<HTMLDivElement>(null)
@@ -240,6 +247,16 @@ export function EmblemeElephant() {
                     <span className="min-w-0 flex-1">
                       <span className="block font-serif text-[21px] leading-tight">{t(`${p.groupe}.titre`)}</span>
                       <span className="mt-1 block text-[13px] opacity-70">{t(`${p.groupe}.lieu`)}</span>
+                      {p.href?.startsWith('/patrimoine/') && vus.has(p.href.slice('/patrimoine/'.length)) && (
+                        <span
+                          data-testid={`carnet-${p.groupe}`}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.12em]"
+                          style={{ borderColor: 'color-mix(in oklab, currentColor 40%, transparent)' }}
+                        >
+                          <span aria-hidden="true">✓</span>
+                          {tc('dansCarnet')}
+                        </span>
+                      )}
                     </span>
                     <span aria-hidden="true" className="flex-none text-[18px]">
                       {p.href ? '→' : ''}

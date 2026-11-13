@@ -166,7 +166,7 @@ export async function HeroFiche({
           {/* Chaque ligne du nom tombe dans un masque `overflow-hidden` : c'est
               ce qui donne l'entrée « par le bas » de la maquette, décalée de
               150 ms d'une ligne à l'autre. */}
-          <h1 className="m-0 font-serif text-[clamp(54px,10.5vw,168px)] uppercase leading-[0.84] tracking-[-0.035em]">
+          <h1 className="m-0 font-serif text-[clamp(42px,7.4vw,118px)] uppercase leading-[0.84] tracking-[-0.035em]">
             {lignes.map((mot, i) => (
               <span key={`${mot}-${i}`} className="block overflow-hidden">
                 <span

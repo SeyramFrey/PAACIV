@@ -726,5 +726,24 @@
     "partiellement_occupe": "Partly occupied",
     "vacant": "Vacant",
     "abandonne": "Abandoned"
+  },
+  "carnet": {
+    "titre": "My visit notebook",
+    "intro": "Every record you open leaves its stamp here, with the date and the time in Abidjan.",
+    "lien": "My visit notebook",
+    "compteur": "Notebook · {n}",
+    "compteurAria": "My visit notebook: {n, plural, one {# place seen} other {# places seen}}",
+    "progression": "{n, plural, one {# place seen} other {# places seen}} out of {total}.",
+    "numero": "Stamp no. {n}",
+    "vu": "Seen on {date}, Abidjan time",
+    "vide": "Your notebook is empty. Open a record from the archive and it will leave its stamp here.",
+    "explorer": "Browse the archive",
+    "imprimer": "Print my notebook",
+    "effacer": "Clear my notebook",
+    "confirmerEffacer": "Clear every stamp from your notebook? This cannot be undone.",
+    "confidentialite": "Your notebook only exists in this browser. Nothing is sent to PAACIV; clearing the site data clears it too.",
+    "adhererTexte": "Did these places speak to you? Help us document them.",
+    "adherer": "Join",
+    "dansCarnet": "In your notebook"
   }
 }

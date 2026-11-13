@@ -12,6 +12,7 @@ import { PictoType } from '@/components/ui/PictoType'
 import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import { OngletsFiche, type Onglet } from '@/components/patrimoine/OngletsFiche'
 import { PhotosDossier } from '@/components/patrimoine/PhotosDossier'
+import { TamponFiche } from '@/components/carnet/TamponFiche'
 import { getPatrimoineParSlugCache as getPatrimoineParSlug, contenusLies } from '@/lib/data/patrimoine'
 import { champ } from '@/lib/i18n-champ'
 import { imageUrl } from '@/lib/media'
@@ -265,6 +266,8 @@ export default async function FichePatrimoine({ params }: Props) {
 
   return (
     <main className="flex-1 sous-entete pb-10">
+      {/* Ouvrir la fiche pose son tampon dans le carnet du visiteur. */}
+      <TamponFiche slug={p.slug} />
       <Container className="space-y-6">
         {/* L'état de conservation est REMONTÉ dans le bandeau de titre, aux
             côtés de la typologie : c'est une clé de lecture, elle doit se voir

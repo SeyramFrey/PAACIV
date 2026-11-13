@@ -24,6 +24,7 @@ const RESEAUX = [
 export async function SiteFooter() {
   const t = await getTranslations('nav')
   const tf = await getTranslations('footer')
+  const tc = await getTranslations('carnet')
   // Attributions réelles des photographies du site. Tant qu'aucune n'est
   // renseignée, on retombe sur la ligne générique — annoncer « Photographies :
   // » suivi de rien serait pire que la formule d'attente. `chargerMedias` est
@@ -61,6 +62,14 @@ export async function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {/* Le carnet n'est pas une rubrique : il est propre au visiteur.
+                Il reste joignable d'ici même quand le compteur de l'en-tête
+                est masqué (carnet vide). */}
+            <li>
+              <Link href="/carnet" className="transition hover:text-[var(--accent)]" style={{ color: 'inherit' }}>
+                {tc('lien')}
+              </Link>
+            </li>
           </ul>
         </div>
 

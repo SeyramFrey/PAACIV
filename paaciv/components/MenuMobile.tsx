@@ -6,12 +6,17 @@ import { Link } from '@/i18n/navigation'
 import { BasculeTheme } from '@/components/ui/BasculeTheme'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
+import { useCarnet } from '@/components/carnet/useCarnet'
 
 export type Entree = { href: string; cle: string }
 
 export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
   const t = useTranslations('nav')
+  const tc = useTranslations('carnet')
   const { ouvrir } = useSoutien()
+  // Sur téléphone, le compteur du carnet n'a pas sa place dans l'en-tête : il
+  // vit ici, après les rubriques, dès la première fiche ouverte.
+  const nCarnet = useCarnet().length
   const [ouvert, setOuvert] = useState(false)
   const ref = useRef<HTMLDialogElement>(null)
 
@@ -124,6 +129,24 @@ export function MenuMobile({ entrees }: { entrees: readonly Entree[] }) {
                 </Link>
               </li>
             ))}
+            {nCarnet > 0 && (
+              <li
+                className="sm:hidden"
+                style={{
+                  animation: ouvert ? `drop .5s var(--courbe-plan) ${entrees.length * 60}ms both` : undefined,
+                }}
+              >
+                <Link
+                  href="/carnet"
+                  onClick={() => setOuvert(false)}
+                  data-testid="menu-carnet"
+                  className="text-2xl transition hover:opacity-70"
+                  style={{ fontFamily: 'var(--font-fraunces), serif' }}
+                >
+                  {tc('lien')} · {nCarnet}
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 

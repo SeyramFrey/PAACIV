@@ -726,5 +726,24 @@
     "partiellement_occupe": "Partiellement occupé",
     "vacant": "Vacant",
     "abandonne": "Abandonné"
+  },
+  "carnet": {
+    "titre": "Mon carnet de visite",
+    "intro": "Chaque fiche que vous ouvrez laisse ici son tampon, à la date et à l'heure d'Abidjan.",
+    "lien": "Mon carnet de visite",
+    "compteur": "Carnet · {n}",
+    "compteurAria": "Mon carnet de visite : {n, plural, one {# lieu vu} other {# lieux vus}}",
+    "progression": "{n, plural, one {# lieu vu} other {# lieux vus}} sur {total}.",
+    "numero": "Tampon n° {n}",
+    "vu": "Vu le {date}, heure d'Abidjan",
+    "vide": "Votre carnet est vide. Ouvrez une fiche de l'archive : elle y laissera son tampon.",
+    "explorer": "Parcourir l'archive",
+    "imprimer": "Imprimer mon carnet",
+    "effacer": "Effacer mon carnet",
+    "confirmerEffacer": "Effacer tous les tampons de votre carnet ? Cette action ne se défait pas.",
+    "confidentialite": "Votre carnet n'existe que dans ce navigateur. Rien n'est envoyé à PAACIV ; effacer les données du site l'efface aussi.",
+    "adhererTexte": "Ces lieux vous ont parlé ? Aidez-nous à les documenter.",
+    "adherer": "Adhérer",
+    "dansCarnet": "Dans votre carnet"
   }
 }

@@ -8,6 +8,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { MenuMobile, type Entree } from '@/components/MenuMobile'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
 import { Logo } from '@/components/ui/Logo'
+import { CompteurCarnet } from '@/components/carnet/CompteurCarnet'
 
 // Huit entrées, une par rubrique du site. Les ancres du design (#archive,
 // #journal…) sont remplacées par les vraies routes : le header est partagé
@@ -100,7 +101,7 @@ export function SiteHeader() {
   return (
     <header
       ref={header}
-      className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-6 px-5 py-4 backdrop-blur-[14px] transition-[background-color] duration-500 sm:px-8 lg:px-14"
+      className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-6 px-5 py-4 backdrop-blur-[14px] transition-[background-color] duration-500 sm:px-8 lg:px-14 xl:px-8 2xl:px-14"
       style={{
         background: opaque ? 'color-mix(in oklab, var(--bg) 82%, transparent)' : 'transparent',
         color: opaque ? 'var(--ink)' : 'var(--onDeep)',
@@ -114,7 +115,7 @@ export function SiteHeader() {
       </Link>
 
       <nav aria-label={t('principale')} className="hidden xl:block">
-        <ul className="flex items-center gap-6 whitespace-nowrap text-sm 2xl:gap-7">
+        <ul className="flex items-center gap-4 whitespace-nowrap text-sm 2xl:gap-7">
           {ENTREES.map((e) => (
             <li key={e.cle}>
               <Link href={e.href} className="transition hover:text-[var(--accent)]" style={{ color: 'inherit' }}>
@@ -126,6 +127,8 @@ export function SiteHeader() {
       </nav>
 
       <div className="flex items-center gap-3">
+        {/* Visible à toutes les tailles, dès la première fiche ouverte. */}
+        <CompteurCarnet />
         <div className="hidden xl:flex xl:items-center xl:gap-3">
           <LanguageSwitcher />
           <BasculeTheme className="rounded-full border p-2 transition hover:bg-[var(--accent)] hover:text-[var(--surAccent)]" />
