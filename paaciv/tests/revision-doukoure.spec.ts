@@ -108,6 +108,22 @@ test('la fiche bâtiment porte les nouvelles mentions et ses deux onglets', asyn
   await expect(legende).toContainText("1959-1970. Ensemble de logements, Adjamé, district d'Abidjan")
   await expect(legende).toContainText('Source : Archives nationales de Côte d’Ivoire')
 
+  // Un clic ouvre la photo en plein écran, dans la page (13/11/2026) :
+  // ni nouvel onglet, ni changement d'adresse, et Échap referme.
+  const adresse = page.url()
+  await doc.getByTestId('photos-dossier').getByRole('link').first().click()
+  const visionneuse = page.getByTestId('visionneuse')
+  await expect(visionneuse).toBeVisible()
+  await expect(visionneuse.locator('figcaption')).toContainText('Ensemble de logements')
+  expect(page.url()).toBe(adresse)
+  expect(page.context().pages()).toHaveLength(1)
+  await page.keyboard.press('Escape')
+  await expect(visionneuse).toBeHidden()
+  // Le bouton de fermeture marche aussi.
+  await doc.getByTestId('photos-dossier').getByRole('link').first().click()
+  await visionneuse.getByRole('button', { name: 'Fermer' }).click()
+  await expect(visionneuse).toBeHidden()
+
   // Clavier : la flèche gauche ramène à l'onglet précédent.
   await page.getByRole('tab', { name: 'Documentation' }).focus()
   await page.keyboard.press('ArrowLeft')

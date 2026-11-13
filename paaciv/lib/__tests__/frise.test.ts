@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   anneeEdifice, bornesFrise, positionRelative, pasGraduation, graduations,
   repartirVoies, segmentsEpoques, type EpoqueBornee,
+  compterParDecennie, decennieOuNull, filtrerParDecennie,
 } from '@/lib/frise'
 
 const EPOQUES: EpoqueBornee[] = [
@@ -134,5 +135,41 @@ describe('segmentsEpoques', () => {
       expect(s[i].debut).toBeGreaterThanOrEqual(s[i - 1].fin)
       expect(s[i].debut - s[i - 1].fin).toBeLessThan(0.02)
     }
+  })
+})
+
+describe('vue par décennie', () => {
+  it('compte par décennie, trous compris', () => {
+    expect(compterParDecennie([1957, 1959, 1973, 1990])).toEqual([
+      { decennie: 1950, n: 2 },
+      { decennie: 1960, n: 0 },
+      { decennie: 1970, n: 1 },
+      { decennie: 1980, n: 0 },
+      { decennie: 1990, n: 1 },
+    ])
+    expect(compterParDecennie([])).toEqual([])
+  })
+
+  it('tient 15 000 édifices d’une même année en une seule colonne', () => {
+    const annees = Array.from({ length: 15000 }, () => 1965)
+    expect(compterParDecennie(annees)).toEqual([{ decennie: 1960, n: 15000 }])
+  })
+
+  it('lit une décennie d’URL et ignore le reste', () => {
+    expect(decennieOuNull('1960', 2026)).toBe(1960)
+    expect(decennieOuNull(' 1960 ', 2026)).toBe(1960)
+    for (const v of ['1965', '196', 'abcd', '', null, '3000', '0960']) {
+      expect(decennieOuNull(v, 2026), String(v)).toBeNull()
+    }
+  })
+
+  it('filtre les édifices d’une décennie, sans les non datés', () => {
+    const items = [
+      { annee_debut: 1957, annee_fin: null, date_texte: null },
+      { annee_debut: null, annee_fin: 1961, date_texte: null },
+      { annee_debut: null, annee_fin: null, date_texte: 'vers 1965' },
+      { annee_debut: null, annee_fin: null, date_texte: 'fin XIXᵉ' },
+    ]
+    expect(filtrerParDecennie(items, 1960)).toEqual([items[1], items[2]])
   })
 })

@@ -373,7 +373,9 @@
     "resultats": "{n} result(s)",
     "aucun": "No results.",
     "reinitialiser": "Reset",
-    "chronologie": "Timeline"
+    "chronologie": "Timeline",
+    "filtreDecennie": "the {d}s",
+    "retirerDecennie": "See every decade"
   },
   "fiche": {
     "maquette3d": "Explore the 3D model",
@@ -406,7 +408,11 @@
     "transformations": "Alterations",
     "photographies": "Photographs",
     "contenus": "Contents",
-    "legendeSource": "Source: {source}"
+    "legendeSource": "Source: {source}",
+    "pleinEcran": "View full screen",
+    "precedente": "Previous photo",
+    "suivante": "Next photo",
+    "position": "{n} / {total}"
   },
   "carte": {
     "titre": "Heritage map",
@@ -654,7 +660,7 @@
     "contribuerCta": "Send a document",
     "retourArchive": "Back to the archive",
     "citationSurtitre": "What they leave",
-    "releveDetaille": "Detailed list",
+    "releveDetaille": "List of all projects",
     "typeProgrammes": "Type of programme",
     "tousProgrammes": "All programmes",
     "aucunDansProgramme": "No documented project in this programme yet.",
@@ -706,7 +712,11 @@
     "titre": "A timeline of the built heritage",
     "intro": "Every building on its date, across the country’s main periods.",
     "aria": "Timeline of documented buildings, from {min} to {max}. Scroll horizontally.",
-    "sansDate": "{n} record(s) left off the timeline, for lack of a date:"
+    "sansDate": "{n} record(s) left off the timeline, for lack of a date:",
+    "introDecennies": "The number of buildings per decade. Choose a decade to show only that one.",
+    "ariaDecennies": "Number of documented buildings per decade, from the {min}s to the {max}s. Scroll horizontally.",
+    "ariaDecennie": "The {d}s: {n, plural, one {# building} other {# buildings}}",
+    "sansDateCompte": "{n, plural, one {# record} other {# records}} left out of the timeline, for lack of a date."
   },
   "villes": {
     "titre": "Towns",

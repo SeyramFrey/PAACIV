@@ -154,3 +154,53 @@ export function segmentsEpoques(epoques: EpoqueBornee[], b: Bornes): SegmentEpoq
     .filter((s) => s.fin > s.debut)
     .sort((a, b2) => a.debut - b2.debut)
 }
+
+// ─── Vue par décennie ─────────────────────────────────────────────────────
+//
+// Une étiquette par édifice tient pour quelques dizaines de fiches. Au-delà,
+// les voies s'empilent sans fin : 15 000 édifices d'une même année feraient
+// 15 000 lignes. Passé ce seuil, la frise compte au lieu de nommer : une
+// colonne par décennie, et un clic filtre l'archive sur elle (choix de Sey,
+// 13/11/2026).
+
+/** Nombre d'édifices datés au-delà duquel la frise passe en décennies. */
+export const SEUIL_DECENNIES = 40
+
+export function decennie(annee: number): number {
+  return Math.floor(annee / 10) * 10
+}
+
+/**
+ * Le compte par décennie, de la première à la dernière, décennies vides
+ * comprises : un trou dans la chronologie est une information, pas une
+ * colonne à escamoter.
+ */
+export function compterParDecennie(annees: number[]): { decennie: number; n: number }[] {
+  if (annees.length === 0) return []
+  const comptes = new globalThis.Map<number, number>()
+  for (const a of annees) comptes.set(decennie(a), (comptes.get(decennie(a)) ?? 0) + 1)
+  const premiere = Math.min(...comptes.keys())
+  const derniere = Math.max(...comptes.keys())
+  const out: { decennie: number; n: number }[] = []
+  for (let d = premiere; d <= derniere; d += 10) out.push({ decennie: d, n: comptes.get(d) ?? 0 })
+  return out
+}
+
+/**
+ * Lit le paramètre d'URL `?decennie=1960`. Tout ce qui n'est pas une décennie
+ * plausible est ignoré (archive complète), comme `?etat=` fantaisiste.
+ */
+export function decennieOuNull(v: unknown, anneeCourante = new Date().getFullYear()): number | null {
+  const s = (v ?? '').toString().trim()
+  if (!/^\d{4}$/.test(s)) return null
+  const n = Number(s)
+  return n % 10 === 0 && n >= 1000 && n <= anneeCourante ? n : null
+}
+
+/** Les édifices datés de cette décennie. Les non datés n'y sont jamais. */
+export function filtrerParDecennie<T extends DatationBrute>(items: T[], d: number): T[] {
+  return items.filter((i) => {
+    const a = anneeEdifice(i)
+    return a !== null && decennie(a) === d
+  })
+}

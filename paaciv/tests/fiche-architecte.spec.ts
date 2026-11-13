@@ -149,7 +149,7 @@ test.describe('réalisations : mosaïque filtrée et relevé replié', () => {
     const corps = details.locator('div').first()
     await expect(corps).toBeHidden()
 
-    await details.getByText('Relevé détaillé').click()
+    await details.getByText('Liste de tous les projets').click()
     await expect(details).toHaveAttribute('open', /.*/)
     await expect(corps).toBeVisible()
   })

@@ -177,8 +177,8 @@ export default async function FicheArchitecte({ params }: Props) {
                 style={a.realisations.length > 0 ? { borderColor: 'var(--line)' } : undefined}
               >
                 <summary
-                  className="flex cursor-pointer list-none items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors hover:text-terra focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] [&::-webkit-details-marker]:hidden"
-                  style={{ color: 'var(--soft)' }}
+                  className="flex cursor-pointer list-none items-center gap-3 font-serif text-[clamp(22px,2.2vw,30px)] leading-tight transition-colors hover:text-terra focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] [&::-webkit-details-marker]:hidden"
+                  style={{ color: 'var(--ink)' }}
                 >
                   {/* Chevron dessiné plutôt que le marqueur natif, que les
                       navigateurs rendent chacun à leur façon. Il pivote à

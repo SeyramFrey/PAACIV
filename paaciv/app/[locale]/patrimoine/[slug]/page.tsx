@@ -85,8 +85,6 @@ export default async function FichePatrimoine({ params }: Props) {
       </section>
     ) : null
 
-  const libelleSource = (source: string) => t('legendeSource', { source })
-
   const datation =
     p.date_texte ||
     [p.annee_debut, p.annee_fin].filter(Boolean).join(' – ') ||
@@ -242,7 +240,7 @@ export default async function FichePatrimoine({ params }: Props) {
         t('photographies'),
         textePhotos,
         photosEtat.length > 0 ? (
-          <PhotosDossier images={photosEtat} locale={locale} libelleSource={libelleSource} />
+          <PhotosDossier images={photosEtat} locale={locale} />
         ) : null,
       )}
       {bloc(t('sources'), sources)}
@@ -254,7 +252,7 @@ export default async function FichePatrimoine({ params }: Props) {
   const documentation = aDocumentation ? (
     <div className="max-w-4xl space-y-10">
       {bloc(t('contenus'), contenus)}
-      <PhotosDossier images={photosDoc} locale={locale} libelleSource={libelleSource} />
+      <PhotosDossier images={photosDoc} locale={locale} />
     </div>
   ) : null
 

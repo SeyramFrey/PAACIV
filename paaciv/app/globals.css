@@ -317,6 +317,10 @@ html:not([data-intro]):has([data-intro-film]) { overflow: hidden; }
 /* Pas de film (mouvement réduit, connexion faible) : il ne doit même pas
    apparaître avant l'hydratation. */
 html[data-intro="sans"] [data-intro-film] { display: none; }
+/* Retour sur l'accueil après le film : le film resté monté n'apparaît pas
+   le temps que IntroFilm constate qu'il est déjà vu. Pendant le fondu de
+   sortie, `data-sortie` est déjà posé, et il reste donc visible. */
+html[data-intro="fin"] [data-intro-film]:not([data-sortie]) { display: none; }
 
 /* Mode léger (voir ScriptIntro) : pas de film, et pas d'animation décorative.
    Le flou des révélations est retiré car il coûte cher sur un téléphone

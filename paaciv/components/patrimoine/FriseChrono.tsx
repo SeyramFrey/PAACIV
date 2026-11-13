@@ -5,6 +5,7 @@ import { PictoType } from '@/components/ui/PictoType'
 import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import {
   anneeEdifice, bornesFrise, positionRelative, graduations, repartirVoies, segmentsEpoques,
+  compterParDecennie, SEUIL_DECENNIES,
 } from '@/lib/frise'
 import type { PatrimoineListItem, Ref } from '@/lib/data/patrimoine'
 import type { RefEpoque } from '@/lib/data/references'
@@ -64,11 +65,21 @@ export async function FriseChrono({
   epoques,
   types,
   locale,
+  filtres = {},
+  decennieActive = null,
+  forcerDecennies = false,
 }: {
   items: PatrimoineListItem[]
   epoques: RefEpoque[]
   types: Ref[]
   locale: string
+  // Filtres de l'archive en cours, repris tels quels dans les liens des
+  // décennies : choisir « années 1960 » ne doit pas défaire « religieux ».
+  filtres?: Record<string, string>
+  decennieActive?: number | null
+  // `?frise=decennies` : la vue par décennie sans attendre le seuil, pour la
+  // voir et la tester sur le petit corpus d'aujourd'hui.
+  forcerDecennies?: boolean
 }) {
   const t = await getTranslations('frise')
 
@@ -82,6 +93,20 @@ export async function FriseChrono({
   const sansDate = dates.filter((d) => d.annee === null).map((d) => d.item)
 
   if (places.length === 0) return null
+
+  // Au-delà du seuil, une étiquette par édifice ne tient plus : la frise
+  // passe en colonnes par décennie (choix de Sey, 13/11/2026).
+  if (forcerDecennies || places.length > SEUIL_DECENNIES) {
+    return (
+      <FriseDecennies
+        annees={places.map((d) => d.annee)}
+        nbSansDate={sansDate.length}
+        filtres={filtres}
+        decennieActive={decennieActive}
+        locale={locale}
+      />
+    )
+  }
 
   const bornes = bornesFrise(places.map((d) => d.annee))
   const largeur = Math.max(
@@ -256,6 +281,103 @@ export async function FriseChrono({
           ))}
         </p>
       )}
+    </section>
+  )
+}
+
+/**
+ * La frise à grande échelle : une colonne par décennie, sa hauteur au prorata
+ * du nombre d'édifices. Chaque colonne non vide est un lien qui filtre
+ * l'archive sur sa décennie, en gardant les autres filtres ; la colonne choisie
+ * ramène à toutes les décennies. 15 000 édifices d'une même année y tiennent en
+ * une seule colonne.
+ */
+async function FriseDecennies({
+  annees,
+  nbSansDate,
+  filtres,
+  decennieActive,
+  locale,
+}: {
+  annees: number[]
+  nbSansDate: number
+  filtres: Record<string, string>
+  decennieActive: number | null
+  locale: string
+}) {
+  const t = await getTranslations('frise')
+  const colonnes = compterParDecennie(annees)
+  const plusHaute = Math.max(...colonnes.map((c) => c.n))
+  const H_MAX = 160
+  const nombre = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'fr-FR')
+
+  return (
+    <section data-testid="frise" data-mode="decennies" aria-labelledby="frise-titre" className="space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <h2 id="frise-titre" className="font-serif text-2xl text-ocre">
+          {t('titre')}
+        </h2>
+        <p className="text-sm text-doux">{t('introDecennies')}</p>
+      </div>
+
+      <div
+        role="group"
+        tabIndex={0}
+        aria-label={t('ariaDecennies', { min: colonnes[0].decennie, max: colonnes[colonnes.length - 1].decennie })}
+        className="surface-papier filet-double defilement-ombre overflow-x-auto rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      >
+        <ol className="m-0 flex min-w-max list-none items-end gap-2 p-5 pt-8">
+          {colonnes.map((c) => {
+            const active = c.decennie === decennieActive
+            const hauteur = c.n === 0 ? 2 : Math.max(6, Math.round((c.n / plusHaute) * H_MAX))
+            const contenu = (
+              <>
+                <span className="text-[12px] tabular-nums text-doux">{c.n > 0 ? nombre.format(c.n) : ''}</span>
+                <span
+                  aria-hidden="true"
+                  className="block w-10 rounded-t-md transition-colors"
+                  style={{
+                    height: hauteur,
+                    background: active
+                      ? 'var(--accent)'
+                      : c.n === 0
+                        ? 'color-mix(in oklab, var(--ink) 18%, transparent)'
+                        : 'color-mix(in oklab, var(--terra) 70%, transparent)',
+                  }}
+                />
+                <span className={`text-[12px] tabular-nums ${active ? 'font-semibold text-ocre' : 'text-encre-t'}`}>
+                  {c.decennie}
+                </span>
+              </>
+            )
+            return (
+              <li key={c.decennie}>
+                {c.n > 0 ? (
+                  <Link
+                    href={{
+                      pathname: '/archives',
+                      query: active ? filtres : { ...filtres, decennie: String(c.decennie) },
+                    }}
+                    aria-current={active ? 'true' : undefined}
+                    aria-label={t('ariaDecennie', { d: c.decennie, n: c.n })}
+                    data-testid={`decennie-${c.decennie}`}
+                    scroll={false}
+                    className="flex flex-col items-center gap-1.5 rounded-lg px-1 pb-1 hover:bg-[color-mix(in_oklab,var(--ink)_7%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                  >
+                    {contenu}
+                  </Link>
+                ) : (
+                  <div className="flex flex-col items-center gap-1.5 px-1 pb-1" aria-hidden="true">
+                    {contenu}
+                  </div>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      </div>
+
+      {nbSansDate > 0 && <p className="text-xs text-doux">{t('sansDateCompte', { n: nbSansDate })}</p>}
     </section>
   )
 }

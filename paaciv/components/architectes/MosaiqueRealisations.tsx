@@ -67,12 +67,12 @@ export function MosaiqueRealisations({
                 le choix y était tronqué dès « Tous les prog… ». */}
             <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
               <span
-                className="text-[11px] font-semibold uppercase tracking-[0.2em]"
+                className="text-[13px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: 'var(--soft)' }}
               >
                 {t('typeProgrammes')}
               </span>
-              <span className="min-w-0 truncate font-serif text-[17px]" style={{ color: 'var(--ink)' }}>
+              <span className="min-w-0 truncate font-serif text-[clamp(20px,1.8vw,24px)]" style={{ color: 'var(--ink)' }}>
                 {programmeChoisi
                   ? champ(programmeChoisi.nom_fr, programmeChoisi.nom_en, locale)
                   : t('tousProgrammes')}
@@ -82,7 +82,7 @@ export function MosaiqueRealisations({
                 l'ouverture et dit l'état sans mot de plus. */}
             <span
               aria-hidden="true"
-              className={`inline-block transition-transform duration-300 ${ouvert ? 'rotate-90' : ''}`}
+              className={`inline-block text-[20px] transition-transform duration-300 ${ouvert ? 'rotate-90' : ''}`}
               style={{ color: 'var(--terra)' }}
             >
               ▸
@@ -160,7 +160,7 @@ function OptionProgramme({
       onClick={onClick}
       disabled={desactive}
       aria-pressed={actif}
-      className="flex w-full items-baseline gap-3 border-b py-[9px] text-left text-[15px] leading-[1.4] transition-colors enabled:hover:text-terra disabled:cursor-default disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="flex w-full items-baseline gap-3 border-b py-[11px] text-left text-[17px] leading-[1.4] transition-colors enabled:hover:text-terra disabled:cursor-default disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       style={{ borderColor: 'var(--line)', color: actif ? 'var(--terra)' : 'var(--ink)' }}
     >
       {/* La coche marque le filtre en cours ; masquée aux lecteurs d'écran,
@@ -169,7 +169,7 @@ function OptionProgramme({
         {actif ? '✓' : ''}
       </span>
       <span className="flex-1">{libelle}</span>
-      <span className="text-[12px] tabular-nums" style={{ color: 'var(--soft)' }}>
+      <span className="text-[14px] tabular-nums" style={{ color: 'var(--soft)' }}>
         {nombre}
       </span>
     </button>

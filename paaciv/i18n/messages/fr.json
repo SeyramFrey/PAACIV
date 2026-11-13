@@ -373,7 +373,9 @@
     "resultats": "{n} résultat(s)",
     "aucun": "Aucun résultat.",
     "reinitialiser": "Réinitialiser",
-    "chronologie": "Chronologie"
+    "chronologie": "Chronologie",
+    "filtreDecennie": "années {d}",
+    "retirerDecennie": "Voir toutes les décennies"
   },
   "fiche": {
     "maquette3d": "Explorer la maquette 3D",
@@ -406,7 +408,11 @@
     "transformations": "Transformations",
     "photographies": "Photographies",
     "contenus": "Contenus",
-    "legendeSource": "Source : {source}"
+    "legendeSource": "Source : {source}",
+    "pleinEcran": "Voir en plein écran",
+    "precedente": "Photo précédente",
+    "suivante": "Photo suivante",
+    "position": "{n} / {total}"
   },
   "carte": {
     "titre": "Carte du patrimoine",
@@ -654,7 +660,7 @@
     "contribuerCta": "Envoyer un document",
     "retourArchive": "Retour à l'archive",
     "citationSurtitre": "Ce qu'il laisse",
-    "releveDetaille": "Relevé détaillé",
+    "releveDetaille": "Liste de tous les projets",
     "typeProgrammes": "Type de programmes",
     "tousProgrammes": "Tous les programmes",
     "aucunDansProgramme": "Aucun projet documenté dans ce programme pour l'instant.",
@@ -706,7 +712,11 @@
     "titre": "La chronologie du bâti",
     "intro": "Chaque édifice à sa date, sur les grandes périodes du pays.",
     "aria": "Frise chronologique des édifices documentés, de {min} à {max}. Faites défiler horizontalement.",
-    "sansDate": "{n} fiche(s) hors frise, faute de datation :"
+    "sansDate": "{n} fiche(s) hors frise, faute de datation :",
+    "introDecennies": "Le nombre d'édifices par décennie. Choisissez une décennie pour n'afficher qu'elle.",
+    "ariaDecennies": "Nombre d'édifices documentés par décennie, des années {min} aux années {max}. Faites défiler horizontalement.",
+    "ariaDecennie": "Années {d} : {n, plural, one {# édifice} other {# édifices}}",
+    "sansDateCompte": "{n, plural, one {# fiche hors frise} other {# fiches hors frise}}, faute de datation."
   },
   "villes": {
     "titre": "Les villes",

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useTranslations } from 'next-intl'
+import { introDejaVue, marquerIntroVue } from '@/lib/intro'
 
 // Couleur MESURÉE sur le fond du film encodé (H.264 la décale de #A9502A) :
 // avec la valeur du jeton, les bandes de `object-contain` se verraient.
@@ -15,11 +16,10 @@ const SOURCE_GALERIE = '/videos/paaciv-galerie.mp4'
 const sAbonner = () => () => {}
 
 // Mêmes tests que ScriptIntro, refaits ici pour l'arrivée par navigation
-// interne, où ce script n'a pas été rejoué. Le film rejoue à CHAQUE arrivée
-// sur l'accueil, même déjà vu : c'est « Passer l'intro » qui permet de
-// l'éviter (choix de Sey). Seuls le mouvement réduit et le mode léger le
-// suppriment. "fin" (film fini ou passé lors d'une visite précédente de
-// l'accueil) ne compte donc pas.
+// interne, où ce script n'a pas été rejoué. Le film ne joue qu'UNE FOIS PAR
+// ONGLET (choix de Sey du 13/11/2026, lib/intro.ts) : « déjà vu » n'est pas
+// lu ici, mais à l'effet de montage, pour qu'un film en cours ne disparaisse
+// pas au rendu suivant le moment où il est marqué vu.
 function sansFilm() {
   const racine = document.documentElement
   if (racine.getAttribute('data-intro') === 'sans' || racine.hasAttribute('data-leger')) return true
@@ -41,11 +41,19 @@ export function IntroFilm() {
   // Fin du film, passé ou non : <html data-intro="fin"> rend le scroll et
   // lance les entrées du hero (globals.css) pendant que le film s'efface.
   function finir() {
-    document.documentElement.setAttribute('data-intro', 'fin')
+    marquerIntroVue()
     setEtape('sortie')
   }
 
+  // L'état "fin" n'est posé qu'APRÈS que `data-sortie` est dans le DOM :
+  // globals.css masque un film resté monté sous "fin" sans `data-sortie`
+  // (retour sur l'accueil), et le poser plus tôt couperait le fondu de sortie.
+  useEffect(() => {
+    if (etape === 'sortie') document.documentElement.setAttribute('data-intro', 'fin')
+  }, [etape])
+
   function commencer() {
+    marquerIntroVue()
     const g = galerie.current
     if (!g) return finir()
     setEtape('galerie')
@@ -57,12 +65,14 @@ export function IntroFilm() {
     // `sansFilm()` relu ici et pas seulement `sans` : à l'hydratation, `sans`
     // vaut encore l'instantané du serveur (false), et l'effet lancerait le
     // téléchargement des films avant le rendu qui les retire.
-    if (sans || sansFilm()) {
+    // Déjà vu dans cet onglet : retour sur l'accueil par un lien, ou
+    // actualisation. "sans" le masque (globals.css) et libère le hero.
+    if (sans || sansFilm() || introDejaVue()) {
       racine.setAttribute('data-intro', 'sans')
       return
     }
-    // Retour sur l'accueil après un film fini ou passé : il repart de zéro,
-    // et les entrées du hero attendent de nouveau sa fin.
+    // Pas encore vu (lecture automatique refusée, puis départ avant le
+    // bouton) : il repart de zéro, et les entrées du hero attendent sa fin.
     racine.removeAttribute('data-intro')
     const i = intro.current
     if (!i) return
@@ -105,7 +115,9 @@ export function IntroFilm() {
     <div
       data-intro-film=""
       data-sortie={etape === 'sortie' ? '' : undefined}
-      className="fixed inset-0 z-[60]"
+      // z-40, SOUS l'en-tête (z-50) : le logo et le menu restent visibles et
+      // cliquables pendant le film (choix de Sey, 13/11/2026).
+      className="fixed inset-0 z-40"
       style={{ background: FOND_FILM, opacity: etape === 'sortie' ? 0 : 1, transition: 'opacity .9s ease' }}
       onTransitionEnd={(e) => {
         if (etape === 'sortie' && e.target === e.currentTarget) setMonte(false)
@@ -123,6 +135,9 @@ export function IntroFilm() {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-contain"
         style={{ opacity: surGalerie ? 0 : 1 }}
+        // Vu dès que la lecture démarre vraiment : une actualisation en
+        // plein film ne le relance pas.
+        onPlaying={marquerIntroVue}
         onEnded={() => setEtape((e) => (e === 'intro' ? 'attente' : e))}
         onError={() => setEtape((e) => (e === 'intro' ? 'attente' : e))}
       />
