@@ -19,17 +19,17 @@ test('téléverser une image sur un patrimoine existant', async ({ page }) => {
   // la Basilique a déjà une image seed : on compare le compte avant/après
   // pour vérifier que l'upload a bien ajouté une vignette (et pas juste
   // que l'image seed préexistante est visible).
-  const avant = await page.getByTestId('vignette-image').count()
+  const avant = await page.getByTestId('images-galerie').getByTestId('vignette-image').count()
 
   const fichier = path.join(__dirname, 'fixtures', 'exemple.jpg')
-  await page.getByLabel('Ajouter des images').setInputFiles(fichier)
+  await page.getByTestId('images-galerie').getByLabel('Ajouter des images', { exact: true }).setInputFiles(fichier)
   // le champ de fichier expose aussi un rôle "button" natif : on cible
   // précisément le bouton de soumission du formulaire.
-  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+  await page.getByTestId('images-galerie').getByRole('button', { name: 'Ajouter des images' }).last().click()
 
   // une vignette de plus apparaît
   await expect(async () => {
-    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+    expect(await page.getByTestId('images-galerie').getByTestId('vignette-image').count()).toBe(avant + 1)
   }).toPass()
 })
 
@@ -49,17 +49,17 @@ test('une photo de 4 Mo est acceptée, et seule sa version réduite est servie',
     .getByRole('link', { name: 'Éditer' })
     .click()
   await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
-  const avant = await page.getByTestId('vignette-image').count()
+  const avant = await page.getByTestId('images-galerie').getByTestId('vignette-image').count()
 
-  await page.getByLabel('Ajouter des images').setInputFiles({ name: 'grande-photo.jpg', mimeType: 'image/jpeg', buffer: photo })
-  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+  await page.getByTestId('images-galerie').getByLabel('Ajouter des images', { exact: true }).setInputFiles({ name: 'grande-photo.jpg', mimeType: 'image/jpeg', buffer: photo })
+  await page.getByTestId('images-galerie').getByRole('button', { name: 'Ajouter des images' }).last().click()
 
   await expect(async () => {
-    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+    expect(await page.getByTestId('images-galerie').getByTestId('vignette-image').count()).toBe(avant + 1)
   }).toPass()
 
   // La vignette charge la version de 480 px, en WebP, bien plus légère.
-  const vignette = page.getByTestId('vignette-image').last().locator('img')
+  const vignette = page.getByTestId('images-galerie').getByTestId('vignette-image').last().locator('img')
   await expect(vignette).toHaveAttribute('src', /\.jpg\.480\.webp$/)
   const reponse = await page.request.get((await vignette.getAttribute('src'))!)
   expect(reponse.headers()['content-type']).toBe('image/webp')
@@ -75,16 +75,16 @@ test('une photo HEIC de téléphone est acceptée et servie en WebP', async ({ p
     .getByRole('link', { name: 'Éditer' })
     .click()
   await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
-  const avant = await page.getByTestId('vignette-image').count()
+  const avant = await page.getByTestId('images-galerie').getByTestId('vignette-image').count()
 
-  await page.getByLabel('Ajouter des images').setInputFiles(path.join(__dirname, 'fixtures', 'exemple.heic'))
-  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+  await page.getByTestId('images-galerie').getByLabel('Ajouter des images', { exact: true }).setInputFiles(path.join(__dirname, 'fixtures', 'exemple.heic'))
+  await page.getByTestId('images-galerie').getByRole('button', { name: 'Ajouter des images' }).last().click()
 
-  await expect(page.getByRole('status')).toHaveText('1 image ajoutée.')
+  await expect(page.getByTestId('images-galerie').getByRole('status')).toHaveText('1 image ajoutée.')
   await expect(async () => {
-    expect(await page.getByTestId('vignette-image').count()).toBe(avant + 1)
+    expect(await page.getByTestId('images-galerie').getByTestId('vignette-image').count()).toBe(avant + 1)
   }).toPass()
-  const src = await page.getByTestId('vignette-image').last().locator('img').getAttribute('src')
+  const src = await page.getByTestId('images-galerie').getByTestId('vignette-image').last().locator('img').getAttribute('src')
   const reponse = await page.request.get(src!)
   expect(reponse.headers()['content-type']).toBe('image/webp')
 })
@@ -97,11 +97,11 @@ test('un fichier illisible est signalé, sans faire tomber la page', async ({ pa
     .click()
   await page.waitForURL(/\/admin\/patrimoine\/[0-9a-f-]{36}/)
 
-  await page.getByLabel('Ajouter des images').setInputFiles({ name: 'pas-une-photo.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('ceci n’est pas une image') })
-  await page.getByRole('button', { name: 'Ajouter des images' }).last().click()
+  await page.getByTestId('images-galerie').getByLabel('Ajouter des images', { exact: true }).setInputFiles({ name: 'pas-une-photo.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('ceci n’est pas une image') })
+  await page.getByTestId('images-galerie').getByRole('button', { name: 'Ajouter des images' }).last().click()
 
-  await expect(page.getByRole('status')).toContainText('« pas-une-photo.jpg » n\'a pas pu être lu')
-  await expect(page.getByRole('heading', { name: 'Images' })).toBeVisible()
+  await expect(page.getByTestId('images-galerie').getByRole('status')).toContainText('« pas-une-photo.jpg » n\'a pas pu être lu')
+  await expect(page.getByRole('heading', { name: 'Galerie (haut de la fiche)' })).toBeVisible()
 })
 
 // Nettoyage : les tests ci-dessus téléversent de vrais fichiers dans le bucket

@@ -49,7 +49,7 @@ describe('CartesSoutien', () => {
   it('masque les cartes d’état quand aucune fiche n’est classée', () => {
     rendre()
     expect(screen.queryByText('Patrimoine en danger')).toBeNull()
-    expect(screen.queryByText('Patrimoine démoli')).toBeNull()
+    expect(screen.queryByText('Patrimoine en ruine')).toBeNull()
     // Les deux cartes d'action, elles, ne dépendent d'aucun corpus.
     expect(screen.getByText('Adhérer')).toBeTruthy()
     expect(screen.getByText('Faire un don')).toBeTruthy()
@@ -58,7 +58,7 @@ describe('CartesSoutien', () => {
   it('affiche « en danger » dès qu’une fiche est classée, et pas « démoli »', () => {
     rendre({ nbEnDanger: 3 })
     expect(screen.getByText('Patrimoine en danger')).toBeTruthy()
-    expect(screen.queryByText('Patrimoine démoli')).toBeNull()
+    expect(screen.queryByText('Patrimoine en ruine')).toBeNull()
   })
 
   it('mène vers l’archive filtrée, pas vers /articles', () => {
@@ -66,8 +66,8 @@ describe('CartesSoutien', () => {
     const href = (nom: string) =>
       screen.getByText(nom).closest('a')?.getAttribute('href')
     // Le préfixe de langue porte sur le chemin seul, la requête reste intacte.
-    expect(href('Patrimoine en danger')).toBe('/fr/archives?etat=en_danger')
-    expect(href('Patrimoine démoli')).toBe('/fr/archives?etat=demoli')
+    expect(href('Patrimoine en danger')).toBe('/fr/archives?etat=menace')
+    expect(href('Patrimoine en ruine')).toBe('/fr/archives?etat=ruine')
   })
 
   // Le délai de révélation encode la POSITION dans la grille. Écrit en dur sur
@@ -112,7 +112,7 @@ describe('CartesSoutien', () => {
   it('retombe sur le libellé du code quand la base ne dit rien', () => {
     rendre({ nbEnDanger: 1, nbDemoli: 1 })
     expect(screen.getByText('Patrimoine en danger')).toBeTruthy()
-    expect(screen.getByText('Patrimoine démoli')).toBeTruthy()
+    expect(screen.getByText('Patrimoine en ruine')).toBeTruthy()
     expect(screen.getByText('Adhérer')).toBeTruthy()
     expect(screen.getByText('Faire un don')).toBeTruthy()
   })

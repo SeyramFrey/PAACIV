@@ -73,9 +73,9 @@ test('la base refuse un état de conservation hors vocabulaire', async () => {
   expect(error?.code).toBe('23514')
 })
 
-test('la base accepte les quatre états du vocabulaire', async () => {
+test('la base accepte les cinq états du vocabulaire', async () => {
   const db = await clientAdmin()
-  for (const etat of ['intact', 'en_restauration', 'en_danger', 'demoli']) {
+  for (const etat of ['bon_etat', 'etat_moyen', 'degrade', 'fortement_degrade', 'ruine']) {
     const { error } = await db
       .from('patrimoine')
       .insert({ slug: `${SLUG_ETAT}-${etat}`, titre_fr: `État ${etat}`, etat_conservation: etat })

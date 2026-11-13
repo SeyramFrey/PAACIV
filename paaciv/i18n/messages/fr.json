@@ -49,7 +49,7 @@
     "voir": "Voir",
     "tous": "Tout",
     "enDanger": "Patrimoine en danger",
-    "demoli": "Patrimoine démoli",
+    "demoli": "Patrimoine en ruine",
     "adherer": "Adhérer",
     "don": "Faire un don",
     "rejoindre": "Rejoindre",
@@ -392,7 +392,21 @@
     "retour": "Retour aux archives",
     "aLire": "À lire",
     "aVoir": "À voir",
-    "commune": "Commune"
+    "commune": "Commune",
+    "maitreOuvrage": "Maître d'ouvrage",
+    "fonctionActuelle": "Fonction actuelle",
+    "entrepriseConstruction": "Entreprise de construction",
+    "photographe": "Photographe",
+    "ongletsLibelle": "Sections de la fiche",
+    "ongletPresentation": "Présentation",
+    "ongletEtatActuel": "Photographies et état actuel",
+    "ongletDocumentation": "Documentation",
+    "etatConservation": "État de conservation",
+    "etatOccupation": "État d'occupation",
+    "transformations": "Transformations",
+    "photographies": "Photographies",
+    "contenus": "Contenus",
+    "legendeSource": "Source : {source}"
   },
   "carte": {
     "titre": "Carte du patrimoine",
@@ -417,10 +431,12 @@
     "menaces": "Voir les édifices menacés"
   },
   "etats": {
-    "intact": "Intact",
-    "en_restauration": "En restauration",
-    "en_danger": "En danger",
-    "demoli": "Démoli"
+    "bon_etat": "Bon état",
+    "etat_moyen": "État moyen",
+    "degrade": "Dégradé",
+    "fortement_degrade": "Fortement dégradé",
+    "ruine": "Ruiné",
+    "menace": "Menacé (dégradé ou fortement dégradé)"
   },
   "formPatrimoine": {
     "principal": "Principal",
@@ -457,7 +473,17 @@
     "aucunRole": "— aucun —",
     "erreurEnregistrement": "L'enregistrement a échoué. Veuillez réessayer.",
     "erreurLatitudeHorsBornes": "La latitude doit être comprise entre -90 et 90.",
-    "erreurLongitudeHorsBornes": "La longitude doit être comprise entre -180 et 180."
+    "erreurLongitudeHorsBornes": "La longitude doit être comprise entre -180 et 180.",
+    "fonctionActuelle": "Fonction actuelle",
+    "maitreOuvrage": "Maître d'ouvrage",
+    "entrepriseConstruction": "Entreprise de construction",
+    "photographe": "Photographe",
+    "occupation": "État d'occupation",
+    "ongletEtatActuel": "Onglet « Photographies et état actuel »",
+    "ongletDocumentation": "Onglet « Documentation »",
+    "transformations": "Transformations",
+    "photographies": "Photographies",
+    "contenus": "Contenus"
   },
   "adminImages": {
     "titre": "Images",
@@ -472,7 +498,15 @@
     "envoiEnCours": "Envoi en cours…",
     "ajoutees": "{n, plural, =0 {Aucune image ajoutée.} one {# image ajoutée.} other {# images ajoutées.}}",
     "erreurIllisible": "« {fichier} » n'a pas pu être lu : ce n'est pas une image, ou son format n'est pas pris en charge. {n, plural, =0 {} one {# image a été ajoutée avant elle.} other {# images ont été ajoutées avant elle.}}",
-    "erreurEnvoi": "L'envoi a échoué. Vérifiez la connexion, puis réessayez."
+    "erreurEnvoi": "L'envoi a échoué. Vérifiez la connexion, puis réessayez.",
+    "groupe_galerie": "Galerie (haut de la fiche)",
+    "groupe_etat_actuel": "Photographies et état actuel",
+    "groupe_documentation": "Documentation",
+    "date": "Date",
+    "source": "Source",
+    "legendeEn": "Légende (EN)",
+    "enregistrer": "Mettre à jour",
+    "enregistree": "Enregistré"
   },
   "formArchitecte": {
     "nom": "Nom",
@@ -513,7 +547,11 @@
     "blocTexte": "Texte",
     "blocValeur": "Valeur",
     "blocLibelle": "Libellé",
-    "blocAucun": "Aucun"
+    "blocAucun": "Aucun",
+    "notice": "Notice du fonds",
+    "presentationContenu": "Présentation du contenu",
+    "mentionsObligatoires": "Mentions obligatoires",
+    "auteursInstrument": "Auteur(s) de l'instrument de recherche"
   },
   "formArticle": {
     "titre_fr": "Titre (FR)",
@@ -620,7 +658,11 @@
     "typeProgrammes": "Type de programmes",
     "tousProgrammes": "Tous les programmes",
     "aucunDansProgramme": "Aucun projet documenté dans ce programme pour l'instant.",
-    "nbProjets": "{n} projet(s)"
+    "nbProjets": "{n} projet(s)",
+    "notice": "Notice du fonds",
+    "presentationContenu": "Présentation du contenu",
+    "mentionsObligatoires": "Mentions obligatoires",
+    "auteursInstrument": "Auteur(s) de l'instrument de recherche"
   },
   "video": {
     "lire": "Lire la vidéo"
@@ -678,5 +720,11 @@
     "etatNonRenseigne": "état non renseigné pour {n} fiche(s)",
     "aucunEtat": "L'état de conservation n'est encore renseigné pour aucune fiche de cette commune.",
     "aucune": "Aucune commune documentée pour le moment."
+  },
+  "occupations": {
+    "occupe": "Occupé",
+    "partiellement_occupe": "Partiellement occupé",
+    "vacant": "Vacant",
+    "abandonne": "Abandonné"
   }
 }

@@ -30,7 +30,7 @@ test.afterAll(async () => {
 // Le champ était un `<input type="text">` : deux éditeurs pouvaient écrire
 // « en danger » et « Menacé » pour le même fait. C'est cette bascule qui fait
 // de l'état une catégorie plutôt qu'un libellé.
-test('l’admin propose les quatre états en liste déroulante, pas en texte libre', async ({ page }) => {
+test('l’admin propose les cinq états en liste déroulante, pas en texte libre', async ({ page }) => {
   await page.goto('/fr/admin/patrimoine/nouveau')
   const champ = page.getByLabel('État de conservation')
   await expect(champ).toHaveJSProperty('tagName', 'SELECT')
@@ -40,23 +40,24 @@ test('l’admin propose les quatre états en liste déroulante, pas en texte lib
   )
   expect(options).toEqual([
     ['', '— choisir —'],
-    ['intact', 'Intact'],
-    ['en_restauration', 'En restauration'],
-    ['en_danger', 'En danger'],
-    ['demoli', 'Démoli'],
+    ['bon_etat', 'Bon état'],
+    ['etat_moyen', 'État moyen'],
+    ['degrade', 'Dégradé'],
+    ['fortement_degrade', 'Fortement dégradé'],
+    ['ruine', 'Ruiné'],
   ])
 })
 
 test('un état choisi en admin se retrouve sur la fiche publique, en toutes lettres', async ({ page }) => {
   await page.goto('/fr/admin/patrimoine/nouveau')
   await page.getByLabel('Titre (FR)').fill(TITRE)
-  await page.getByLabel('État de conservation').selectOption('en_danger')
+  await page.getByLabel('État de conservation').selectOption('degrade')
   await page.getByLabel('Statut').selectOption('publie')
   await page.getByRole('button', { name: 'Enregistrer' }).click()
   await page.waitForURL(/\/fr\/admin\/patrimoine\/[0-9a-f-]{36}/)
 
   // Le formulaire recharge la valeur enregistrée, pas une valeur par défaut.
-  await expect(page.getByLabel('État de conservation')).toHaveValue('en_danger')
+  await expect(page.getByLabel('État de conservation')).toHaveValue('degrade')
 
   // La colonne stocke le slug ; le visiteur doit lire le libellé traduit.
   //
@@ -65,15 +66,17 @@ test('un état choisi en admin se retrouve sur la fiche publique, en toutes lett
   // elle doit se voir avant la photographie, et l'écrire aux deux endroits
   // n'aurait rien renseigné de plus.
   await page.goto(`/fr/patrimoine/${SLUG}`)
-  const pastille = page.getByTestId('pastille-etat')
+  // La première : celle du bandeau de titre. L'onglet « état actuel » en
+  // porte une seconde, cachée tant que l'onglet est fermé.
+  const pastille = page.getByTestId('pastille-etat').first()
   await expect(pastille).toBeVisible()
-  await expect(pastille).toHaveAttribute('data-etat', 'en_danger')
-  await expect(pastille).toContainText('En danger')
-  await expect(page.getByText('en_danger')).toHaveCount(0)
+  await expect(pastille).toHaveAttribute('data-etat', 'degrade')
+  await expect(pastille).toContainText('Dégradé')
+  await expect(page.getByText('degrade', { exact: true })).toHaveCount(0)
 })
 
 test('le filtre d’état restreint l’archive via l’URL', async ({ page }) => {
-  await page.goto('/fr/archives?etat=en_danger')
+  await page.goto('/fr/archives?etat=degrade')
   // Portée à la grille : depuis la frise, la même fiche est liée deux fois.
   await expect(
     page.getByTestId('grille-patrimoine').getByRole('link', { name: new RegExp(TITRE) }),
@@ -82,7 +85,7 @@ test('le filtre d’état restreint l’archive via l’URL', async ({ page }) =
   // La même fiche ne doit apparaître dans aucune autre catégorie — ni dans la
   // grille, ni sur l'axe. Pas de portée ici, volontairement : c'est une absence
   // qu'on vérifie, et elle doit valoir pour toute la page.
-  await page.goto('/fr/archives?etat=intact')
+  await page.goto('/fr/archives?etat=bon_etat')
   await expect(page.getByRole('link', { name: new RegExp(TITRE) })).toHaveCount(0)
 })
 
@@ -101,8 +104,11 @@ test('un état inconnu dans l’URL est ignoré plutôt que de vider l’archive
 // Sans cela, le visiteur arrivant depuis une carte de la page d'accueil verrait
 // « Tous » dans la barre alors que la liste est filtrée.
 test('la barre de filtres reflète l’état porté par l’URL', async ({ page }) => {
-  await page.goto('/fr/archives?etat=demoli')
-  await expect(page.getByLabel('État')).toHaveValue('demoli')
+  await page.goto('/fr/archives?etat=ruine')
+  await expect(page.getByLabel('État')).toHaveValue('ruine')
+  // Le groupe « menacé », destination de la carte « Patrimoine en danger ».
+  await page.goto('/fr/archives?etat=menace')
+  await expect(page.getByLabel('État')).toHaveValue('menace')
 })
 
 // Formulé sans dépendre du NOMBRE de cartes d'état visibles : leur présence
@@ -116,7 +122,7 @@ test('les cartes d’état de « À propos » mènent vers l’archive filtrée'
   const liens = await page
     .locator('#association a[href*="/archives"]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('href')))
-  for (const href of liens) expect(href).toMatch(/\/archives\?etat=(en_danger|demoli)$/)
+  for (const href of liens) expect(href).toMatch(/\/archives\?etat=(menace|ruine)$/)
 
   // Les deux cartes d'action, elles, ne dépendent d'aucun corpus. Restreint à
   // la section : l'en-tête porte son propre bouton « Adhérer ».

@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ajouterImage } from '@/app/[locale]/admin/patrimoine/actions'
+import type { GroupeImage } from '@/lib/groupes-image'
 
 // Formulaire d'ajout d'images d'une fiche patrimoine.
 //
@@ -13,7 +14,14 @@ import { ajouterImage } from '@/app/[locale]/admin/patrimoine/actions'
 // L'action renvoie maintenant l'erreur attendue (fichier illisible) en valeur,
 // et ce formulaire l'affiche. Une panne inattendue (stockage, réseau) reste une
 // exception, rattrapée ici en message générique.
-export function FormulaireAjoutImages({ patrimoineId }: { patrimoineId: string }) {
+export function FormulaireAjoutImages({
+  patrimoineId,
+  groupe = 'galerie',
+}: {
+  patrimoineId: string
+  // L'onglet de la fiche où ces photos s'afficheront (0036).
+  groupe?: GroupeImage
+}) {
   const t = useTranslations('adminImages')
   const formulaire = useRef<HTMLFormElement>(null)
   const [enCours, setEnCours] = useState(false)
@@ -42,13 +50,29 @@ export function FormulaireAjoutImages({ patrimoineId }: { patrimoineId: string }
   return (
     <form ref={formulaire} onSubmit={envoyer} className="flex flex-wrap items-end gap-3 rounded-2xl bg-fond2/50 p-4">
       <input type="hidden" name="patrimoine_id" value={patrimoineId} />
+      <input type="hidden" name="groupe" value={groupe} />
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('ajouter')}</span>
-        <input name="fichiers" aria-label={t('ajouter')} type="file" accept="image/*" multiple />
+        {/* Trois formulaires sur la même page : le nom accessible dit lequel. */}
+        <input
+          name="fichiers"
+          aria-label={groupe === 'galerie' ? t('ajouter') : `${t('ajouter')} — ${t(`groupe_${groupe}`)}`}
+          type="file"
+          accept="image/*"
+          multiple
+        />
       </label>
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('legende')}</span>
         <input name="legende_fr" className="rounded border border-filet px-2 py-1" />
+      </label>
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('date')}</span>
+        <input name="date_texte" className="w-32 rounded border border-filet px-2 py-1" />
+      </label>
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('source')}</span>
+        <input name="source" className="rounded border border-filet px-2 py-1" />
       </label>
       <label className="flex flex-col text-sm">
         <span className="mb-1 font-semibold">{t('credit')}</span>

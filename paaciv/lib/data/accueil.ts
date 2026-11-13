@@ -114,7 +114,7 @@ export async function vedettesHero(limite = 5): Promise<VedetteHero[]> {
   const sb = createReadClient()
   const { data, error } = await sb
     .from('patrimoine')
-    .select('slug, titre_fr, titre_en, ville, date_texte, images(chemin, est_principale, ordre)')
+    .select('slug, titre_fr, titre_en, ville, date_texte, images(chemin, est_principale, ordre, groupe)')
     .eq('statut', 'publie')
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -149,7 +149,7 @@ export async function vignettesArchive(limite = 12): Promise<VignetteArchive[]> 
   const sb = createReadClient()
   const { data, error } = await sb
     .from('patrimoine')
-    .select('slug, titre_fr, titre_en, ville, type_id, images(chemin, est_principale, ordre)')
+    .select('slug, titre_fr, titre_en, ville, type_id, images(chemin, est_principale, ordre, groupe)')
     .eq('statut', 'publie')
     .order('created_at', { ascending: false })
   if (error) throw error

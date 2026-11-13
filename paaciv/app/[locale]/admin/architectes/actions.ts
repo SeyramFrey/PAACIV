@@ -35,6 +35,12 @@ export async function enregistrerArchitecte(formData: FormData): Promise<{ id: s
     agence: texteOuNull(formData.get('agence')),
     distinction_fr: texteOuNull(formData.get('distinction_fr')),
     distinction_en: texteOuNull(formData.get('distinction_en')),
+    // Notice du fonds (0036).
+    presentation_contenu_fr: richeOuNull(formData.get('presentation_contenu_fr')),
+    presentation_contenu_en: richeOuNull(formData.get('presentation_contenu_en')),
+    mentions_obligatoires_fr: richeOuNull(formData.get('mentions_obligatoires_fr')),
+    mentions_obligatoires_en: richeOuNull(formData.get('mentions_obligatoires_en')),
+    auteurs_instrument: texteOuNull(formData.get('auteurs_instrument')),
     ordre: intOuNull(formData.get('ordre')) ?? 0,
     statut: (formData.get('statut') ?? 'brouillon').toString(),
   }

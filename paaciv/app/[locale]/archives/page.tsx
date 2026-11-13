@@ -6,7 +6,7 @@ import { FriseChrono } from '@/components/patrimoine/FriseChrono'
 import { SeparateurTisse } from '@/components/ui/SeparateurTisse'
 import { listePatrimoine } from '@/lib/data/patrimoine'
 import { chargerReferences } from '@/lib/data/references'
-import { etatOuNull } from '@/lib/etats-conservation'
+import { filtreEtatOuNull } from '@/lib/etats-conservation'
 
 export default async function ArchivesPage({
   params,
@@ -28,8 +28,8 @@ export default async function ArchivesPage({
       epoque: f.epoque,
       // Un `?etat=` fantaisiste est ignoré plutôt que de filtrer sur une
       // catégorie inexistante — l'archive reste complète au lieu de paraître
-      // vide (cf. `etatOuNull`).
-      etat: etatOuNull(f.etat) ?? undefined,
+      // vide (cf. `filtreEtatOuNull`).
+      etat: filtreEtatOuNull(f.etat) ?? undefined,
       q: f.q,
     }),
     chargerReferences(),

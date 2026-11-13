@@ -51,11 +51,11 @@ test('la bascule repeint la couche des points sans en retirer un seul', async ({
 
   const peintureEtat = await page.evaluate(peinture)
   expect(peintureEtat.couleur).toContain('etat_conservation')
-  // Le démoli est rapetissé et estompé : la couleur seule ne dit pas qu'il n'y
+  // Le ruiné est rapetissé et estompé : la couleur seule ne dit pas qu'il n'y
   // a plus de bâtiment, un point gris de même taille se lirait comme une
   // catégorie parmi d'autres alors que c'est une absence.
-  expect(peintureEtat.rayon).toContain('demoli')
-  expect(peintureEtat.opacite).toContain('demoli')
+  expect(peintureEtat.rayon).toContain('ruine')
+  expect(peintureEtat.opacite).toContain('ruine')
 
   // L'invariant central : aucun point n'a disparu. Ce n'est pas un filtre.
   await expect(compteur).toHaveText(avant!)
@@ -76,12 +76,12 @@ test('la légende suit la clé de lecture', async ({ page }) => {
   await expect(page.getByTestId('legende-type')).toHaveCount(0)
 
   const etats = page.getByTestId('legende-etat')
-  // Quatre états du vocabulaire, plus « Non renseigné ».
-  await expect(etats).toHaveCount(5)
+  // Cinq états du vocabulaire, plus « Non renseigné ».
+  await expect(etats).toHaveCount(6)
   await expect(etats.first()).toBeVisible()
   // « Non renseigné » DOIT figurer dans la légende : sans lui, le visiteur
-  // lirait les points gris comme une cinquième catégorie inconnue — ou pire,
-  // comme des édifices intacts.
+  // lirait les points gris comme une sixième catégorie inconnue — ou pire,
+  // comme des édifices en bon état.
   await expect(etats.filter({ hasText: 'Non renseigné' })).toHaveCount(1)
 })
 

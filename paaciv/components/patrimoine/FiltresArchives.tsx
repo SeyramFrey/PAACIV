@@ -5,7 +5,7 @@ import { useRouter, usePathname } from '@/i18n/navigation'
 import { useSearchParams } from 'next/navigation'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import type { Ref } from '@/lib/data/patrimoine'
-import { ETATS_CONSERVATION } from '@/lib/etats-conservation'
+import { ETATS_CONSERVATION, GROUPE_MENACE } from '@/lib/etats-conservation'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
 
@@ -74,6 +74,10 @@ export function FiltresArchives({ options, locale }: { options: Options; locale:
           className="rounded-xl border border-filet bg-fond text-encre-t px-3 py-2"
         >
           <option value="">{t('tous')}</option>
+          {/* Le groupe « menacé » (dégradé ou fortement dégradé) : c'est la
+              destination de la carte « Patrimoine en danger ». Sans cette
+              option, le menu resterait vide en arrivant par ce lien. */}
+          <option value={GROUPE_MENACE}>{tEtat(GROUPE_MENACE)}</option>
           {ETATS_CONSERVATION.map((e) => (
             <option key={e} value={e}>
               {tEtat(e)}

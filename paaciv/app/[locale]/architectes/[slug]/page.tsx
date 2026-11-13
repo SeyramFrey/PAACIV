@@ -55,6 +55,9 @@ export default async function FicheArchitecte({ params }: Props) {
   const parcours = champ(a.parcours_fr, a.parcours_en, locale)
   const realisationsTexte = champ(a.realisations_texte_fr, a.realisations_texte_en, locale)
   const distinction = champ(a.distinction_fr, a.distinction_en, locale)
+  const presentationContenu = champ(a.presentation_contenu_fr, a.presentation_contenu_en, locale)
+  const mentions = champ(a.mentions_obligatoires_fr, a.mentions_obligatoires_en, locale)
+  const aUneNotice = Boolean(presentationContenu || mentions || a.auteurs_instrument)
 
   const aDesDomaines = a.blocs.domaine.length > 0
   const aDesRealisations = a.realisations.length > 0 || realisationsTexte.length > 0
@@ -66,6 +69,7 @@ export default async function FicheArchitecte({ params }: Props) {
     aDesDomaines && { id: 'domaines', libelle: t('domaines') },
     aDesRealisations && { id: 'realisations', libelle: t('realisations') },
     aDesMissions && { id: 'etranger', libelle: t('missions') },
+    aUneNotice && { id: 'notice', libelle: t('notice') },
   ].filter((e): e is EntreeSommaire => Boolean(e))
 
   return (
@@ -202,6 +206,57 @@ export default async function FicheArchitecte({ params }: Props) {
       )}
 
       <MissionsEtranger missions={a.blocs.mission} locale={locale} id="etranger" />
+
+      {/* Notice du fonds (révision de l'association, 13/11/2026) : ce que
+          contient le fonds de l'architecte, les mentions à reproduire et
+          qui a rédigé l'instrument de recherche. Même gabarit que la
+          biographie, en fin de fiche. */}
+      {aUneNotice && (
+        <section
+          id="notice"
+          data-testid="notice-fonds"
+          className="scroll-mt-[calc(var(--hauteur-entete)+3.5rem)] px-[clamp(20px,4vw,54px)] py-[clamp(56px,7vw,110px)]"
+        >
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-start gap-[clamp(24px,4vw,64px)]">
+            <div className="min-w-0 flex-[1_1_240px]">
+              <h2
+                data-rv=""
+                className="m-0 font-serif text-[clamp(30px,3.4vw,52px)] leading-[1.04] tracking-[-0.02em]"
+                style={{ color: 'var(--ink)' }}
+              >
+                {t('notice')}
+              </h2>
+              <span data-line="" className="mt-[18px] block h-px" style={{ background: 'var(--terra)' }} />
+            </div>
+            <div data-rv="" className="min-w-0 flex-[3_1_440px] space-y-8">
+              {presentationContenu && (
+                <div className="space-y-2">
+                  <h3 className="font-serif text-xl" style={{ color: 'var(--ink)' }}>
+                    {t('presentationContenu')}
+                  </h3>
+                  <TexteRiche html={presentationContenu} />
+                </div>
+              )}
+              {mentions && (
+                <div className="space-y-2">
+                  <h3 className="font-serif text-xl" style={{ color: 'var(--ink)' }}>
+                    {t('mentionsObligatoires')}
+                  </h3>
+                  <TexteRiche html={mentions} />
+                </div>
+              )}
+              {a.auteurs_instrument && (
+                <div className="space-y-2">
+                  <h3 className="font-serif text-xl" style={{ color: 'var(--ink)' }}>
+                    {t('auteursInstrument')}
+                  </h3>
+                  <p className="whitespace-pre-line text-encre-t">{a.auteurs_instrument}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       <AppelContribuer />
     </main>

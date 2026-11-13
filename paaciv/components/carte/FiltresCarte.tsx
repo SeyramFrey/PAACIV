@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import type { Ref } from '@/lib/data/patrimoine'
 import type { ReferencesFiltres } from '@/lib/data/references'
-import { ETATS_CONSERVATION } from '@/lib/etats-conservation'
+import { ETATS_CONSERVATION, GROUPE_MENACE } from '@/lib/etats-conservation'
 
 type Valeurs = { type: string; programme: string; district: string; epoque: string; etat: string }
 
@@ -80,6 +80,10 @@ export function FiltresCarte({
           style={champStyle}
         >
           <option value="">{t('tous')}</option>
+          {/* Le groupe « menacé » (dégradé ou fortement dégradé) : c'est la
+              destination de la carte « Patrimoine en danger ». Sans cette
+              option, le menu resterait vide en arrivant par ce lien. */}
+          <option value={GROUPE_MENACE}>{tEtat(GROUPE_MENACE)}</option>
           {ETATS_CONSERVATION.map((e) => (
             <option key={e} value={e}>
               {tEtat(e)}

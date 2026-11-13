@@ -5,7 +5,14 @@ import { FiltresCarte } from '@/components/carte/FiltresCarte'
 
 const messages = {
   carte: { recherche: 'Rechercher un édifice…', type: 'Type', programme: 'Programme', district: 'District', epoque: 'Époque', etat: 'État', tous: 'Tous' },
-  etats: { intact: 'Intact', en_restauration: 'En restauration', en_danger: 'En danger', demoli: 'Démoli' },
+  etats: {
+    bon_etat: 'Bon état',
+    etat_moyen: 'État moyen',
+    degrade: 'Dégradé',
+    fortement_degrade: 'Fortement dégradé',
+    ruine: 'Ruiné',
+    menace: 'Menacé',
+  },
 }
 const options = {
   types: [{ id: 'religieux', nom_fr: 'Religieux', nom_en: 'Religious', couleur: '#8A3E1B', ordre: 1 }],
@@ -36,21 +43,23 @@ describe('FiltresCarte', () => {
 
   it('émet onChange(etat, slug) — la valeur envoyée est le slug, pas le libellé', () => {
     const onChange = renderFiltres()
-    fireEvent.change(screen.getByLabelText('État'), { target: { value: 'en_danger' } })
-    expect(onChange).toHaveBeenCalledWith('etat', 'en_danger')
+    fireEvent.change(screen.getByLabelText('État'), { target: { value: 'degrade' } })
+    expect(onChange).toHaveBeenCalledWith('etat', 'degrade')
   })
 
-  it('propose les quatre états, libellés traduits', () => {
+  it('propose le groupe « menacé » puis les cinq états, libellés traduits', () => {
     renderFiltres()
     const options = Array.from(
       screen.getByLabelText('État').querySelectorAll('option'),
     ).map((o) => [o.getAttribute('value'), o.textContent])
     expect(options).toEqual([
       ['', 'Tous'],
-      ['intact', 'Intact'],
-      ['en_restauration', 'En restauration'],
-      ['en_danger', 'En danger'],
-      ['demoli', 'Démoli'],
+      ['menace', 'Menacé'],
+      ['bon_etat', 'Bon état'],
+      ['etat_moyen', 'État moyen'],
+      ['degrade', 'Dégradé'],
+      ['fortement_degrade', 'Fortement dégradé'],
+      ['ruine', 'Ruiné'],
     ])
   })
 })

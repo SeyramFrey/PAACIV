@@ -71,6 +71,12 @@ export type ArchitecteDetail = {
   parcours_en: string | null
   realisations_texte_fr: string | null
   realisations_texte_en: string | null
+  // Notice du fonds (0036), demandée par l'association.
+  presentation_contenu_fr: string | null
+  presentation_contenu_en: string | null
+  mentions_obligatoires_fr: string | null
+  mentions_obligatoires_en: string | null
+  auteurs_instrument: string | null
   realisations: RealisationLiee[]
   blocs: BlocsArchitecte
 }
@@ -161,7 +167,7 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
   const { data, error } = await sb
     .from('architectes')
     .select(
-      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, programme_id, images(chemin, est_principale, ordre)))' +
+      '*, patrimoine_architecte(role, patrimoine(slug, titre_fr, titre_en, statut, programme_id, images(chemin, est_principale, ordre, groupe)))' +
         ', architecte_blocs(id, bloc, surtitre_fr, surtitre_en, titre_fr, titre_en, texte_fr, texte_en, ordre)',
     )
     .eq('slug', slug)
@@ -194,6 +200,11 @@ export async function getArchitecteParSlug(slug: string): Promise<ArchitecteDeta
     parcours_en: row.parcours_en,
     realisations_texte_fr: row.realisations_texte_fr,
     realisations_texte_en: row.realisations_texte_en,
+    presentation_contenu_fr: row.presentation_contenu_fr,
+    presentation_contenu_en: row.presentation_contenu_en,
+    mentions_obligatoires_fr: row.mentions_obligatoires_fr,
+    mentions_obligatoires_en: row.mentions_obligatoires_en,
+    auteurs_instrument: row.auteurs_instrument,
     realisations,
     blocs: grouperBlocs(row.architecte_blocs),
   }

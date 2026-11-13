@@ -49,7 +49,7 @@
     "voir": "View",
     "tous": "All",
     "enDanger": "Heritage at risk",
-    "demoli": "Lost heritage",
+    "demoli": "Heritage in ruins",
     "adherer": "Join",
     "don": "Donate",
     "rejoindre": "Join us",
@@ -392,7 +392,21 @@
     "retour": "Back to archive",
     "aLire": "To read",
     "aVoir": "To watch",
-    "commune": "Town"
+    "commune": "Town",
+    "maitreOuvrage": "Client",
+    "fonctionActuelle": "Current use",
+    "entrepriseConstruction": "Construction company",
+    "photographe": "Photographer",
+    "ongletsLibelle": "Record sections",
+    "ongletPresentation": "Overview",
+    "ongletEtatActuel": "Photographs and current condition",
+    "ongletDocumentation": "Documentation",
+    "etatConservation": "Condition",
+    "etatOccupation": "Occupancy",
+    "transformations": "Alterations",
+    "photographies": "Photographs",
+    "contenus": "Contents",
+    "legendeSource": "Source: {source}"
   },
   "carte": {
     "titre": "Heritage map",
@@ -417,10 +431,12 @@
     "menaces": "Show buildings at risk"
   },
   "etats": {
-    "intact": "Intact",
-    "en_restauration": "Under restoration",
-    "en_danger": "At risk",
-    "demoli": "Demolished"
+    "bon_etat": "Good condition",
+    "etat_moyen": "Fair condition",
+    "degrade": "Deteriorated",
+    "fortement_degrade": "Severely deteriorated",
+    "ruine": "In ruins",
+    "menace": "At risk (deteriorated or severely deteriorated)"
   },
   "formPatrimoine": {
     "principal": "Lead",
@@ -457,7 +473,17 @@
     "aucunRole": "— none —",
     "erreurEnregistrement": "Saving failed. Please try again.",
     "erreurLatitudeHorsBornes": "Latitude must be between -90 and 90.",
-    "erreurLongitudeHorsBornes": "Longitude must be between -180 and 180."
+    "erreurLongitudeHorsBornes": "Longitude must be between -180 and 180.",
+    "fonctionActuelle": "Current use",
+    "maitreOuvrage": "Client (maître d’ouvrage)",
+    "entrepriseConstruction": "Construction company",
+    "photographe": "Photographer",
+    "occupation": "Occupancy",
+    "ongletEtatActuel": "“Photographs and current condition” tab",
+    "ongletDocumentation": "“Documentation” tab",
+    "transformations": "Alterations",
+    "photographies": "Photographs",
+    "contenus": "Contents"
   },
   "adminImages": {
     "titre": "Images",
@@ -472,7 +498,15 @@
     "envoiEnCours": "Uploading…",
     "ajoutees": "{n, plural, =0 {No image added.} one {# image added.} other {# images added.}}",
     "erreurIllisible": "“{fichier}” could not be read: it is not an image, or its format is not supported. {n, plural, =0 {} one {# image was added before it.} other {# images were added before it.}}",
-    "erreurEnvoi": "The upload failed. Check the connection and try again."
+    "erreurEnvoi": "The upload failed. Check the connection and try again.",
+    "groupe_galerie": "Gallery (top of the record)",
+    "groupe_etat_actuel": "Photographs and current condition",
+    "groupe_documentation": "Documentation",
+    "date": "Date",
+    "source": "Source",
+    "legendeEn": "Caption (EN)",
+    "enregistrer": "Update",
+    "enregistree": "Saved"
   },
   "formArchitecte": {
     "nom": "Name",
@@ -513,7 +547,11 @@
     "blocTexte": "Text",
     "blocValeur": "Value",
     "blocLibelle": "Label",
-    "blocAucun": "None"
+    "blocAucun": "None",
+    "notice": "Collection notice",
+    "presentationContenu": "Scope and content",
+    "mentionsObligatoires": "Required credits",
+    "auteursInstrument": "Author(s) of the finding aid"
   },
   "formArticle": {
     "titre_fr": "Title (FR)",
@@ -620,7 +658,11 @@
     "typeProgrammes": "Type of programme",
     "tousProgrammes": "All programmes",
     "aucunDansProgramme": "No documented project in this programme yet.",
-    "nbProjets": "{n} project(s)"
+    "nbProjets": "{n} project(s)",
+    "notice": "Collection notice",
+    "presentationContenu": "Scope and content",
+    "mentionsObligatoires": "Required credits",
+    "auteursInstrument": "Author(s) of the finding aid"
   },
   "video": {
     "lire": "Play video"
@@ -678,5 +720,11 @@
     "etatNonRenseigne": "condition not recorded for {n} record(s)",
     "aucunEtat": "No condition has been recorded yet for any building in this town.",
     "aucune": "No town documented yet."
+  },
+  "occupations": {
+    "occupe": "Occupied",
+    "partiellement_occupe": "Partly occupied",
+    "vacant": "Vacant",
+    "abandonne": "Abandoned"
   }
 }

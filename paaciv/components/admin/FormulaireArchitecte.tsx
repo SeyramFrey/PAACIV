@@ -33,6 +33,12 @@ export type ArchitecteAdmin = {
   agence: string | null
   distinction_fr: string | null
   distinction_en: string | null
+  // Notice du fonds (0036).
+  presentation_contenu_fr: string | null
+  presentation_contenu_en: string | null
+  mentions_obligatoires_fr: string | null
+  mentions_obligatoires_en: string | null
+  auteurs_instrument: string | null
   ordre: number
   statut: 'brouillon' | 'publie'
 }
@@ -114,6 +120,8 @@ export function FormulaireArchitecte({
         {champ('periode_texte', t('periode'))}
         {champ('lieu_naissance', t('lieuNaissance'))}
         {champ('agence', t('agence'))}
+        {/* Des noms : un seul champ, sans variante anglaise. */}
+        {champ('auteurs_instrument', t('auteursInstrument'))}
       </div>
 
       {/* Onglets FR / EN */}
@@ -155,6 +163,23 @@ export function FormulaireArchitecte({
             ariaLabel={t('realisations')}
           />
         </div>
+        <h3 className="font-serif text-lg text-ocre">{t('notice')}</h3>
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('presentationContenu')}</span>
+          <EditeurRiche
+            name="presentation_contenu_fr"
+            defaultValue={initial?.presentation_contenu_fr ?? ''}
+            ariaLabel={t('presentationContenu')}
+          />
+        </div>
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('mentionsObligatoires')}</span>
+          <EditeurRiche
+            name="mentions_obligatoires_fr"
+            defaultValue={initial?.mentions_obligatoires_fr ?? ''}
+            ariaLabel={t('mentionsObligatoires')}
+          />
+        </div>
       </div>
       <div className={onglet === 'en' ? 'grid gap-4' : 'hidden'}>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -175,6 +200,23 @@ export function FormulaireArchitecte({
             name="realisations_texte_en"
             defaultValue={initial?.realisations_texte_en ?? ''}
             ariaLabel={t('realisations')}
+          />
+        </div>
+        <h3 className="font-serif text-lg text-ocre">{t('notice')}</h3>
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('presentationContenu')}</span>
+          <EditeurRiche
+            name="presentation_contenu_en"
+            defaultValue={initial?.presentation_contenu_en ?? ''}
+            ariaLabel={t('presentationContenu')}
+          />
+        </div>
+        <div className="flex flex-col text-sm">
+          <span className="mb-1 font-semibold">{t('mentionsObligatoires')}</span>
+          <EditeurRiche
+            name="mentions_obligatoires_en"
+            defaultValue={initial?.mentions_obligatoires_en ?? ''}
+            ariaLabel={t('mentionsObligatoires')}
           />
         </div>
       </div>

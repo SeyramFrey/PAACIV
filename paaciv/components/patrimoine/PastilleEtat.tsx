@@ -11,9 +11,8 @@ import { couleurEtat, estEtatConservation } from '@/lib/etats-conservation'
 //
 // Deux canaux, jamais la couleur seule : une teinte ET un mot. La couleur seule
 // exclurait qui la distingue mal, et « rouge » ne veut rien dire sans légende.
-// L'état « démoli » ajoute un troisième signe, la RATURE du libellé : c'est le
-// seul des quatre qui parle d'un bâtiment qui n'existe plus, et le seul dont
-// l'information ne se déduit d'aucune photographie de la fiche.
+// L'ancienne rature de « démoli » a disparu avec le vocabulaire de 0036 :
+// « ruiné » parle d'un édifice qui existe encore, en ruine.
 //
 // Composant SERVEUR (`getTranslations`) : il n'a aucune interaction, et il est
 // rendu par dizaines dans une grille d'archive — l'envoyer au navigateur
@@ -54,9 +53,7 @@ export async function PastilleEtat({
           boxShadow: '0 0 0 1.5px color-mix(in oklab, var(--bg) 70%, transparent)',
         }}
       />
-      <span className={etat === 'demoli' ? 'line-through decoration-[1.5px]' : undefined}>
-        {t(etat)}
-      </span>
+      <span>{t(etat)}</span>
     </span>
   )
 }

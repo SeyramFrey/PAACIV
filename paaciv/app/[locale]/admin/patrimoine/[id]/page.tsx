@@ -3,6 +3,7 @@ import { FormulairePatrimoine } from '@/components/admin/FormulairePatrimoine'
 import { GestionImages } from '@/components/admin/GestionImages'
 import { createServerClient } from '@/lib/supabase/server'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
+import { GROUPES_IMAGE } from '@/lib/groupes-image'
 
 export default async function EditerPatrimoine({
   params,
@@ -39,7 +40,17 @@ export default async function EditerPatrimoine({
         architectes={architectesRes.data ?? []}
         liaisons={liaisonsRes.data ?? []}
       />
-      <GestionImages patrimoineId={id} images={(p as PatrimoineDetail).images ?? []} locale={locale} />
+      {/* Une zone par emplacement : la galerie du haut, puis les deux onglets
+          de la fiche publique (révision de l'association, 0036). */}
+      {GROUPES_IMAGE.map((groupe) => (
+        <GestionImages
+          key={groupe}
+          patrimoineId={id}
+          images={(p as PatrimoineDetail).images ?? []}
+          locale={locale}
+          groupe={groupe}
+        />
+      ))}
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import { cache } from 'react'
 import { createReadClient } from '@/lib/supabase/reader'
 import { imagePrincipale, type ImageMini } from '@/lib/media'
-import type { EtatConservation } from '@/lib/etats-conservation'
+import { etatsDuFiltre, type FiltreEtat } from '@/lib/etats-conservation'
+import type { GroupeImage } from '@/lib/groupes-image'
 
 export type FiltresPatrimoine = {
   type?: string
@@ -10,8 +11,8 @@ export type FiltresPatrimoine = {
   epoque?: string
   // Vocabulaire fermé (`lib/etats-conservation.ts`), pas un UUID de table de
   // référence comme les quatre filtres ci-dessus : la valeur voyage telle
-  // quelle dans les URL publiques.
-  etat?: EtatConservation
+  // quelle dans les URL publiques. Un état précis, ou le groupe `menace`.
+  etat?: FiltreEtat
   q?: string
 }
 
@@ -31,7 +32,13 @@ export type ImageRow = {
   credit: string | null
   ordre: number
   est_principale: boolean
+  // 0036 : l'onglet de la fiche où la photo s'affiche, sa date (texte libre,
+  // « 1959-1970 ») et la provenance du document.
+  groupe: GroupeImage
+  date_texte: string | null
+  source: string | null
 }
+
 
 export type PatrimoineListItem = {
   id: string
@@ -96,6 +103,23 @@ export type PatrimoineDetail = {
   video_url: string | null
   sources_fr: string | null
   sources_en: string | null
+  // Révision Doukoure (0036). Noms propres sans variante anglaise.
+  maitre_ouvrage: string | null
+  entreprise_construction: string | null
+  photographe: string | null
+  fonction_actuelle_fr: string | null
+  fonction_actuelle_en: string | null
+  // Onglet « Photographies et état actuel ». `etat_occupation` : vocabulaire
+  // fermé de `lib/etats-occupation.ts`, en `string` pour la même raison que
+  // `etat_conservation`.
+  etat_occupation: string | null
+  transformations_fr: string | null
+  transformations_en: string | null
+  photographies_fr: string | null
+  photographies_en: string | null
+  // Onglet « Documentation » : la liste des contenus du fonds.
+  documentation_fr: string | null
+  documentation_en: string | null
   statut: string
   type: Ref | null
   programme: Ref | null
@@ -121,7 +145,9 @@ export type PointPublie = {
   image: string | null
 }
 
-function appliquerFiltres<T extends { eq: (c: string, v: string) => T; or: (s: string) => T }>(
+function appliquerFiltres<
+  T extends { eq: (c: string, v: string) => T; in: (c: string, v: string[]) => T; or: (s: string) => T },
+>(
   q: T,
   f: FiltresPatrimoine,
 ): T {
@@ -131,7 +157,7 @@ function appliquerFiltres<T extends { eq: (c: string, v: string) => T; or: (s: s
   if (f.epoque) q = q.eq('epoque_id', f.epoque)
   // Un seul point d'application, dont héritent d'un coup l'archive
   // (`listePatrimoine`) et la carte (`pointsPublies`).
-  if (f.etat) q = q.eq('etat_conservation', f.etat)
+  if (f.etat) q = q.in('etat_conservation', etatsDuFiltre(f.etat))
   if (f.q) {
     const motif = f.q.replace(/[%,]/g, ' ')
     q = q.or(`titre_fr.ilike.%${motif}%,titre_en.ilike.%${motif}%,ville.ilike.%${motif}%`)
@@ -146,7 +172,7 @@ export async function listePatrimoine(
   let q = sb
     .from('patrimoine')
     .select(
-      'id, slug, titre_fr, titre_en, resume_fr, resume_en, type_id, programme_id, district_id, epoque_id, ville, annee_debut, annee_fin, date_texte, etat_conservation, lat, lng, images(chemin, est_principale, ordre)',
+      'id, slug, titre_fr, titre_en, resume_fr, resume_en, type_id, programme_id, district_id, epoque_id, ville, annee_debut, annee_fin, date_texte, etat_conservation, lat, lng, images(chemin, est_principale, ordre, groupe)',
     )
     .eq('statut', 'publie')
     .order('titre_fr', { ascending: true })
@@ -260,7 +286,7 @@ export async function pointsPublies(f: FiltresPatrimoine = {}): Promise<PointPub
   let q = sb
     .from('patrimoine')
     .select(
-      'id, slug, titre_fr, titre_en, type_id, etat_conservation, lat, lng, ville, images(chemin, est_principale, ordre)',
+      'id, slug, titre_fr, titre_en, type_id, etat_conservation, lat, lng, ville, images(chemin, est_principale, ordre, groupe)',
     )
     .eq('statut', 'publie')
     .not('lat', 'is', null)

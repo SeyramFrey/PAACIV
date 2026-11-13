@@ -13,7 +13,7 @@ import { FiltresCarte } from '@/components/carte/FiltresCarte'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 import { PictoType } from '@/components/ui/PictoType'
-import { COULEUR_ETAT, ETATS_CONSERVATION } from '@/lib/etats-conservation'
+import { COULEUR_ETAT, ETATS_CONSERVATION, ETAT_RUINE } from '@/lib/etats-conservation'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const SATELLITE_TILES = MAPTILER_KEY
@@ -255,7 +255,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
           typeCouleur: info?.couleur ?? null,
           etatNom: etat?.nom ?? null,
           etatCouleur: etat?.couleur ?? null,
-          etatDemoli: props.etat_conservation === 'demoli',
+          etatDemoli: props.etat_conservation === ETAT_RUINE,
         })
         popup
           .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
@@ -326,13 +326,13 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       'points',
       'circle-radius',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], 'demoli'], 5.5, 8] : 8) as any,
+      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], ETAT_RUINE], 5.5, 8] : 8) as any,
     )
     map.setPaintProperty(
       'points',
       'circle-opacity',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], 'demoli'], 0.55, 1] : 1) as any,
+      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], ETAT_RUINE], 0.55, 1] : 1) as any,
     )
   }, [lecture, mapPret, couleurEtatExpression, couleurExpression])
 
@@ -542,12 +542,12 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
                     className="inline-block h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: COULEUR_ETAT[e] }}
                   />
-                  <span className={e === 'demoli' ? 'line-through' : undefined}>{tEtat(e)}</span>
+                  <span>{tEtat(e)}</span>
                 </li>
               ))}
               {/* « Non renseigné » figure DANS la légende : sans lui, le
-                  visiteur lirait ces points gris comme une cinquième catégorie
-                  inconnue — ou pire, comme des édifices intacts. */}
+                  visiteur lirait ces points gris comme une sixième catégorie
+                  inconnue — ou pire, comme des édifices en bon état. */}
               <li data-testid="legende-etat" className="flex items-center gap-2 opacity-70">
                 <span
                   className="inline-block h-3 w-3 shrink-0 rounded-full"

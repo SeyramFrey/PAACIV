@@ -40,15 +40,20 @@ export function srcsetImage(url: string | null | undefined): string | undefined 
   return LARGEURS_IMAGE.map((l) => `${m[1]}.${l}.webp ${l}w`).join(', ')
 }
 
-export type ImageMini = { chemin: string; est_principale: boolean; ordre: number }
+// `groupe` (0036) : seules les photos de la galerie du haut servent de
+// couverture. Celles des onglets « état actuel » et « Documentation » sont des
+// pièces du dossier, pas des portraits de l'édifice. Facultatif pour les
+// lectures qui ne le sélectionnent pas.
+export type ImageMini = { chemin: string; est_principale: boolean; ordre: number; groupe?: string | null }
 
 // Choisit l'image de couverture d'une fiche : l'image marquée principale,
 // sinon celle de plus petit `ordre`. Partagé par lib/data/patrimoine.ts et
 // lib/data/architectes.ts pour que la règle ne diverge pas silencieusement.
 export function imagePrincipale(images: ImageMini[] | null): string | null {
-  if (!images || images.length === 0) return null
+  const galerie = (images ?? []).filter((i) => !i.groupe || i.groupe === 'galerie')
+  if (galerie.length === 0) return null
   const principale =
-    images.find((i) => i.est_principale) ??
-    [...images].sort((a, b) => a.ordre - b.ordre)[0]
+    galerie.find((i) => i.est_principale) ??
+    [...galerie].sort((a, b) => a.ordre - b.ordre)[0]
   return principale ? imageUrl(principale.chemin) : null
 }

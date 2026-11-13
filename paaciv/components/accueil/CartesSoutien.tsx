@@ -3,14 +3,14 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
-import type { EtatConservation } from '@/lib/etats-conservation'
+import type { FiltreEtat } from '@/lib/etats-conservation'
 import type { Visuel } from '@/lib/data/medias'
 import { srcsetImage } from '@/lib/media'
 
 const CLASSE_CARTE =
   'group relative flex h-[clamp(340px,34vw,440px)] flex-col justify-end overflow-hidden rounded-[6px] border-0 bg-transparent p-[34px] text-left'
 
-type Href = { pathname: '/archives'; query: { etat: EtatConservation } }
+type Href = { pathname: '/archives'; query: { etat: FiltreEtat } }
 
 function Carte({
   href,
@@ -22,12 +22,12 @@ function Carte({
   delai,
 }: {
   // Forme objet et non chaîne : `Link` préfixe la langue au `pathname` seul.
-  // Une chaîne « /archives?etat=demoli » ferait porter le préfixe à l'URL
+  // Une chaîne « /archives?etat=ruine » ferait porter le préfixe à l'URL
   // entière, requête comprise.
   href?: Href
   onClick?: () => void
   // `null`/absente : la carte tombe sur un aplat sombre, qui porte le dégradé
-  // et le texte aussi bien que la photo. C'est le cas de « Patrimoine démoli »,
+  // et le texte aussi bien que la photo. C'est le cas de « Patrimoine en ruine »,
   // à laquelle on n'a pas donné de treizième image Wikimedia non attribuée.
   image?: Visuel | null
   titre: string
@@ -177,7 +177,8 @@ export function CartesSoutien({
   const cartes = [
     nbEnDanger > 0 && {
       cle: 'en_danger',
-      href: { pathname: '/archives', query: { etat: 'en_danger' } } as const,
+      // Le groupe « menacé » : dégradé ou fortement dégradé.
+      href: { pathname: '/archives', query: { etat: 'menace' } } as const,
       image: images.enDanger,
       titre: titres.enDanger ?? t('enDanger'),
       texte: enDangerTexte,
@@ -185,7 +186,7 @@ export function CartesSoutien({
     },
     nbDemoli > 0 && {
       cle: 'demoli',
-      href: { pathname: '/archives', query: { etat: 'demoli' } } as const,
+      href: { pathname: '/archives', query: { etat: 'ruine' } } as const,
       // Sans photographie tant que la base n'en fournit pas : voir le
       // commentaire sur `image` dans `Carte`.
       image: images.demoli,

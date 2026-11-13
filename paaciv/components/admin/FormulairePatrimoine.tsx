@@ -10,6 +10,7 @@ import { LiaisonArchitectes } from '@/components/admin/LiaisonArchitectes'
 import { enregistrerPatrimoine } from '@/app/[locale]/admin/patrimoine/actions'
 import type { PatrimoineDetail, Ref } from '@/lib/data/patrimoine'
 import { ETATS_CONSERVATION, estEtatConservation } from '@/lib/etats-conservation'
+import { ETATS_OCCUPATION, estEtatOccupation } from '@/lib/etats-occupation'
 
 type Options = { types: Ref[]; programmes: Ref[]; districts: Ref[]; epoques: Ref[] }
 type ArchitecteOpt = { id: string; nom: string }
@@ -30,6 +31,7 @@ export function FormulairePatrimoine({
 }) {
   const t = useTranslations('formPatrimoine')
   const tEtat = useTranslations('etats')
+  const tOccupation = useTranslations('occupations')
   const router = useRouter()
   const [onglet, setOnglet] = useState<'fr' | 'en'>('fr')
   const [lat, setLat] = useState<number | ''>(initial?.lat ?? '')
@@ -78,6 +80,27 @@ export function FormulairePatrimoine({
     </label>
   )
 
+  // Texte long sur plusieurs lignes, rendu tel quel sur la fiche (retours à la
+  // ligne conservés) : transformations, sources, contenus du fonds.
+  const zone = (name: string, label: string) => (
+    <label className="flex flex-col text-sm sm:col-span-2">
+      <span className="mb-1 font-semibold">{label}</span>
+      <textarea
+        name={name}
+        aria-label={label}
+        rows={4}
+        defaultValue={(initial as Record<string, unknown> | undefined)?.[name] as string | undefined ?? ''}
+        className="rounded-xl border border-filet bg-fond px-3 py-2"
+      />
+    </label>
+  )
+
+  // Les deux onglets de la fiche publique, rappelés dans le formulaire pour que
+  // l'association sache où chaque texte s'affichera.
+  const intertitre = (texte: string) => (
+    <h3 className="font-serif text-lg text-ocre sm:col-span-2">{texte}</h3>
+  )
+
   const selectRef = (name: string, label: string, refs: Ref[], val?: string | null) => (
     <label className="flex flex-col text-sm">
       <span className="mb-1 font-semibold">{label}</span>
@@ -119,6 +142,28 @@ export function FormulairePatrimoine({
     )
   }
 
+  const selectOccupation = () => {
+    const val = initial?.etat_occupation
+    return (
+      <label className="flex flex-col text-sm">
+        <span className="mb-1 font-semibold">{t('occupation')}</span>
+        <select
+          name="etat_occupation"
+          aria-label={t('occupation')}
+          defaultValue={estEtatOccupation(val) ? val : ''}
+          className="rounded-xl border border-filet bg-fond px-3 py-2"
+        >
+          <option value="">{t('choisir')}</option>
+          {ETATS_OCCUPATION.map((e) => (
+            <option key={e} value={e}>
+              {tOccupation(e)}
+            </option>
+          ))}
+        </select>
+      </label>
+    )
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       {initial?.id && <input type="hidden" name="id" defaultValue={initial.id} />}
@@ -142,7 +187,13 @@ export function FormulairePatrimoine({
         </div>
         {champ('style_fr', t('style'))}
         {champ('adresse_fr', t('adresse'))}
-        {champ('sources_fr', t('sources'))}
+        {champ('fonction_actuelle_fr', t('fonctionActuelle'))}
+        {intertitre(t('ongletEtatActuel'))}
+        {zone('transformations_fr', t('transformations'))}
+        {zone('photographies_fr', t('photographies'))}
+        {zone('sources_fr', t('sources'))}
+        {intertitre(t('ongletDocumentation'))}
+        {zone('documentation_fr', t('contenus'))}
       </div>
       <div className={onglet === 'en' ? 'grid gap-4 sm:grid-cols-2' : 'hidden'}>
         {champ('titre_en', t('titre_en'))}
@@ -153,7 +204,13 @@ export function FormulairePatrimoine({
         </div>
         {champ('style_en', t('style'))}
         {champ('adresse_en', t('adresse'))}
-        {champ('sources_en', t('sources'))}
+        {champ('fonction_actuelle_en', t('fonctionActuelle'))}
+        {intertitre(t('ongletEtatActuel'))}
+        {zone('transformations_en', t('transformations'))}
+        {zone('photographies_en', t('photographies'))}
+        {zone('sources_en', t('sources'))}
+        {intertitre(t('ongletDocumentation'))}
+        {zone('documentation_en', t('contenus'))}
       </div>
 
       {/* Classement */}
@@ -172,8 +229,15 @@ export function FormulairePatrimoine({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
+        {champ('maitre_ouvrage', t('maitreOuvrage'))}
+        {champ('entreprise_construction', t('entrepriseConstruction'))}
+        {champ('photographe', t('photographe'))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-4">
         {champ('statut_patrimonial', t('statutPatrimonial'), 'text', t('statutPatrimonialAria'))}
         {selectEtat()}
+        {selectOccupation()}
         {champ('video_url', t('video'))}
       </div>
 

@@ -4,6 +4,7 @@ import { Compteurs } from '@/components/accueil/Compteurs'
 import { CartesSoutien, SECOURS_CARTES } from '@/components/accueil/CartesSoutien'
 import { visuel, visuelOuNull, type Medias } from '@/lib/data/medias'
 import { comptesParEtat } from '@/lib/data/accueil'
+import { ETATS_MENACES } from '@/lib/etats-conservation'
 import type { Chiffres } from '@/lib/data/accueil'
 
 export async function Association({
@@ -98,8 +99,8 @@ export async function Association({
           demoliTexte={demoliTexteSur}
           adhesionAvantages={adhesionAvantagesSur}
           donTexte={donTexteSur}
-          nbEnDanger={comptes.en_danger ?? 0}
-          nbDemoli={comptes.demoli ?? 0}
+          nbEnDanger={ETATS_MENACES.reduce((n, e) => n + (comptes[e] ?? 0), 0)}
+          nbDemoli={comptes.ruine ?? 0}
           titres={{
             enDanger: lib('soutien_en_danger_titre'),
             demoli: lib('soutien_demoli_titre'),

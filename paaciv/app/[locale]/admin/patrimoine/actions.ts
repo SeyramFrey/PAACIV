@@ -5,6 +5,8 @@ import { createServerClient } from '@/lib/supabase/server'
 import { slugify, normaliserSlug } from '@/lib/slug'
 import { texteOuNull, intOuNull, richeOuNull, validerCoordonnee, BORNE_LAT, BORNE_LNG } from '@/lib/admin/champs'
 import { etatOuNull } from '@/lib/etats-conservation'
+import { occupationOuNull } from '@/lib/etats-occupation'
+import { estGroupeImage } from '@/lib/groupes-image'
 import { televerserImage } from '@/lib/images/televerser'
 import { cheminsStockes } from '@/lib/media'
 
@@ -98,6 +100,20 @@ export async function enregistrerPatrimoine(formData: FormData): Promise<Resulta
     video_url: texteOuNull(formData.get('video_url')),
     sources_fr: texteOuNull(formData.get('sources_fr')),
     sources_en: texteOuNull(formData.get('sources_en')),
+    // Révision Doukoure (0036).
+    maitre_ouvrage: texteOuNull(formData.get('maitre_ouvrage')),
+    entreprise_construction: texteOuNull(formData.get('entreprise_construction')),
+    photographe: texteOuNull(formData.get('photographe')),
+    fonction_actuelle_fr: texteOuNull(formData.get('fonction_actuelle_fr')),
+    fonction_actuelle_en: texteOuNull(formData.get('fonction_actuelle_en')),
+    // Liste blanche, comme l'état de conservation : la colonne est contrainte.
+    etat_occupation: occupationOuNull(formData.get('etat_occupation')),
+    transformations_fr: texteOuNull(formData.get('transformations_fr')),
+    transformations_en: texteOuNull(formData.get('transformations_en')),
+    photographies_fr: texteOuNull(formData.get('photographies_fr')),
+    photographies_en: texteOuNull(formData.get('photographies_en')),
+    documentation_fr: texteOuNull(formData.get('documentation_fr')),
+    documentation_en: texteOuNull(formData.get('documentation_en')),
     statut: (formData.get('statut') ?? 'brouillon').toString(),
   }
 
@@ -162,14 +178,26 @@ export async function ajouterImage(formData: FormData): Promise<ResultatImages> 
   const patrimoineId = formData.get('patrimoine_id')!.toString()
   const credit = texteOuNull(formData.get('credit'))
   const legende_fr = texteOuNull(formData.get('legende_fr'))
+  const date_texte = texteOuNull(formData.get('date_texte'))
+  const source = texteOuNull(formData.get('source'))
+  // L'onglet de destination (0036). Une valeur inconnue retombe sur la
+  // galerie plutôt que de remonter en violation de contrainte.
+  const groupeSoumis = formData.get('groupe')
+  const groupe = estGroupeImage(groupeSoumis) ? groupeSoumis : 'galerie'
   const fichiers = formData.getAll('fichiers').filter((f): f is File => f instanceof File && f.size > 0)
 
-  // ordre de départ = nb d'images existantes
-  const { count } = await sb
-    .from('images')
-    .select('id', { count: 'exact', head: true })
-    .eq('patrimoine_id', patrimoineId)
+  // ordre de départ = nb d'images existantes ; la photo principale ne se
+  // choisit que dans la galerie du haut, d'où le second compte.
+  const [{ count }, { count: countGalerie }] = await Promise.all([
+    sb.from('images').select('id', { count: 'exact', head: true }).eq('patrimoine_id', patrimoineId),
+    sb
+      .from('images')
+      .select('id', { count: 'exact', head: true })
+      .eq('patrimoine_id', patrimoineId)
+      .eq('groupe', 'galerie'),
+  ])
   let ordre = count ?? 0
+  let premiereDeLaGalerie = groupe === 'galerie' && (countGalerie ?? 0) === 0
   let ajoutees = 0
 
   for (const fichier of fichiers) {
@@ -187,15 +215,41 @@ export async function ajouterImage(formData: FormData): Promise<ResultatImages> 
       chemin,
       credit,
       legende_fr,
+      date_texte,
+      source,
+      groupe,
       ordre,
-      est_principale: ordre === 0 && (count ?? 0) === 0,
+      est_principale: premiereDeLaGalerie,
     })
     if (error) throw error
+    premiereDeLaGalerie = false
     ordre += 1
     ajoutees += 1
   }
   revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
   return { ok: true, ajoutees }
+}
+
+// Légende, date, source et crédit d'une photo déjà envoyée : c'est photo par
+// photo que l'association les renseigne (« 1959-1970. Ensemble de logements,
+// Adjamé, district d'Abidjan »), là où l'envoi en lot pose les mêmes valeurs
+// sur toute la sélection.
+export async function modifierImage(formData: FormData): Promise<void> {
+  const sb = await createServerClient()
+  const id = (formData.get('id') ?? '').toString()
+  if (!id) throw new Error('Image introuvable')
+  const { error } = await sb
+    .from('images')
+    .update({
+      legende_fr: texteOuNull(formData.get('legende_fr')),
+      legende_en: texteOuNull(formData.get('legende_en')),
+      date_texte: texteOuNull(formData.get('date_texte')),
+      source: texteOuNull(formData.get('source')),
+      credit: texteOuNull(formData.get('credit')),
+    })
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/[locale]/admin/patrimoine/[id]', 'page')
 }
 
 export async function supprimerImage(id: string): Promise<void> {
