@@ -236,11 +236,12 @@ test('la notice du fonds se saisit dans l’admin architecte et s’affiche sur 
 
   // Fiche publique, en français puis en anglais.
   await page.goto(`/fr/architectes/${SLUG_ARCHI}`)
-  const notice = page.getByTestId('notice-fonds')
+  // Rangée dans les informations générales, en haut de la fiche (#top).
+  const notice = page.locator('#top').getByTestId('notice-fonds')
   await expect(notice.getByRole('heading', { name: 'Notice du fonds' })).toBeVisible()
   await expect(notice.getByText('Plans, correspondance et photographies.')).toBeVisible()
   await expect(notice.getByText('Fonds PAACIV, reproduction interdite.')).toBeVisible()
-  await expect(notice.getByRole('heading', { name: "Auteur(s) de l'instrument de recherche" })).toBeVisible()
+  await expect(notice.getByText("Auteur(s) de l'instrument de recherche", { exact: true })).toBeVisible()
   await expect(notice.getByText('Yacouba Doukoure')).toBeVisible()
 
   await page.goto(`/en/architectes/${SLUG_ARCHI}`)

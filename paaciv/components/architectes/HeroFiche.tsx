@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { champ } from '@/lib/i18n-champ'
 import type { ArchitecteDetail } from '@/lib/data/architectes'
 import { srcsetImage } from '@/lib/media'
+import { assainirHtml } from '@/lib/richtext'
 
 // Transposition de la section `#fiche` de la maquette « Architecte Aka Adjo ».
 //
@@ -71,6 +72,19 @@ export async function HeroFiche({
       { cle: 'distinction', libelle: t('distinction'), valeur: champ(a.distinction_fr, a.distinction_en, locale) },
     ] as Ligne[]
   ).filter((l) => l.valeur.trim().length > 0)
+
+  // Notice du fonds (révision de l'association, 13/11/2026), rangée dans les
+  // informations générales à la demande de Sey. Ses deux premières rubriques
+  // sont du texte riche saisi dans l'admin : ré-assaini ici avant injection,
+  // comme le fait `TexteRiche` ailleurs. Elles occupent toute la largeur du
+  // tableau, parce que ce sont des paragraphes et non des valeurs courtes.
+  const notice = [
+    { cle: 'presentation', libelle: t('presentationContenu'), html: assainirHtml(champ(a.presentation_contenu_fr, a.presentation_contenu_en, locale)) },
+    { cle: 'mentions', libelle: t('mentionsObligatoires'), html: assainirHtml(champ(a.mentions_obligatoires_fr, a.mentions_obligatoires_en, locale)) },
+    { cle: 'auteurs', libelle: t('auteursInstrument'), texte: a.auteurs_instrument ?? '' },
+  ].filter((n) => (n.html ?? n.texte ?? '').trim().length > 0)
+
+  const filet = { borderColor: 'color-mix(in oklab, var(--onDeep) 12%, transparent)' }
 
   return (
     // `id="top"` : le repère que SiteHeader mesure pour rester transparent
@@ -169,7 +183,7 @@ export async function HeroFiche({
             ))}
           </h1>
 
-          {infos.length > 0 && (
+          {(infos.length > 0 || notice.length > 0) && (
             <div
               data-drop=""
               className="mt-[clamp(34px,4vw,58px)]"
@@ -205,6 +219,39 @@ export async function HeroFiche({
                   </div>
                 ))}
               </dl>
+
+              {notice.length > 0 && (
+                <div id="notice" data-testid="notice-fonds" className="mt-[clamp(22px,2.6vw,34px)]">
+                  <h3
+                    className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] opacity-70"
+                  >
+                    {t('notice')}
+                  </h3>
+                  <dl className="m-0">
+                    {notice.map((n) => (
+                      <div
+                        key={n.cle}
+                        className="flex flex-col gap-1 border-b py-[11px] sm:flex-row sm:gap-2.5"
+                        style={filet}
+                      >
+                        {/* Même colonne de libellés que le tableau au-dessus,
+                            pour que les deux se lisent comme un seul. */}
+                        <dt className="shrink-0 sm:w-[112px] text-xs font-semibold leading-normal opacity-55">
+                          {n.libelle}
+                        </dt>
+                        {n.html ? (
+                          <dd
+                            className="m-0 max-w-[68ch] text-sm leading-relaxed [&_a]:underline [&_li]:mb-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p:last-child]:mb-0 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
+                            dangerouslySetInnerHTML={{ __html: n.html }}
+                          />
+                        ) : (
+                          <dd className="m-0 whitespace-pre-line text-sm leading-normal">{n.texte}</dd>
+                        )}
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
             </div>
           )}
         </div>
