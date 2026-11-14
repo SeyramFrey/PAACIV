@@ -23,6 +23,13 @@ function urlPublique(chemin: string): string {
   return `${base}/storage/v1/object/public/${BUCKET}/${chemin}`
 }
 
+// URL d'un fichier stocké tel quel, sans version réduite : les vidéos des
+// réels (lib/data/reels.ts). Une URL externe est renvoyée telle quelle.
+export function fichierUrl(chemin: string): string {
+  if (estExterne(chemin)) return chemin
+  return urlPublique(chemin)
+}
+
 // URL d'une image : une URL externe telle quelle, sinon sa version réduite.
 export function imageUrl(chemin: string, largeur: LargeurImage = 1600): string {
   if (estExterne(chemin)) return chemin

@@ -19,11 +19,18 @@ const GROUPES: readonly string[] = [
   'ville',
 ]
 
+// Textes encore en base mais plus affichés nulle part : depuis la visite de
+// l'accueil (14/11/2026), les blocs Carte et Archive prennent le surtitre de
+// leur étape (« 03 · Carte », « 04 · Les lieux »). Les montrer ici ferait
+// modifier un texte sans effet. Les lignes restent en base : les retirer
+// demanderait une écriture dans la base partagée.
+const CLES_SANS_EFFET = new Set(['carte_surtitre', 'archive_surtitre'])
+
 export default async function AdminContenu() {
   const t = await getTranslations('adminContenu')
   const sb = await createServerClient()
   const { data } = await sb.from('contenu_site').select('cle, valeur_fr, valeur_en').order('cle')
-  const items = (data ?? []) as LigneContenu[]
+  const items = ((data ?? []) as LigneContenu[]).filter((i) => !CLES_SANS_EFFET.has(i.cle))
 
   const groupes: { cle: string; lignes: LigneContenu[] }[] = GROUPES.map((g) => ({
     cle: g,

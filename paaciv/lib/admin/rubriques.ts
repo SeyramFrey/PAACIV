@@ -25,6 +25,7 @@ export const GROUPES_RUBRIQUES: readonly GroupeRubriques[] = [
     rubriques: [
       { href: '/admin/articles', espace: 'adminArticles' },
       { href: '/admin/reportages', espace: 'adminReportages' },
+      { href: '/admin/reels', espace: 'adminReels' },
       { href: '/admin/evenements', espace: 'adminEvenements' },
     ],
   },

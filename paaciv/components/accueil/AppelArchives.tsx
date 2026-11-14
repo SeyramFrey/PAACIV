@@ -26,10 +26,13 @@ export const SECOURS_PARALLAXE =
   'https://commons.wikimedia.org/wiki/Special:FilePath/C%C3%B4te_d%27Ivoire._52%2C_Une_mosqu%C3%A9e_%28Kong%29_-_%28mission%29_Binger_%3B_%28photogr.%29_Monnier_%3B_%28photogr._reprod._par%29_Molteni_%28pour_la_conf%C3%A9rence_donn%C3%A9e_par%29_Monnier_-_btv1b53231423q.jpg?width=1800'
 
 export function AppelArchives({
+  surtitre,
   texte,
   cta,
   image,
 }: {
+  // Le repère d'étape de la visite (« 05 · Archives »), fourni par l'accueil.
+  surtitre?: string
   texte: string
   // `null` : rien à substituer en base — on retombe sur le libellé du code.
   cta: string | null
@@ -74,6 +77,11 @@ export function AppelArchives({
       {/* Chaux, pas `--onDeep` : le texte est sur la photo assombrie, pas sur
           la bande banco qui l'entoure. */}
       <div className="relative px-6" style={{ color: 'var(--chaux)' }}>
+        {surtitre && (
+          <p data-rv="" className="mb-5 text-[10px] uppercase tracking-[0.24em] opacity-75">
+            {surtitre}
+          </p>
+        )}
         <h2
           data-rv=""
           className="m-0 text-balance font-serif text-[clamp(30px,4.4vw,66px)] leading-[1.1] tracking-[0.01em]"

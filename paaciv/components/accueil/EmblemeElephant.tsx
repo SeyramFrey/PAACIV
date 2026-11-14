@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ViewTransition } from '@/lib/view-transition'
 import { flushSync } from 'react-dom'
 import { useTranslations } from 'next-intl'
@@ -68,7 +68,9 @@ function appareilCapable() {
   }
 }
 
-export function EmblemeElephant() {
+// `surtitre` : le repère d'étape de la visite (« 02 · Sommaire »), fourni par
+// l'accueil ; à défaut, le surtitre propre au bloc.
+export function EmblemeElephant({ surtitre }: { surtitre?: string } = {}) {
   const t = useTranslations('accueil.embleme')
   const tc = useTranslations('carnet')
   // Les fiches déjà ouvertes par ce visiteur : leur ligne de légende porte une
@@ -144,6 +146,27 @@ export function EmblemeElephant() {
       cancelAnimationFrame(demande)
       window.removeEventListener('scroll', auDefilement)
       window.removeEventListener('resize', auDefilement)
+    }
+  }, [demontage])
+
+  // Quand le démontage s'allume (la 3D vient d'arriver), la section s'allonge
+  // de 180svh d'un coup. Le navigateur ne compense pas : le passage en
+  // `sticky` de l'intérieur de la section suspend l'ancrage du défilement.
+  // Un visiteur déjà plus bas (lien direct `/#lieux`, rail de la visite,
+  // défilement rapide) verrait la page sauter vers l'éléphant. On rend
+  // l'écart, seulement si le milieu de l'écran était déjà au-delà de la
+  // section : quand il est dedans, le démontage commence là où il est.
+  const hauteur = useRef<number | null>(null)
+  useLayoutEffect(() => {
+    const s = section.current
+    if (!s) return
+    const avant = hauteur.current
+    const apres = s.offsetHeight
+    hauteur.current = apres
+    if (avant === null || avant === apres) return
+    const finAvant = s.getBoundingClientRect().top + window.scrollY + avant
+    if (window.scrollY + window.innerHeight / 2 >= finAvant) {
+      window.scrollTo({ top: window.scrollY + apres - avant, behavior: 'instant' })
     }
   }, [demontage])
   // Le routeur n'est pas garanti stable d'un rendu à l'autre : en dépendance
@@ -240,7 +263,7 @@ export function EmblemeElephant() {
             className="mb-5 text-[11px] font-medium uppercase tracking-[0.3em]"
             style={{ color: 'var(--accent)' }}
           >
-            {t('surtitre')}
+            {surtitre ?? t('surtitre')}
           </p>
           <h2
             id="embleme-titre"

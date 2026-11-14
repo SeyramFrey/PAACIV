@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test'
 import { listeReportages, getReportageParSlug } from '@/lib/data/reportages'
 import { extraireIdYoutube } from '@/lib/youtube'
+import { creerReportageLie, type ReportageLie } from '../aide-reportage-lie'
+
+let lie: ReportageLie
+test.beforeAll(async () => { lie = await creerReportageLie('data') })
+test.afterAll(async () => { await lie?.supprimer() })
 
 test('listeReportages ne renvoie que des publiés, avec des URL vidéo exploitables', async () => {
   const items = await listeReportages()
@@ -16,7 +21,7 @@ test('listeReportages trie du plus récent au plus ancien', async () => {
 })
 
 test('getReportageParSlug : détail pour un publié, null pour un brouillon ou un slug inconnu', async () => {
-  const r = await getReportageParSlug('visite-basilique')
+  const r = await getReportageParSlug(lie.slug)
   expect(r).not.toBeNull()
   expect(r!.patrimoine).not.toBeNull()
   expect(await getReportageParSlug('reportage-brouillon')).toBeNull()

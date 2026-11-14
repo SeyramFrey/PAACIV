@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { creerReportageLie, type ReportageLie } from './aide-reportage-lie'
 
 test('la fiche patrimoine affiche titre, type et galerie', async ({ page }) => {
   await page.goto('/fr/patrimoine/basilique-yamoussoukro')
@@ -29,11 +30,19 @@ test('métadonnées OpenGraph présentes', async ({ page }) => {
 // 0013_editorial_seed.sql), l'article publié, le reportage publié et le
 // piège « article-brouillon » sont tous liés à la-pyramide-abidjan (et non
 // basilique-yamoussoukro).
+// Le reportage de démo lié à La Pyramide est dépublié depuis le 15/11/2026 :
+// le test crée le sien (voir aide-reportage-lie.ts).
+test.describe('contenus liés', () => {
+  let lie: ReportageLie
+  test.beforeAll(async () => { lie = await creerReportageLie('fiche') })
+  test.afterAll(async () => { await lie?.supprimer() })
+
 test('la fiche patrimoine liste les contenus éditoriaux qui la citent', async ({ page }) => {
   await page.goto('/fr/patrimoine/la-pyramide-abidjan')
   const bloc = page.getByTestId('contenus-lies')
   await expect(bloc).toBeVisible()
   await expect(bloc.getByRole('link', { name: 'La Pyramide d\'Abidjan : histoire d\'un chef-d\'œuvre architectural' })).toBeVisible()
-  await expect(bloc.getByRole('link', { name: /Immersion au cœur du patrimoine ivoirien/ })).toBeVisible()
+  await expect(bloc.getByRole('link', { name: lie.titre })).toBeVisible()
   await expect(bloc.getByRole('link', { name: /BROUILLON/ })).toHaveCount(0) // l'article brouillon lié ne doit pas fuiter
+})
 })

@@ -18,6 +18,7 @@ const ENTREES = [
 
 const RESEAUX = [
   { libelle: 'Instagram', href: 'https://www.instagram.com/paaciv' },
+  { libelle: 'YouTube', href: 'https://www.youtube.com/@paaciv' },
   { libelle: 'LinkedIn', href: 'https://www.linkedin.com/company/paaciv' },
 ] as const
 

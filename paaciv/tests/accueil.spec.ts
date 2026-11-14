@@ -17,8 +17,11 @@ test('la page affiche ses blocs dans l’ordre du design', async ({ page }) => {
   // présence des ancres : la seule présence des six `id` sur la page ne
   // dirait rien de leur ordre, la propriété que seul l'assemblage révèle.
   // Depuis le 12 novembre 2026, le bloc « association » est sur « À propos » :
-  // l'éléphant de l'emblème (#embleme) suit le haut de page.
-  const ordre = ['top', 'embleme', 'agenda', 'archive', 'journal', 'contact']
+  // l'éléphant de l'emblème (#embleme) suit le haut de page. Depuis le 14,
+  // l'accueil est une visite (tests/visite-accueil.spec.ts) : la grille des
+  // lieux (#archive) passe avant le carnet, et l'agenda rejoint l'épilogue,
+  // « La vie de l'association », avec le journal.
+  const ordre = ['top', 'embleme', 'archive', 'carnet', 'agenda', 'journal', 'contact']
   const positions: number[] = []
   for (const id of ordre) {
     const ancre = page.locator(`#${id}`)
