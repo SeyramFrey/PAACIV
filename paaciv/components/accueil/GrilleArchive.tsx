@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
+import { VersFiche } from '@/components/patrimoine/VersFiche'
 import { champ } from '@/lib/i18n-champ'
 import type { VignetteArchive } from '@/lib/data/accueil'
 import type { Ref } from '@/lib/data/patrimoine'
@@ -145,7 +146,8 @@ export function GrilleArchive({
             {visibles.map((v) => (
               <Link key={v.slug} href={`/patrimoine/${v.slug}`}>
                 <figure className="m-0">
-                  <div
+                  <VersFiche
+                    slug={v.slug}
                     className="aspect-[4/3] overflow-hidden rounded-[4px] transition-[translate,filter] duration-[0.6s] ease-[var(--courbe-plan)] hover:-translate-y-2"
                   >
                     <img
@@ -157,7 +159,7 @@ export function GrilleArchive({
                       className="h-full w-full object-cover"
                       style={{ filter: 'var(--imgf)' }}
                     />
-                  </div>
+                  </VersFiche>
                   {/* Titre et ville dans deux `<span>` distincts, pas
                       concaténés en un seul noeud texte : ça garde le titre
                       seul repérable par un `getByText` exact (chaque `<span>`

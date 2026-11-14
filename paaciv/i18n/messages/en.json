@@ -738,6 +738,10 @@
     "abandonne": "Abandoned"
   },
   "carnet": {
+    "commencer": "Start my visit notebook",
+    "commencerAide": "Every place you open will leave its stamp. The notebook stays in this browser.",
+    "nonCommence": "You don't have a notebook yet. Start one: every record you open will leave its stamp, at the date and time in Abidjan.",
+    "arreter": "Stop my notebook",
     "titre": "My visit notebook",
     "intro": "Every record you open leaves its stamp here, with the date and the time in Abidjan.",
     "lien": "My visit notebook",
@@ -749,11 +753,15 @@
     "vide": "Your notebook is empty. Open a record from the archive and it will leave its stamp here.",
     "explorer": "Browse the archive",
     "imprimer": "Print my notebook",
-    "effacer": "Clear my notebook",
-    "confirmerEffacer": "Clear every stamp from your notebook? This cannot be undone.",
-    "confidentialite": "Your notebook only exists in this browser. Nothing is sent to PAACIV; clearing the site data clears it too.",
+    "effacer": "Clear and stop my notebook",
+    "confirmerEffacer": "Clear every stamp and stop your notebook? This cannot be undone.",
+    "confidentialite": "Your notebook only exists in this browser: its list is never sent to PAACIV. Clearing the site data clears it too.",
     "adhererTexte": "Did these places speak to you? Help us document them.",
     "adherer": "Join",
     "dansCarnet": "In your notebook"
+  },
+  "heure": {
+    "lieu": "Plateau, Abidjan",
+    "lecture": "Local time in Plateau, Abidjan: {heure}"
   }
 }

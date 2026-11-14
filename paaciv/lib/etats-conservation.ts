@@ -87,15 +87,34 @@ export function etatsDuFiltre(f: FiltreEtat): EtatConservation[] {
  * et une légende qui change de couleur entre jour et nuit se réapprend à
  * chaque bascule. Elles suivent la gradation du vocabulaire, du vert (l'édifice
  * tient) au gris éteint (il ne tient plus), et reprennent la palette existante :
- * lagune, or, latérite fraîche, rouge d'alerte, acier. L'or d'« état moyen » est
- * la seule teinte nouvelle de cette légende — PROPOSITION À VALIDER par Sey.
+ * lagune, safran, latérite fraîche, rouge d'alerte, acier.
+ *
+ * « État moyen » en SAFRAN CERNÉ (choix de Sey du 14/11/2026, parmi quatre
+ * options mesurées dans `docs/design-ref/etat-moyen-variantes.html`). Le safran
+ * est la seule teinte qui reste nettement distincte de « dégradé » pour un œil
+ * daltonien (écart OKLab ≈ 20, contre 12 pour l'or proposé d'abord). Mais il
+ * est pâle sur fond clair (1,8:1) : un liseré à l'encre porte le contraste
+ * (`LISERET_ETAT_MOYEN`, `ombreEtat`).
  */
 export const COULEUR_ETAT: Record<EtatConservation, string> = {
   bon_etat: '#2F6A63',          // lagune
-  etat_moyen: '#C99A3E',        // or — à valider
+  etat_moyen: '#E0AE1A',        // safran, toujours cerné (voir plus bas)
   degrade: '#B5652F',           // latérite fraîche
   fortement_degrade: '#B3341F', // rouge d'alerte
   ruine: '#6B6F76',             // acier éteint
+}
+
+/** Le liseré du safran sur la carte (MapLibre ne lit pas les variables CSS) : l'encre du site. */
+export const LISERET_ETAT_MOYEN = '#262C36'
+
+/**
+ * Le liseré d'une pastille d'état dans le document : l'encre de la bande où
+ * elle se trouve, sauf sur fond sombre (nuit, bandes tôle, lagune, latérite),
+ * où le safran se détache seul (`--liseret-moyen: transparent`, globals.css).
+ * Les autres états n'en ont pas besoin.
+ */
+export function ombreEtat(etat: EtatConservation): string | undefined {
+  return etat === 'etat_moyen' ? 'inset 0 0 0 1.5px var(--liseret-moyen, var(--ink))' : undefined
 }
 
 /** Couleur d'un état, ou `null` si la valeur n'appartient pas au vocabulaire. */

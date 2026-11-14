@@ -5,6 +5,7 @@ import { anneeEdifice } from '@/lib/frise'
 import { PictoType } from '@/components/ui/PictoType'
 import { PastilleEtat } from '@/components/patrimoine/PastilleEtat'
 import { VisuelAbsent } from '@/components/ui/VisuelAbsent'
+import { VersFiche } from '@/components/patrimoine/VersFiche'
 import type { PatrimoineListItem, Ref } from '@/lib/data/patrimoine'
 
 // Vignette d'archive.
@@ -45,7 +46,7 @@ export function CartePatrimoine({
       className="filet-double group block overflow-hidden rounded-2xl transition hover:-translate-y-0.5"
       style={{ background: 'var(--bg2)' }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--bg3)' }}>
+      <VersFiche slug={item.slug} className="relative aspect-[4/3] overflow-hidden" style={{ background: 'var(--bg3)' }}>
         {principale ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -71,7 +72,7 @@ export function CartePatrimoine({
             <PastilleEtat etat={item.etat_conservation} taille="compact" />
           </span>
         ) : null}
-      </div>
+      </VersFiche>
 
       <div className="space-y-1.5 p-4">
         <div className="flex items-center gap-2" style={{ color: couleurType }}>

@@ -13,7 +13,8 @@ import { FiltresCarte } from '@/components/carte/FiltresCarte'
 import { useDebouncedCallback } from '@/lib/hooks/useDebouncedCallback'
 import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 import { PictoType } from '@/components/ui/PictoType'
-import { COULEUR_ETAT, ETATS_CONSERVATION, ETAT_RUINE } from '@/lib/etats-conservation'
+import { LigneHeure } from '@/components/ui/LigneHeure'
+import { COULEUR_ETAT, ETATS_CONSERVATION, ETAT_RUINE, LISERET_ETAT_MOYEN, ombreEtat } from '@/lib/etats-conservation'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const SATELLITE_TILES = MAPTILER_KEY
@@ -334,6 +335,14 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (parEtat ? ['case', ['==', ['get', 'etat_conservation'], ETAT_RUINE], 0.55, 1] : 1) as any,
     )
+    // Le safran d'« état moyen » est pâle sur le fond clair de la carte : son
+    // point est cerné d'encre au lieu du liseré clair des autres.
+    map.setPaintProperty(
+      'points',
+      'circle-stroke-color',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], 'etat_moyen'], LISERET_ETAT_MOYEN, '#F6F1E7'] : '#F6F1E7') as any,
+    )
   }, [lecture, mapPret, couleurEtatExpression, couleurExpression])
 
   // Re-fetch des points à chaque changement de filtres, une fois la carte prête.
@@ -474,6 +483,10 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
           <span data-testid="compteur-carte" className="pb-2 text-sm opacity-70">
             {t('compteur', { n: nombre })}
           </span>
+
+          {/* L'heure du lieu (Radio Garden), rangée à droite : elle situe la
+              carte, elle ne la filtre pas. */}
+          <LigneHeure className="ml-auto pb-2 opacity-70" />
         </div>
       </div>
 
@@ -540,7 +553,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
                 <li key={e} data-testid="legende-etat" className="flex items-center gap-2">
                   <span
                     className="inline-block h-3 w-3 shrink-0 rounded-full"
-                    style={{ backgroundColor: COULEUR_ETAT[e] }}
+                    style={{ backgroundColor: COULEUR_ETAT[e], boxShadow: ombreEtat(e) }}
                   />
                   <span>{tEtat(e)}</span>
                 </li>

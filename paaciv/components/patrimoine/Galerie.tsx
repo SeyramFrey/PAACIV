@@ -1,17 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import { ViewTransition } from '@/lib/view-transition'
 import { imageUrl, srcsetImage } from '@/lib/media'
 import { champ } from '@/lib/i18n-champ'
 import type { ImageRow } from '@/lib/data/patrimoine'
+import { nomTransitionFiche } from '@/components/patrimoine/VersFiche'
 
-export function Galerie({ images, locale }: { images: ImageRow[]; locale: string }) {
+export function Galerie({ images, locale, slug }: { images: ImageRow[]; locale: string; slug: string }) {
   const [actif, setActif] = useState(0)
   if (images.length === 0) return null
   const courante = images[actif]
 
   return (
     <figure className="space-y-3" data-testid="galerie">
+      {/* L'arrivée d'une vignette ou d'un éclat (`VersFiche`) : la photo ET son
+          crédit forment un seul bloc, pour qu'aucune image n'arrive sans le
+          nom de son auteur, même le temps de la transition. */}
+      <ViewTransition name={nomTransitionFiche(slug)} share="fiche" default="none">
+      <div data-testid="galerie-haut" className="space-y-3">
       <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-creme2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -28,6 +35,8 @@ export function Galerie({ images, locale }: { images: ImageRow[]; locale: string
           {courante.credit && <span className="italic"> — {courante.credit}</span>}
         </figcaption>
       )}
+      </div>
+      </ViewTransition>
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto">
           {images.map((img, i) => (

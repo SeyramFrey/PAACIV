@@ -1,7 +1,7 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import { abonnerCarnet, lireCarnet, type Tampon } from '@/lib/carnet'
+import { abonnerCarnet, carnetCommence, lireCarnet, type Tampon } from '@/lib/carnet'
 
 const VIDE: Tampon[] = []
 
@@ -13,4 +13,13 @@ const VIDE: Tampon[] = []
  */
 export function useCarnet(): Tampon[] {
   return useSyncExternalStore(abonnerCarnet, lireCarnet, () => VIDE)
+}
+
+/**
+ * Le carnet est-il commencé ? `null` tant qu'on ne le sait pas (rendu serveur,
+ * hydratation) : on n'affiche alors ni l'invitation ni la marque, pour ne pas
+ * montrer « Commencer » une fraction de seconde à qui l'a déjà fait.
+ */
+export function useCarnetCommence(): boolean | null {
+  return useSyncExternalStore(abonnerCarnet, carnetCommence, () => null)
 }

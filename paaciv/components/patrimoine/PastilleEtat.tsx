@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { couleurEtat, estEtatConservation } from '@/lib/etats-conservation'
+import { couleurEtat, estEtatConservation, ombreEtat } from '@/lib/etats-conservation'
 
 // Pastille d'état de conservation.
 //
@@ -50,7 +50,9 @@ export async function PastilleEtat({
           background: couleur,
           // Un liseré pris au fond détache la pastille d'une photographie
           // sombre aussi bien que d'un aplat clair.
-          boxShadow: '0 0 0 1.5px color-mix(in oklab, var(--bg) 70%, transparent)',
+          boxShadow: [ombreEtat(etat), '0 0 0 1.5px color-mix(in oklab, var(--bg) 70%, transparent)']
+            .filter(Boolean)
+            .join(', '),
         }}
       />
       <span>{t(etat)}</span>

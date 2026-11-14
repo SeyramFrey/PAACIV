@@ -339,6 +339,59 @@ html[data-leger] [data-mq], html[data-leger] [data-floaty] { animation: none !im
   [data-mq], [data-floaty], [data-drop] { animation: none !important; }
 }
 
+/* Le liseré du safran d'« état moyen » (lib/etats-conservation.ts, ombreEtat) :
+   l'encre sur fond clair, rien sur fond sombre, où le safran se détache seul. */
+[data-theme="dark"],
+:root:not([data-theme="dark"]) :is(.bande-tole, .bande-lagune, .bande-laterite) {
+  --liseret-moyen: transparent;
+}
+
+/* Vignette ou éclat → haut de fiche (moodboard du 13/11/2026, Southern Guild).
+   React pose la classe `fiche` sur la paire (`share="fiche"`, voir
+   components/patrimoine/VersFiche.tsx). C'est un passage d'une salle à
+   l'autre : la durée du plan, avec sa courbe, qui fait presque tout le
+   chemin dans le premier tiers. */
+::view-transition-group(.fiche) {
+  animation-duration: var(--duree-plan);
+  animation-timing-function: var(--courbe-plan);
+}
+/* La vignette (4:3) et le haut de fiche (photo 16:10 et son crédit) n'ont
+   pas les mêmes proportions : chaque instantané remplit le cadre en mouvement
+   et le recadre, au lieu de se déformer. */
+::view-transition-old(.fiche),
+::view-transition-new(.fiche) {
+  height: 100%;
+  object-fit: cover;
+}
+/* Le repli (components/patrimoine/ArriveeFiche.tsx) : la page qu'on quitte
+   disparaît, la fiche arrive en fondu avec un pas de 12 px. Le cadre ne
+   s'étire pas d'une page à l'autre. L'ancienne page n'est pas fondue : son
+   image serait recalée en haut du nouveau cadre, et on reverrait passer le
+   haut de la page qu'on vient de quitter, loin de l'endroit où on était. */
+::view-transition-group(.fiche-fondu) { animation: none; }
+::view-transition-old(.fiche-fondu) { display: none; }
+::view-transition-new(.fiche-fondu) {
+  animation: var(--duree-pas) var(--courbe-plan) both fiche-arrivee;
+}
+@keyframes fiche-arrivee { from { opacity: 0; translate: 0 12px; } }
+@keyframes fiche-fondu-seul { from { opacity: 0; } }
+/* Pendant la transition, la couche de transition ne capte pas les clics :
+   ils passent à la page réelle. */
+::view-transition { pointer-events: none; }
+
+/* Mouvement réduit : la photo ne vole pas d'un bout à l'autre de l'écran. Elle
+   apparaît à sa place en fondu enchaîné, sans déplacement : l'équivalent
+   immobile du même geste. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.fiche) {
+    animation-name: none;
+    animation-duration: var(--duree-pas);
+  }
+  ::view-transition-new(.fiche-fondu) {
+    animation-name: fiche-fondu-seul;
+  }
+}
+
 /* Logo : la variante affichée suit le thème.
    `[data-theme]` est posé sur <html> par ScriptTheme avant le premier rendu,
    donc la bonne variante est visible d'emblée, sans clignotement. Le thème

@@ -13,6 +13,7 @@ import { FiltresImage } from "@/components/ui/FiltresImage";
 import { Revelations } from "@/components/ui/Revelations";
 import { FournisseurSoutien } from "@/components/soutenir/ContexteSoutien";
 import { chargerTextes, texte, renseigne } from "@/lib/data/contenu-site";
+import { ArriveeFiche } from "@/components/patrimoine/ArriveeFiche";
 import "../globals.css";
 
 // Le layout lit désormais Supabase via `chargerTextes()`, un simple `fetch`
@@ -83,7 +84,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Grain />
             <Revelations />
             <SiteHeader />
-            {children}
+            <ArriveeFiche>{children}</ArriveeFiche>
             <SiteFooter />
           </FournisseurSoutien>
         </NextIntlClientProvider>

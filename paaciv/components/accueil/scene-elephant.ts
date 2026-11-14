@@ -41,7 +41,17 @@ export type SceneElephant = {
   // Avancement du démontage, de 0 (éléphant entier) à 1 (vue éclatée), lu
   // sur le défilement de la section.
   progression: (p: number) => void
+  // L'image de l'éclat tel qu'il est à l'écran, et sa place dans la fenêtre :
+  // c'est elle qui grandit jusqu'au haut de la fiche (transition « éclat →
+  // haut de fiche »). `null` si l'éclat est hors champ.
+  capturer: (groupe: Groupe) => CaptureEclat | null
   detruire: () => void
+}
+
+export type CaptureEclat = {
+  image: string
+  // Coordonnées dans la fenêtre, en pixels CSS.
+  rect: { left: number; top: number; width: number; height: number }
 }
 
 
@@ -373,6 +383,45 @@ export function monterSceneElephant(o: Options): SceneElephant {
       if (Math.abs(v - avancement) < 1e-4) return
       avancement = v
       demander()
+    },
+    capturer(groupe) {
+      const e = eclats.get(groupe)
+      if (!e || detruit) return null
+      // Le tampon de dessin WebGL est vidé après chaque image : on redessine,
+      // puis on copie DANS LA MÊME tâche, avant que le navigateur ne l'efface.
+      renderer.render(scene, camera)
+      const toile = renderer.domElement
+      const r = toile.getBoundingClientRect()
+      if (!r.width || !r.height) return null
+      // Boîte de l'éclat projetée à l'écran : ses huit coins, pris aux extrêmes.
+      const boite = new Box3().setFromObject(e.noeud)
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+      const v = new Vector3()
+      for (let i = 0; i < 8; i++) {
+        v.set(i & 1 ? boite.max.x : boite.min.x, i & 2 ? boite.max.y : boite.min.y, i & 4 ? boite.max.z : boite.min.z)
+        v.project(camera)
+        const x = ((v.x + 1) / 2) * r.width
+        const y = ((1 - v.y) / 2) * r.height
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x)
+        y0 = Math.min(y0, y); y1 = Math.max(y1, y)
+      }
+      // Un peu d'air autour de l'éclat, sans sortir de la toile.
+      const marge = 0.08 * Math.max(x1 - x0, y1 - y0)
+      x0 = Math.max(0, x0 - marge); y0 = Math.max(0, y0 - marge)
+      x1 = Math.min(r.width, x1 + marge); y1 = Math.min(r.height, y1 + marge)
+      const l = x1 - x0, h = y1 - y0
+      if (l < 4 || h < 4) return null
+      const echelle = toile.width / r.width
+      const copie = document.createElement('canvas')
+      copie.width = Math.round(l * echelle)
+      copie.height = Math.round(h * echelle)
+      const ctx = copie.getContext('2d')
+      if (!ctx) return null
+      ctx.drawImage(toile, x0 * echelle, y0 * echelle, l * echelle, h * echelle, 0, 0, copie.width, copie.height)
+      return {
+        image: copie.toDataURL('image/png'),
+        rect: { left: r.left + x0, top: r.top + y0, width: l, height: h },
+      }
     },
     detruire() {
       detruit = true

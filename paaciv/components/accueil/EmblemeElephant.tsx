@@ -1,11 +1,15 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { ViewTransition } from '@/lib/view-transition'
+import { flushSync } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/navigation'
-import type { Groupe, SceneElephant } from './scene-elephant'
+import type { CaptureEclat, Groupe, SceneElephant } from './scene-elephant'
+import { nomTransitionFiche } from '@/components/patrimoine/VersFiche'
 import { DEBUT, partEclat } from './demontage'
 import { useCarnet } from '@/components/carnet/useCarnet'
+import { LigneHeure } from '@/components/ui/LigneHeure'
 
 // L'éléphant de l'emblème, en volume : la section qui suit le haut de page
 // (décision du 7 novembre 2026 : le haut garde son film, l'éléphant prend la
@@ -90,6 +94,15 @@ export function EmblemeElephant() {
   // `null` tant que le client n'a pas décidé (rendu serveur), puis : charger
   // seul, proposer le bouton, ou rien (appareil incapable, mode léger).
   const [chargement, setChargement] = useState<'auto' | 'bouton' | 'demande' | 'aucun' | null>(null)
+  // L'éclat cliqué, figé en image, le temps de la transition vers sa fiche.
+  const [envol, setEnvol] = useState<(CaptureEclat & { slug: string }) | null>(null)
+  // Si la page reste montée (navigation lente, retour en arrière), l'image
+  // figée ne doit pas rester posée sur l'éléphant vivant.
+  useEffect(() => {
+    if (!envol) return
+    const minuterie = setTimeout(() => setEnvol(null), 4000)
+    return () => clearTimeout(minuterie)
+  }, [envol])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- décision prise côté client seulement
@@ -164,7 +177,16 @@ export function EmblemeElephant() {
             auGeste: () => setGeste(true),
             auClic: (g) => {
               const href = PIECES.find((p) => p.groupe === g)?.href
-              if (href) routeur.current.push(href)
+              if (!href) return
+              // Éclat → haut de fiche : l'image de l'éclat, posée par-dessus
+              // la toile à la même place, porte le nom de transition de la
+              // fiche. La navigation la photographie, puis la fait grandir
+              // jusqu'à la photo de la fiche. La carte n'a pas de fiche : elle
+              // s'ouvre sans morphose.
+              const slug = href.startsWith('/patrimoine/') ? href.slice('/patrimoine/'.length) : null
+              const capture = slug ? api.current?.capturer(g) : null
+              if (slug && capture) flushSync(() => setEnvol({ slug, ...capture }))
+              routeur.current.push(href)
             },
             pret: () => setPret(true),
             // Modèle introuvable ou WebGL perdu : l'image fixe reste, rien ne casse.
@@ -304,7 +326,8 @@ export function EmblemeElephant() {
           </nav>
         </div>
 
-        <div className={`relative order-first mx-auto -my-[8%] aspect-square w-full max-w-[760px] lg:order-none lg:my-0 ${demontage ? 'lg:w-[min(100%,calc(100svh-140px))]' : ''}`}>
+        <div className={`order-first mx-auto w-full max-w-[760px] lg:order-none ${demontage ? 'lg:w-[min(100%,calc(100svh-170px))]' : ''}`}>
+        <div className="relative -my-[8%] aspect-square w-full lg:my-0">
           {/* Image fixe au même cadrage que la caméra 3D : sous la 3D pendant
               le chargement, seule en mode léger ou sans WebGL. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -326,6 +349,23 @@ export function EmblemeElephant() {
             className="absolute inset-0"
             style={{ opacity: pret ? 1 : 0, transition: 'opacity .6s ease' }}
           />
+          {envol && (
+            <ViewTransition name={nomTransitionFiche(envol.slug)} share="fiche" default="none">
+              <div
+                aria-hidden="true"
+                data-testid="embleme-envol"
+                className="pointer-events-none fixed z-[5]"
+                style={{
+                  left: envol.rect.left,
+                  top: envol.rect.top,
+                  width: envol.rect.width,
+                  height: envol.rect.height,
+                  backgroundImage: `url(${envol.image})`,
+                  backgroundSize: '100% 100%',
+                }}
+              />
+            </ViewTransition>
+          )}
           <p className="absolute bottom-0 right-0 m-0 text-[11px] opacity-55">{t('credit')}</p>
           {pret && !geste && (
             <p
@@ -356,6 +396,12 @@ export function EmblemeElephant() {
               {t('chargement3d')}
             </p>
           )}
+        </div>
+        {/* L'heure du lieu, sous l'éléphant (Radio Garden). Sous 1024 px, la
+            boîte de l'image remonte de 8 % (marge négative, pour serrer le
+            vide autour de l'éléphant) : la ligne redescend d'autant, sans quoi
+            elle chevaucherait le crédit du modèle. */}
+        <LigneHeure className="relative mt-[calc(8%+14px)] text-center opacity-75 lg:mt-3" />
         </div>
       </div>
       </div>

@@ -102,7 +102,7 @@ export default async function FichePatrimoine({ params }: Props) {
   const presentation = (
     <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
       <div className="space-y-6">
-        <Galerie images={galerie} locale={locale} />
+        <Galerie images={galerie} locale={locale} slug={p.slug} />
         {maquette && (
           // Lien natif : la maquette est une page statique de `public/`,
           // hors du routage par langue.
@@ -264,8 +264,6 @@ export default async function FichePatrimoine({ params }: Props) {
 
   return (
     <main className="flex-1 sous-entete pb-10">
-      {/* Ouvrir la fiche pose son tampon dans le carnet du visiteur. */}
-      <TamponFiche slug={p.slug} />
       <Container className="space-y-6">
         {/* L'état de conservation est REMONTÉ dans le bandeau de titre, aux
             côtés de la typologie : c'est une clé de lecture, elle doit se voir
@@ -285,6 +283,8 @@ export default async function FichePatrimoine({ params }: Props) {
           <PastilleEtat etat={p.etat_conservation} />
         </div>
         <h1 className="font-serif text-4xl text-ocre">{titre}</h1>
+        {/* Le carnet de visite : invitation à le commencer, ou tampon posé. */}
+        <TamponFiche slug={p.slug} />
         {/* Une fiche sans onglet rempli reste une page simple : une barre
             d'onglets à un seul onglet ne serait qu'un titre de plus. */}
         {onglets.length > 1 ? (

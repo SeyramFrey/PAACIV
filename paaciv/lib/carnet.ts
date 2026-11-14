@@ -9,6 +9,16 @@
 // Tout vit dans le `localStorage` du visiteur, sous une seule clé. Aucun compte,
 // aucun envoi au serveur : effacer les données du site efface le carnet.
 //
+// LE CARNET NE DÉMARRE QU'À LA DEMANDE DU VISITEUR (décision de Sey du
+// 14/11/2026, sur l'avis de l'agent juridique). Tant qu'il n'a pas cliqué
+// « Commencer mon carnet de visite », rien n'est écrit. C'est ce clic qui
+// rattache le stockage à l'exemption de l'article 82 de la loi Informatique et
+// Libertés (« service expressément demandé ») : sans lui, aucun consentement
+// ni bandeau n'est nécessaire. Ensuite, chaque fiche ouverte se tamponne seule.
+// La clé PRÉSENTE (même avec une liste vide) veut dire « carnet commencé » ;
+// la clé ABSENTE, « pas de carnet ». Effacer le carnet supprime la clé, donc
+// l'arrête.
+//
 // Module sans dépendance React, pour être testé seul. Le branchement React
 // (`useSyncExternalStore`) est dans `components/carnet/useCarnet.ts`.
 
@@ -84,9 +94,9 @@ export function lireCarnet(): Tampon[] {
   return dernierCarnet
 }
 
-function ecrire(carnet: Tampon[]) {
+function ecrire(carnet: Tampon[] | null) {
   try {
-    if (carnet.length === 0) window.localStorage.removeItem(CLE_CARNET)
+    if (carnet === null) window.localStorage.removeItem(CLE_CARNET)
     else window.localStorage.setItem(CLE_CARNET, JSON.stringify(carnet))
   } catch {
     // Quota plein ou stockage refusé : le tampon est perdu, rien d'autre.
@@ -95,15 +105,34 @@ function ecrire(carnet: Tampon[]) {
   window.dispatchEvent(new Event(EVENEMENT_CARNET))
 }
 
-/** Pose le tampon d'une fiche. Sans effet si elle est déjà dans le carnet. */
+/** Le visiteur a-t-il commencé son carnet ? (La clé existe, même vide.) */
+export function carnetCommence(): boolean {
+  return lireBrut() !== null
+}
+
+/**
+ * Commence le carnet, à la demande du visiteur. Sur une fiche, celle qu'il
+ * regarde y entre aussitôt : il ne perd pas le lieu d'où il a cliqué.
+ */
+export function commencerCarnet(slugCourant?: string) {
+  const avant = lireCarnet()
+  ecrire(slugCourant ? ajouterTampon(avant, slugCourant, new Date()) : avant)
+}
+
+/**
+ * Pose le tampon d'une fiche. Sans effet si le carnet n'est pas commencé, ou
+ * si la fiche y est déjà.
+ */
 export function tamponner(slug: string) {
+  if (!carnetCommence()) return
   const avant = lireCarnet()
   const apres = ajouterTampon(avant, slug, new Date())
   if (apres !== avant) ecrire(apres)
 }
 
+/** Efface tous les tampons ET arrête le carnet : plus rien ne s'écrit ensuite. */
 export function effacerCarnet() {
-  ecrire([])
+  ecrire(null)
 }
 
 /** Abonnement aux changements, dans cet onglet et dans les autres. */

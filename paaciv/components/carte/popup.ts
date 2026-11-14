@@ -1,4 +1,5 @@
 import { COULEUR_DEFAUT } from '@/lib/carte-style'
+import { COULEUR_ETAT, ombreEtat } from '@/lib/etats-conservation'
 
 export type PopupProps = {
   titre: string
@@ -17,12 +18,13 @@ export type PopupProps = {
 }
 
 /** Une ligne « pastille + libellé », commune au type et à l'état. */
-function ligneAPastille(couleur: string, libelle: string, barre = false): HTMLElement {
+function ligneAPastille(couleur: string, libelle: string, barre = false, ombre?: string): HTMLElement {
   const ligne = document.createElement('div')
   ligne.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:12px;margin-top:4px'
   const pastille = document.createElement('span')
   pastille.style.cssText =
-    `display:inline-block;width:10px;height:10px;border-radius:9999px;flex:none;background:${couleur}`
+    `display:inline-block;width:10px;height:10px;border-radius:9999px;flex:none;background:${couleur}` +
+    (ombre ? `;box-shadow:${ombre}` : '')
   const texte = document.createElement('span')
   texte.textContent = libelle
   // Le démoli est RATURÉ, comme dans la pastille d'état du reste du site : la
@@ -59,7 +61,9 @@ export function construirePopupContenu(p: PopupProps): HTMLElement {
   // ouvert la fiche : c'est le propos de l'association, il doit se lire sur la
   // carte elle-même.
   if (p.etatNom && p.etatCouleur) {
-    contenu.appendChild(ligneAPastille(p.etatCouleur, p.etatNom, p.etatDemoli === true))
+    // Le safran d'« état moyen » est pâle sur fond clair : il garde son liseré.
+    const ombre = p.etatCouleur === COULEUR_ETAT.etat_moyen ? ombreEtat('etat_moyen') : undefined
+    contenu.appendChild(ligneAPastille(p.etatCouleur, p.etatNom, p.etatDemoli === true, ombre))
   }
 
   if (p.ville) {

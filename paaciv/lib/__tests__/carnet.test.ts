@@ -5,6 +5,8 @@ import {
   lireCarnet,
   tamponner,
   effacerCarnet,
+  commencerCarnet,
+  carnetCommence,
   abonnerCarnet,
   dateAbidjan,
   CLE_CARNET,
@@ -58,7 +60,23 @@ describe('ajouterTampon', () => {
 describe('stockage local', () => {
   beforeEach(() => window.localStorage.clear())
 
-  it('tamponner écrit, lireCarnet relit, effacerCarnet vide', () => {
+  it('sans carnet commencé, rien n’est écrit (article 82 : pas de stockage non demandé)', () => {
+    tamponner('la-pyramide-abidjan')
+    expect(carnetCommence()).toBe(false)
+    expect(window.localStorage.getItem(CLE_CARNET)).toBeNull()
+  })
+
+  it('commencer le carnet depuis une fiche la tamponne aussitôt ; depuis la page carnet, il part vide', () => {
+    commencerCarnet('la-pyramide-abidjan')
+    expect(lireCarnet().map((t) => t.slug)).toEqual(['la-pyramide-abidjan'])
+    effacerCarnet()
+    commencerCarnet()
+    expect(carnetCommence()).toBe(true)
+    expect(lireCarnet()).toEqual([])
+  })
+
+  it('tamponner écrit, lireCarnet relit, effacerCarnet vide ET arrête', () => {
+    commencerCarnet()
     tamponner('la-pyramide-abidjan')
     tamponner('basilique-yamoussoukro')
     tamponner('la-pyramide-abidjan')
@@ -66,14 +84,19 @@ describe('stockage local', () => {
     effacerCarnet()
     expect(lireCarnet()).toEqual([])
     expect(window.localStorage.getItem(CLE_CARNET)).toBeNull()
+    // Arrêté : la fiche suivante ne pose plus rien.
+    tamponner('basilique-yamoussoukro')
+    expect(window.localStorage.getItem(CLE_CARNET)).toBeNull()
   })
 
   it('renvoie le même objet tant que rien ne change (exigence de useSyncExternalStore)', () => {
+    commencerCarnet()
     tamponner('la-pyramide-abidjan')
     expect(lireCarnet()).toBe(lireCarnet())
   })
 
   it('prévient les abonnés de l’onglet courant', () => {
+    commencerCarnet()
     const rappel = vi.fn()
     const desabonner = abonnerCarnet(rappel)
     tamponner('la-pyramide-abidjan')

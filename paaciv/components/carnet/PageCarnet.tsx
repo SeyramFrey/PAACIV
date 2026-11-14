@@ -2,9 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { useCarnet } from '@/components/carnet/useCarnet'
+import { useCarnet, useCarnetCommence } from '@/components/carnet/useCarnet'
 import { useSoutien } from '@/components/soutenir/ContexteSoutien'
-import { dateAbidjan, effacerCarnet } from '@/lib/carnet'
+import { commencerCarnet, dateAbidjan, effacerCarnet } from '@/lib/carnet'
 
 // Ce que la page serveur sait de chaque fiche publiée, déjà dans la langue de
 // la page. Le carnet ne garde que des slugs : c'est ici qu'ils redeviennent
@@ -20,6 +20,7 @@ export function PageCarnet({ lieux, locale }: { lieux: LieuCarnet[]; locale: str
   const t = useTranslations('carnet')
   const { ouvrir } = useSoutien()
   const carnet = useCarnet()
+  const commence = useCarnetCommence()
   const parSlug = new Map(lieux.map((l) => [l.slug, l]))
   // Dans l'ordre des visites. Un tampon dont la fiche a été dépubliée ou
   // supprimée n'est pas montré : il n'y a plus de lieu où le relier.
@@ -33,12 +34,38 @@ export function PageCarnet({ lieux, locale }: { lieux: LieuCarnet[]; locale: str
 
   return (
     <div className="space-y-10">
-      {vus.length === 0 ? (
+      {commence === false ? (
+        // Pas de carnet : rien n'est écrit tant que le visiteur ne le demande
+        // pas (décision du 14/11/2026, voir lib/carnet.ts).
+        <div className="space-y-4" data-testid="carnet-non-commence">
+          <p className="max-w-[60ch] text-encre-t">{t('nonCommence')}</p>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => commencerCarnet()}
+              className="rounded-full px-4 py-2 text-sm font-semibold"
+              style={{ background: 'var(--accent)', color: 'var(--surAccent)' }}
+            >
+              {t('commencer')}
+            </button>
+            <Link href="/archives" className="inline-block rounded-full border border-filet px-4 py-2 text-sm font-semibold">
+              {t('explorer')}
+            </Link>
+          </div>
+        </div>
+      ) : vus.length === 0 ? (
         <div className="space-y-4" data-testid="carnet-vide">
           <p className="max-w-[60ch] text-encre-t">{t('vide')}</p>
-          <Link href="/archives" className="inline-block rounded-full bg-or px-4 py-2 text-sm font-semibold text-encre">
-            {t('explorer')}
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/archives" className="inline-block rounded-full bg-or px-4 py-2 text-sm font-semibold text-encre">
+              {t('explorer')}
+            </Link>
+            {commence && (
+              <button type="button" onClick={effacer} className="rounded-full px-4 py-2 text-sm text-doux underline">
+                {t('arreter')}
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <>

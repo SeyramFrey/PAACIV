@@ -2,6 +2,7 @@ import { Link } from '@/i18n/navigation'
 import { champ } from '@/lib/i18n-champ'
 import type { RealisationLiee } from '@/lib/data/architectes'
 import { srcsetImage } from '@/lib/media'
+import { VersFiche } from '@/components/patrimoine/VersFiche'
 
 // Carte dédiée aux réalisations liées à un architecte : `RealisationLiee`
 // expose déjà une `image` résolue (URL complète) et un `role` optionnel, deux
@@ -22,7 +23,7 @@ export function CarteRealisation({
 
   return (
     <Link href={`/patrimoine/${realisation.slug}`} className="group block">
-      <div className="aspect-[4/3] overflow-hidden" style={{ background: 'var(--bg2)' }}>
+      <VersFiche slug={realisation.slug} className="aspect-[4/3] overflow-hidden" style={{ background: 'var(--bg2)' }}>
         {realisation.image && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -34,7 +35,7 @@ export function CarteRealisation({
             loading="lazy"
           />
         )}
-      </div>
+      </VersFiche>
       {/* `alt=""` : le titre suit en texte dans le même lien, le décrire
           deux fois le ferait annoncer deux fois. */}
       <h3
