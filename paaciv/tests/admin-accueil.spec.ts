@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
+import { filmDejaVu } from './aide-intro'
+
+// Le film d'ouverture couvrirait l'accueil au premier passage, et les clics
+// des formulaires publics y butaient (aide-intro.ts).
+test.beforeEach(async ({ page }) => filmDejaVu(page))
 
 // Nécessaire pour atteindre /admin/* : sans storageState, le layout admin
 // (app/[locale]/admin/layout.tsx) redirige vers /fr/login faute de session —

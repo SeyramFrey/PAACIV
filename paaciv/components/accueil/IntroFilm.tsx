@@ -118,7 +118,15 @@ export function IntroFilm() {
       // z-40, SOUS l'en-tête (z-50) : le logo et le menu restent visibles et
       // cliquables pendant le film (choix de Sey, 13/11/2026).
       className="fixed inset-0 z-40"
-      style={{ background: FOND_FILM, opacity: etape === 'sortie' ? 0 : 1, transition: 'opacity .9s ease' }}
+      style={{
+        background: FOND_FILM,
+        opacity: etape === 'sortie' ? 0 : 1,
+        // Le film reste posé sur la page le temps du fondu : sans cela, il
+        // avalerait pendant 0,9 s les clics destinés à la page (repris du
+        // correctif du 07/11/2026).
+        pointerEvents: etape === 'sortie' ? 'none' : undefined,
+        transition: 'opacity .9s ease',
+      }}
       onTransitionEnd={(e) => {
         if (etape === 'sortie' && e.target === e.currentTarget) setMonte(false)
       }}

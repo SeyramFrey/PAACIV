@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test'
+import { filmDejaVu } from './aide-intro'
+
+// Le film d'ouverture couvrirait l'accueil au premier passage (aide-intro.ts).
+test.beforeEach(async ({ page }) => filmDejaVu(page))
 
 // Le bloc « territoire » de la page d'accueil.
 //
@@ -73,7 +77,8 @@ test('la provenance des frontières est créditée sous la carte', async ({ page
   const svg = page.getByRole('img', { name: /Carte de la Côte/ })
   await svg.scrollIntoViewIfNeeded()
   await expect(page.getByRole('link', { name: 'geoBoundaries' })).toBeVisible()
-  await expect(page.getByText(/CC BY 4\.0/)).toBeVisible()
+  // La licence est un lien : la légende qui le contient porte aussi le texte.
+  await expect(page.getByRole('link', { name: 'CC BY 4.0' })).toBeVisible()
 })
 
 // La destination a changé : les villes menaient vers `/archives?q=<nom>`,
