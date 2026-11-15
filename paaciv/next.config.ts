@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
     // (« node process exited before we could connect to it »). Les worker
     // threads tournent dans le processus de Next, sans socket.
     turbopackPluginRuntimeStrategy: "workerThreads",
+    // L'hébergement annonce plus de 50 cœurs : Next lançait autant de workers
+    // pour collecter les données des pages, et l'un d'eux était tué faute de
+    // mémoire (SIGABRT, build du 15/11/2026, alors que le build local
+    // passait). Quatre suffisent largement pour la soixantaine de pages.
+    cpus: 4,
     // L'admin téléverse des photos par Server Action. La limite par défaut
     // (1 Mo) refuse une photo ordinaire, et le proxy tronque au-delà de 10 Mo.
     // On garde une marge entre les deux valeurs pour l'enveloppe multipart.
