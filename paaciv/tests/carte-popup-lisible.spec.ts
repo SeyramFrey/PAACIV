@@ -109,8 +109,15 @@ async function verifierPopup(page: Page) {
 for (const theme of THEMES) {
   test(`/carte : le popup de survol reste lisible en thème ${theme}`, async ({ page, request }) => {
     const reponse = await request.get('/api/carte/points')
-    const { features } = await reponse.json()
-    const coordonnees: [number, number] = features[0].geometry.coordinates
+    const { features } = (await reponse.json()) as { features: { geometry: { coordinates: [number, number] } }[] }
+    // Un point SEUL à ses coordonnées : plusieurs fiches peuvent partager les
+    // mêmes (trois schémas et projets d'archives le font aujourd'hui), et des
+    // points confondus restent groupés jusqu'au zoom 17. Le survol n'y
+    // trouverait qu'un amas, jamais la couche `points`.
+    const cle = (f: (typeof features)[number]) => f.geometry.coordinates.join(',')
+    const seul = features.find((f) => features.filter((g) => cle(g) === cle(f)).length === 1)
+    expect(seul, 'aucun point isolé sur la carte').toBeDefined()
+    const coordonnees = seul!.geometry.coordinates
 
     await ouvrirEnTheme(page, '/fr/carte', theme)
     await page.waitForFunction(

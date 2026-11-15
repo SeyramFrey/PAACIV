@@ -1,14 +1,19 @@
 import { test, expect } from '@playwright/test'
+import { filmDejaVu } from './aide-intro'
 
 // Le hero déclare `min-h-[100svh]` : il est conçu pour tenir dans le premier
 // écran. Il n'y tenait pas. Le `<h1>` recevait un titre unique venu du CMS
 // dans une colonne plafonnée à 900 px, ce qui le faisait retomber sur QUATRE
 // lignes (523 px) là où la maquette en pose deux (261 px) ; la section montait
-// alors à 1053 px pour un écran de 1000, et sa colonne de droite — le bloc
-// « Vues » avec les vignettes de sélection — passait sous la ligne de
-// flottaison. Le visiteur ne pouvait pas savoir qu'elle existait.
+// alors à 1053 px pour un écran de 1000, et le bas du hero passait sous la
+// ligne de flottaison. Le visiteur ne pouvait pas savoir qu'il existait.
 //
-// Trois formats larges plutôt qu'un seul : le défaut ne se voyait PAS en
+// À l'époque, ce bas de hero était le bloc « Vues » et ses vignettes. La
+// refonte l'a retiré : ce sont désormais les deux actions du hero (« Explorer
+// les archives », « Soutenir ») qui ferment le contenu, et c'est elles que le
+// premier écran doit montrer.
+//
+// Plusieurs formats larges plutôt qu'un seul : le défaut ne se voyait PAS en
 // 1920×1080 (le seul format où la section tenait par chance), ce qui est
 // précisément la raison pour laquelle il a traversé toute la phase.
 const FORMATS = [
@@ -18,26 +23,41 @@ const FORMATS = [
   { largeur: 1280, hauteur: 800 },
 ]
 
+// Le film d'ouverture couvre la page à la première arrivée : on arrive comme
+// un visiteur qui l'a déjà vu dans cet onglet.
+test.beforeEach(async ({ page }) => {
+  await filmDejaVu(page)
+})
+
 for (const { largeur, hauteur } of FORMATS) {
-  test(`en ${largeur}×${hauteur}, les vignettes du hero sont dans le premier écran`, async ({ page }) => {
+  test(`en ${largeur}×${hauteur}, les actions du hero sont dans le premier écran`, async ({ page }) => {
     await page.setViewportSize({ width: largeur, height: hauteur })
     await page.goto('/fr')
 
-    const vignettes = page.getByRole('button', { name: /voir/i }).first()
-    await expect(vignettes).toBeVisible()
+    const explorer = page.locator('#top a[href$="/archives"]')
+    const soutenir = page.locator('#top').getByRole('button', { name: /soutenir/i })
+    await expect(explorer).toBeVisible()
+    await expect(soutenir).toBeVisible()
+    // Les actions entrent en tombant (`animation: drop`) : on mesure leur
+    // position d'arrivée, pas une image de leur chute.
+    await page.waitForFunction(() =>
+      document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity),
+    )
 
-    const boite = await vignettes.boundingBox()
-    expect(boite).not.toBeNull()
     // Sans défilement : `boundingBox` est relatif au viewport, et rien n'a
-    // défilé depuis `goto`. Le bas des vignettes doit donc tomber au-dessus
-    // de la ligne de flottaison.
-    expect(boite!.y + boite!.height).toBeLessThanOrEqual(hauteur)
-    expect(boite!.y).toBeGreaterThan(0)
+    // défilé depuis `goto`. Le bas des actions doit donc tomber au-dessus de
+    // la ligne de flottaison.
+    for (const action of [explorer, soutenir]) {
+      const boite = await action.boundingBox()
+      expect(boite).not.toBeNull()
+      expect(boite!.y + boite!.height).toBeLessThanOrEqual(hauteur)
+      expect(boite!.y).toBeGreaterThan(0)
+    }
 
     // L'INVARIANT DE FOND, et l'assertion qui mord le plus largement : le hero
     // déclare `min-h-[100svh]`, il ne doit donc pas DÉPASSER la hauteur du
     // premier écran. Sans elle, le format 2000×1000 restait vert alors que la
-    // section montait à 1053 px — les vignettes s'y arrêtaient au tout dernier
+    // section montait à 1053 px — les vignettes d'alors s'y arrêtaient au tout dernier
     // pixel, ce qui suffit à les faire disparaître dès que le navigateur prend
     // quelques pixels de plus pour sa propre interface. C'est exactement le
     // format d'où venait le signalement.
