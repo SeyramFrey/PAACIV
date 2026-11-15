@@ -15,6 +15,7 @@ import { styleDisponible, COULEUR_DEFAUT } from '@/lib/carte-style'
 import { PictoType } from '@/components/ui/PictoType'
 import { LigneHeure } from '@/components/ui/LigneHeure'
 import { COULEUR_ETAT, ETATS_CONSERVATION, ETAT_RUINE, LISERET_ETAT_MOYEN, ombreEtat } from '@/lib/etats-conservation'
+import { DUREE_EVENTAIL_MS, doitOuvrirEventail, positionsEventail, progressionEventail } from '@/lib/carte-eventail'
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const SATELLITE_TILES = MAPTILER_KEY
@@ -30,7 +31,42 @@ const SATELLITE_ATTR = MAPTILER_KEY
 // menaces un objet trompeur — exactement l'inverse de ce qu'elle sert à dire.
 const COULEUR_ETAT_INCONNU = '#9AA0A6'
 
+// Dernier zoom où les points proches se regroupent en amas. C'est la valeur
+// par défaut de MapLibre (maxzoom de la source, 18, moins un), écrite ici
+// parce que l'éventail en dépend : un amas qui ne se sépare qu'AU-DELÀ ne se
+// séparera jamais à l'écran (lib/carte-eventail.ts).
+const DERNIER_ZOOM_AMAS = 17
+
+// Trait qui relie un point de l'éventail à sa position réelle : la latérite
+// des amas, dont il sort.
+const COULEUR_TRAIT_EVENTAIL = '#A9502A'
+
+const COLLECTION_VIDE: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+
 type Lecture = 'type' | 'etat'
+
+/**
+ * Peinture des points selon la clé de lecture. Partagée par la couche des
+ * points et par celle de l'éventail : un point écarté doit rester le même
+ * point, de la même couleur.
+ */
+function peinturePoints(parEtat: boolean, couleurType: unknown, couleurEtat: unknown) {
+  const ruine = ['==', ['get', 'etat_conservation'], ETAT_RUINE]
+  return {
+    'circle-color': parEtat ? couleurEtat : couleurType,
+    // En lecture par état, les démolis sont RAPETISSÉS et estompés. La couleur
+    // seule ne dit pas qu'il n'y a plus de bâtiment ; un point gris de même
+    // taille que les autres se lit comme une catégorie parmi d'autres, alors
+    // que c'est une absence. (Le popup, lui, rature le libellé.)
+    'circle-radius': parEtat ? ['case', ruine, 5.5, 8] : 8,
+    'circle-opacity': parEtat ? ['case', ruine, 0.55, 1] : 1,
+    // Le safran d'« état moyen » est pâle sur le fond clair de la carte : son
+    // point est cerné d'encre au lieu du liseré clair des autres.
+    'circle-stroke-color': parEtat
+      ? ['case', ['==', ['get', 'etat_conservation'], 'etat_moyen'], LISERET_ETAT_MOYEN, '#F6F1E7']
+      : '#F6F1E7',
+  } as const
+}
 
 export function CarteClient({ options, locale }: { options: ReferencesFiltres; locale: string }) {
   const t = useTranslations('carte')
@@ -38,6 +74,9 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   const router = useRouter()
   const conteneur = useRef<HTMLDivElement>(null)
   const mapRef = useRef<Map | null>(null)
+  // Refermer l'éventail depuis l'extérieur de l'effet d'initialisation (un
+  // changement de filtres). Remplacée une fois la carte chargée.
+  const fermerEventailRef = useRef<() => void>(() => {})
   const routerRef = useRef(router)
   const localeRef = useRef(locale)
   const [satellite, setSatellite] = useState(false)
@@ -126,6 +165,8 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
     // carte WebGL dans un conteneur déjà démonté, que plus rien ne détruirait.
     let map: Map | null = null
     let annule = false
+    // Posé au chargement de la carte, avec l'éventail qu'il referme (Échap).
+    let retirerClavier = () => {}
 
     void (async () => {
       const style = await styleDisponible()
@@ -192,6 +233,7 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
         data: fc as unknown as GeoJSON.FeatureCollection,
         cluster: true,
         clusterRadius: 50,
+        clusterMaxZoom: DERNIER_ZOOM_AMAS,
       })
 
       map.addLayer({
@@ -222,16 +264,116 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
         source: 'patrimoine',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-radius': 8,
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#F6F1E7',
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          'circle-color': couleurExpression as any,
+          ...(peinturePoints(false, couleurExpression, couleurEtatExpression) as any),
+        },
+      })
+
+      // L'éventail des points confondus (lib/carte-eventail.ts) : une source
+      // à part, vide tant qu'il est fermé, dessinée AU-DESSUS des amas et des
+      // points. Les traits relient chaque point écarté à sa position réelle.
+      map.addSource('eventail', { type: 'geojson', data: COLLECTION_VIDE })
+      map.addLayer({
+        id: 'eventail-traits',
+        type: 'line',
+        source: 'eventail',
+        filter: ['==', ['geometry-type'], 'LineString'],
+        paint: { 'line-color': COULEUR_TRAIT_EVENTAIL, 'line-width': 1.5, 'line-opacity': 0.8 },
+      })
+      map.addLayer({
+        id: 'eventail-points',
+        type: 'circle',
+        source: 'eventail',
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-stroke-width': 2,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ...(peinturePoints(false, couleurExpression, couleurEtatExpression) as any),
         },
       })
 
       const popup = new Popup({ closeButton: false, closeOnClick: false })
-      map.on('mouseenter', 'points', (e) => {
+
+      // Ouvert : l'amas dont il sort (null pour une pile de points au-delà du
+      // dernier zoom d'amas, qui n'a pas d'amas à estomper).
+      let eventail: { amas: number | null } | null = null
+      let animation = 0
+      const sourceEventail = () => map.getSource('eventail') as GeoJSONSource | undefined
+
+      function estomperAmas(amas: number | null) {
+        const cible = ['==', ['get', 'cluster_id'], amas ?? -1]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        map.setPaintProperty('clusters', 'circle-opacity', ['case', cible, 0.35, 0.85] as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        map.setPaintProperty('cluster-count', 'text-opacity', ['case', cible, 0.35, 1] as any)
+      }
+
+      function fermerEventail() {
+        if (!eventail) return
+        cancelAnimationFrame(animation)
+        eventail = null
+        sourceEventail()?.setData(COLLECTION_VIDE)
+        estomperAmas(null)
+        popup.remove()
+        map.getCanvas().style.cursor = ''
+      }
+      fermerEventailRef.current = fermerEventail
+
+      // Les décalages sont des PIXELS, convertis en coordonnées au zoom
+      // courant : un zoom les fausserait, il referme donc l'éventail.
+      function ouvrirEventail(lieu: [number, number], feuilles: { properties: unknown }[], amas: number | null) {
+        fermerEventail()
+        // Copies en objets ORDINAIRES : les propriétés que rend
+        // `queryRenderedFeatures` n'ont pas de prototype, et `setData` ne sait
+        // pas les transmettre à son worker (« _classRegistryKey » de undefined).
+        const centre: [number, number] = [lieu[0], lieu[1]]
+        const proprietes = feuilles.map((f) => ({ ...(f.properties as object) }))
+        const decalages = positionsEventail(feuilles.length)
+        const origine = map.project(centre)
+        const dessiner = (k: number) => {
+          const features: GeoJSON.Feature[] = []
+          decalages.forEach(([dx, dy], i) => {
+            const position = map.unproject([origine.x + dx * k, origine.y + dy * k]).toArray() as [number, number]
+            features.push({ type: 'Feature', geometry: { type: 'LineString', coordinates: [centre, position] }, properties: {} })
+            features.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: position },
+              properties: proprietes[i],
+            })
+          })
+          sourceEventail()?.setData({ type: 'FeatureCollection', features })
+        }
+        eventail = { amas }
+        estomperAmas(amas)
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          dessiner(1)
+          return
+        }
+        const debut = performance.now()
+        const image = (maintenant: number) => {
+          const t = (maintenant - debut) / DUREE_EVENTAIL_MS
+          dessiner(progressionEventail(t))
+          if (t < 1 && eventail) animation = requestAnimationFrame(image)
+        }
+        animation = requestAnimationFrame(image)
+      }
+
+      map.on('zoomstart', fermerEventail)
+      // Un clic dans le vide referme ; un clic sur un amas, un point ou un
+      // point de l'éventail est laissé à son propre gestionnaire.
+      map.on('click', (e) => {
+        if (!eventail) return
+        const touche = map.queryRenderedFeatures(e.point, { layers: ['eventail-points', 'clusters', 'points'] })
+        if (touche.length === 0) fermerEventail()
+      })
+      const auClavier = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') fermerEventail()
+      }
+      window.addEventListener('keydown', auClavier)
+      retirerClavier = () => window.removeEventListener('keydown', auClavier)
+
+      function survoler(e: { features?: MapGeoJSONFeature[] }) {
         map.getCanvas().style.cursor = 'pointer'
         const f = e.features?.[0] as MapGeoJSONFeature | undefined
         if (!f) return
@@ -262,22 +404,54 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
           .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
           .setDOMContent(contenu)
           .addTo(map)
-      })
-      map.on('mouseleave', 'points', () => {
+      }
+      function quitter() {
         map.getCanvas().style.cursor = ''
         popup.remove()
-      })
-      map.on('click', 'points', (e) => {
-        const f = e.features?.[0]
-        const slug = f?.properties?.slug as string | undefined
+      }
+      function ouvrirFiche(e: { features?: MapGeoJSONFeature[] }) {
+        const slug = e.features?.[0]?.properties?.slug as string | undefined
         if (slug) routerRef.current.push(`/patrimoine/${slug}`)
+      }
+
+      for (const couche of ['points', 'eventail-points']) {
+        map.on('mouseenter', couche, survoler)
+        map.on('mouseleave', couche, quitter)
+      }
+      map.on('click', 'eventail-points', ouvrirFiche)
+      map.on('click', 'points', (e) => {
+        // Au-delà du dernier zoom d'amas, des points confondus s'empilent au
+        // même pixel : le clic ouvrait la fiche du dessus, et les autres
+        // restaient hors d'atteinte. La pile s'ouvre en éventail. Un même
+        // point peut revenir deux fois (une par tuile) : dédoublonné par slug.
+        const pile = [
+          ...new globalThis.Map(
+            map
+              .queryRenderedFeatures(e.point, { layers: ['points'] })
+              .map((f) => [f.properties.slug as string, f] as const),
+          ).values(),
+        ]
+        if (pile.length > 1) {
+          const centre = (pile[0].geometry as unknown as { coordinates: [number, number] }).coordinates
+          ouvrirEventail(centre, pile, null)
+          return
+        }
+        ouvrirFiche(e)
       })
       map.on('click', 'clusters', async (e) => {
         const f = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })[0]
         if (!f) return
+        const id = f.properties.cluster_id as number
+        const centre = (f.geometry as unknown as { coordinates: [number, number] }).coordinates
+        // Un second clic sur l'amas ouvert le referme.
+        if (eventail && eventail.amas === id) return fermerEventail()
         const src = map.getSource('patrimoine') as GeoJSONSource
-        const zoom = await src.getClusterExpansionZoom(f.properties.cluster_id as number)
-        map.easeTo({ center: (f.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom })
+        const zoom = await src.getClusterExpansionZoom(id)
+        if (doitOuvrirEventail(zoom, DERNIER_ZOOM_AMAS)) {
+          ouvrirEventail(centre, await src.getClusterLeaves(id, 100, 0), id)
+          return
+        }
+        map.easeTo({ center: centre, zoom })
       })
 
       // Cadre la carte sur les points publiés (marge + zoom max raisonnable).
@@ -299,6 +473,10 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
 
     return () => {
       annule = true
+      retirerClavier()
+      // Avant `remove()` : une image d'animation en attente écrirait sinon
+      // dans une carte détruite.
+      fermerEventailRef.current()
       map?.remove()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialisation unique au montage ; router/locale lus via refs, couleurExpression capturée par closure.
@@ -309,40 +487,17 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
   // la peinture change — c'est ce qui rend la comparaison entre les deux
   // lectures immédiate, l'œil gardant les mêmes repères d'une vue à l'autre.
   //
-  // En lecture par état, les démolis sont RAPETISSÉS et estompés. La couleur
-  // seule ne dit pas qu'il n'y a plus de bâtiment ; un point gris de même
-  // taille que les autres se lit comme une catégorie parmi d'autres, alors que
-  // c'est une absence. (Le popup, lui, rature le libellé.)
+  // La peinture elle-même est dans `peinturePoints`, partagée avec l'éventail.
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapPret || !map.getLayer('points')) return
-    const parEtat = lecture === 'etat'
-    map.setPaintProperty(
-      'points',
-      'circle-color',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? couleurEtatExpression : couleurExpression) as any,
-    )
-    map.setPaintProperty(
-      'points',
-      'circle-radius',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], ETAT_RUINE], 5.5, 8] : 8) as any,
-    )
-    map.setPaintProperty(
-      'points',
-      'circle-opacity',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], ETAT_RUINE], 0.55, 1] : 1) as any,
-    )
-    // Le safran d'« état moyen » est pâle sur le fond clair de la carte : son
-    // point est cerné d'encre au lieu du liseré clair des autres.
-    map.setPaintProperty(
-      'points',
-      'circle-stroke-color',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (parEtat ? ['case', ['==', ['get', 'etat_conservation'], 'etat_moyen'], LISERET_ETAT_MOYEN, '#F6F1E7'] : '#F6F1E7') as any,
-    )
+    const peinture = peinturePoints(lecture === 'etat', couleurExpression, couleurEtatExpression)
+    for (const couche of ['points', 'eventail-points']) {
+      for (const [propriete, valeur] of Object.entries(peinture)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        map.setPaintProperty(couche, propriete as keyof typeof peinture, valeur as any)
+      }
+    }
   }, [lecture, mapPret, couleurEtatExpression, couleurExpression])
 
   // Re-fetch des points à chaque changement de filtres, une fois la carte prête.
@@ -368,6 +523,8 @@ export function CarteClient({ options, locale }: { options: ReferencesFiltres; l
         return
       }
       if (annule) return
+      // Un éventail ouvert montrerait encore des points que le filtre retire.
+      fermerEventailRef.current()
       const src = map.getSource('patrimoine') as GeoJSONSource | undefined
       src?.setData(fc as unknown as GeoJSON.FeatureCollection)
       setNombre(fc.features.length)
